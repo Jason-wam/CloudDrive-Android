@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#333333</color>
+    <color name="colorPrimaryVariant">#333333</color>
+    <color name="colorOnPrimary">#C3C3C3</color>
+    <color name="colorOnPrimaryMedium">#99C3C3C3</color>
+    <color name="colorOnSurface">#C3C3C3</color>
+    <color name="colorOnSurfaceMedium">#99C3C3C3</color>
+    <color name="colorSecondary">#009C8A</color>
+    <color name="colorSecondaryVariant">#00796B</color>
+    <color name="colorOnSecondary">#AEFFFFFF</color>
+    <color name="colorOnSecondaryMedium">#70FFFFFF</color>
+    <color name="colorStatusBar">#333333</color>
+    <color name="colorNavigationBar">#333333</color>
+    <color name="colorWindowBackground">#2C2C2C</color>
+    <color name="colorCardViewBackground">#333333</color>
+
+    <color name="colorDialogBackground">#333333</color>
+    <color name="colorMaterialButtonBackground">#393939</color>
+    <color name="colorMaterialButtonBackgroundPressed">#494949</color>
+    <color name="colorMaterialButtonStroke">#393939</color>
+
+    <color name="colorItemDecoration">#303030</color>
+</resources>

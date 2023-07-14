@@ -1,0 +1,59 @@
+<resources>
+
+    <declare-styleable name="SetView">
+        <attr name="setHeaderSize" format="dimension" />
+        <attr name="setHeaderColor" format="color" />
+        <attr name="setBlankViewSize" format="dimension" />
+
+        <attr name="setDividerSize" format="dimension" />
+        <attr name="setDividerColor" format="color" />
+        <attr name="setDividerInsetStart" format="dimension" />
+        <attr name="setDividerInsetEnd" format="dimension" />
+
+
+        <attr name="setItemTitleSize" format="dimension" />
+        <attr name="setItemTitleColor" format="color" />
+
+        <attr name="setItemSubtitleSize" format="dimension" />
+        <attr name="setItemSubtitleColor" format="color" />
+
+        <attr name="setItemEndTextSize" format="dimension" />
+        <attr name="setItemEndTextColor" format="color" />
+        <attr name="setItemSubtitleMaxLines" format="integer" />
+        <attr name="setDotViewColor" format="color" />
+        <attr name="setConnerColor" format="color" />
+        <attr name="setCenterTextSize" format="dimension" />
+        <attr name="setCenterTextColor" format="color" />
+        <attr name="setCenterTextBold" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="DeletableEditText">
+        <attr name="clearButtonTint" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="ScaleImageView">
+        <attr name="w_scale" format="integer" />
+        <attr name="h_scale" format="integer" />
+        <attr name="scale_based_on_width" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="RoundCornerImageView">
+        <attr name="radius" format="dimension" />
+        <attr name="radius_left_top" format="dimension" />
+        <attr name="radius_right_top" format="dimension" />
+        <attr name="radius_left_bottom" format="dimension" />
+        <attr name="radius_right_bottom" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="StateLayout">
+        <attr name="state_error_view" format="reference" />
+        <attr name="state_empty_view" format="reference" />
+        <attr name="state_load_view" format="reference" />
+        <attr name="preview_state" format="enum">
+            <enum name="error" value="0" />
+            <enum name="empty" value="1" />
+            <enum name="loading" value="2" />
+            <enum name="content" value="3" />
+        </attr>
+    </declare-styleable>
+</resources>

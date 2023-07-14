@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/tvPath"
+        style="@style/MaterialButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="start"
+        android:fontFamily="sans-serif"
+        android:letterSpacing="0"
+        android:minWidth="50dp"
+        android:minHeight="38dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:singleLine="true"
+        android:textAllCaps="false"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:cornerRadius="60dp"
+        app:icon="@drawable/ic_round_chevron_right_16"
+        app:iconGravity="end"
+        android:gravity="center"
+        app:iconSize="16dp"
+        app:iconTint="@color/colorOnSurfaceMedium"
+        app:strokeWidth="0dp"
+        tools:text="X:" />
+</layout>

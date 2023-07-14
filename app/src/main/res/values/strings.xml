@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">虚拟云盘</string>
+    <string name="state_view_nothing_here">这里什么也没有喔_(:3」∠❀)_</string>
+    <string name="state_view_retry">\u3000重\u2000试\u3000</string>
+    <string name="state_view_something_went_wrong">出现了一些问题，请稍候重试_(:3」∠❀)_</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="file_info">文件信息</string>
+    <string name="file_name">文件名</string>
+    <string name="file_path">文件路径</string>
+    <string name="file_size">文件大小</string>
+    <string name="file_detail">文件详情</string>
+    <string name="confirm">确定</string>
+    <string name="more">More</string>
+    <string name="create_new_folder">新建文件夹</string>
+    <string name="cancel">取消</string>
+    <string name="upload_files">上传文件</string>
+    <string name="upload_files_to_current_dir">上传文件到当前目录</string>
+</resources>

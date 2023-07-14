@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="cardElevation">1.2dp</dimen>
+    <dimen name="cardCornerRadius">10dp</dimen>
+    <dimen name="toolbarElevation">3dp</dimen>
+    <dimen name="itemDecorationSize">0.6dp</dimen>
+    <dimen name="materialButtonStrokeWidth">0.8dp</dimen>
+    <dimen name="materialButtonRadius">8dp</dimen>
+    <dimen name="materialCardViewStrokeWidth">0dp</dimen>
+    <dimen name="bottomLayoutPadding">20dp</dimen>
+</resources>

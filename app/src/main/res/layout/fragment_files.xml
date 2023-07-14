@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".views.fragment.FilesFragment">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:stateListAnimator="@animator/appbar_layout_elevation">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:contentInsetStart="16dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:logo="@drawable/ic_round_folder_colorful_24"
+                app:logoScaleType="centerInside"
+                app:menu="@menu/file_browser_tool_bar_menu"
+                app:subtitleTextAppearance="@style/SubtitleTextAppearance"
+                app:subtitleTextColor="@color/colorOnPrimaryMedium"
+                app:title="@string/app_name"
+                app:titleCentered="false"
+                app:titleMarginStart="24dp"
+                app:titleTextAppearance="@style/TitleTextBoldAppearance"
+                app:titleTextColor="@color/colorOnPrimary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/coordinator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/indicator_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:elevation="0dp"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvPathIndicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                    tools:listitem="@layout/item_file_browser_path_indicator" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <com.jason.cloud.drive.views.widgets.StateLayout
+                android:id="@+id/state_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+                app:state_empty_view="@layout/layout_default_state_empty"
+                app:state_error_view="@layout/layout_default_state_error"
+                app:state_load_view="@layout/layout_default_state_loading">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_data"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorWindowBackground"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_file_browser" />
+
+            </com.jason.cloud.drive.views.widgets.StateLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
+</layout>
