@@ -9,7 +9,7 @@ import com.jason.cloud.drive.base.BaseBindDialog
 import com.jason.cloud.drive.databinding.LayoutProgressDialogBinding
 import com.jason.cloud.drive.extension.toFileSizeString
 
-class ProgressDialog(context: Context) :
+open class ProgressDialog(context: Context) :
     BaseBindDialog<LayoutProgressDialogBinding>(context, R.layout.layout_progress_dialog) {
     override fun initView(binding: LayoutProgressDialogBinding) {
         super.initView(binding)

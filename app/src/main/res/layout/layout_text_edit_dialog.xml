@@ -25,7 +25,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="24dp"
-                android:layout_marginBottom="14dp"
+                android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:textColor="@color/material_on_surface_emphasis_high_type"
                 tools:text="@string/create_new_folder" />
@@ -36,9 +36,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
+                android:minHeight="56dp"
                 android:maxLines="1"
                 android:textColor="@color/colorOnSurface"
-                android:textColorHint="@color/colorOnSecondaryMedium"
+                android:textColorHint="@color/colorOnSurfaceMedium"
                 android:textSize="14sp"
                 tools:text="请输入文件夹名称..." />
 
@@ -46,7 +47,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="14dp"
                 android:gravity="end"

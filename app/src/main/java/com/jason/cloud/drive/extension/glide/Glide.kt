@@ -20,7 +20,10 @@ import com.jason.videocat.utils.extension.glide.transformer.AvatarTransformer
 import com.jason.videocat.utils.extension.glide.transformer.BlurTransformer
 import java.io.File
 
-fun ImageView.loadIMG(@RawRes @DrawableRes resourceId: Int, block: (RequestBridge.() -> Any)? = null): ImageView {
+fun ImageView.loadIMG(
+    @RawRes @DrawableRes resourceId: Int,
+    block: (RequestBridge.() -> Any)? = null
+): ImageView {
     val builder = Glide.with(this).load(resourceId).timeout(30000)
     val bridge = RequestBridge(this, builder)
     block?.invoke(bridge)
@@ -78,12 +81,23 @@ fun ImageView.loadIMG(drawable: Drawable?, block: (RequestBridge.() -> Any)? = n
 
 inline fun RequestBuilder<Drawable>.listener(crossinline block: (succeed: Boolean, drawable: Drawable?) -> Unit): RequestBuilder<Drawable> {
     return addListener(object : RequestListener<Drawable> {
-        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+        override fun onLoadFailed(
+            e: GlideException?,
+            model: Any?,
+            target: Target<Drawable>?,
+            isFirstResource: Boolean
+        ): Boolean {
             block.invoke(false, null)
             return false
         }
 
-        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+        override fun onResourceReady(
+            resource: Drawable?,
+            model: Any?,
+            target: Target<Drawable>?,
+            dataSource: DataSource?,
+            isFirstResource: Boolean
+        ): Boolean {
             if (resource != null) {
                 block.invoke(true, resource)
             } else {
@@ -94,7 +108,14 @@ inline fun RequestBuilder<Drawable>.listener(crossinline block: (succeed: Boolea
     })
 }
 
-class RequestBridge(private val imageView: ImageView, private var builder: RequestBuilder<Drawable>) {
+class RequestBridge(
+    private val imageView: ImageView,
+    private var builder: RequestBuilder<Drawable>
+) {
+    fun timeout(timeoutMs: Int): RequestBridge {
+        builder = builder.timeout(timeoutMs)
+        return this
+    }
 
     fun centerCrop(): RequestBridge {
         builder = builder.centerCrop()
@@ -179,18 +200,35 @@ class RequestBridge(private val imageView: ImageView, private var builder: Reque
     }
 
     fun applyAvatarTransformer(@DrawableRes connerResId: Int = 0): RequestBridge {
-        val transformer = AvatarTransformer(imageView.context, connerResId, 3.0f, AvatarTransformer.ConnerGravity.BOTTOM_END)
+        val transformer = AvatarTransformer(
+            imageView.context,
+            connerResId,
+            3.0f,
+            AvatarTransformer.ConnerGravity.BOTTOM_END
+        )
         builder = builder.transform(transformer)
         return this
     }
 
-    fun applyAvatarTransformer(@DrawableRes connerResId: Int = 0, connerScale: Float = 3.0f): RequestBridge {
-        val transformer = AvatarTransformer(imageView.context, connerResId, connerScale, AvatarTransformer.ConnerGravity.BOTTOM_END)
+    fun applyAvatarTransformer(
+        @DrawableRes connerResId: Int = 0,
+        connerScale: Float = 3.0f
+    ): RequestBridge {
+        val transformer = AvatarTransformer(
+            imageView.context,
+            connerResId,
+            connerScale,
+            AvatarTransformer.ConnerGravity.BOTTOM_END
+        )
         builder = builder.transform(transformer)
         return this
     }
 
-    fun applyAvatarTransformer(@DrawableRes connerResId: Int = 0, connerScale: Float = 3.0f, gravity: AvatarTransformer.ConnerGravity = AvatarTransformer.ConnerGravity.BOTTOM_END): RequestBridge {
+    fun applyAvatarTransformer(
+        @DrawableRes connerResId: Int = 0,
+        connerScale: Float = 3.0f,
+        gravity: AvatarTransformer.ConnerGravity = AvatarTransformer.ConnerGravity.BOTTOM_END
+    ): RequestBridge {
         val transformer = AvatarTransformer(imageView.context, connerResId, connerScale, gravity)
         builder = builder.transform(transformer)
         return this
@@ -206,12 +244,23 @@ class RequestBridge(private val imageView: ImageView, private var builder: Reque
 
     fun addListener(block: (succeed: Boolean, drawable: Drawable?) -> Unit): RequestBridge {
         builder = builder.addListener(object : RequestListener<Drawable> {
-            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+            override fun onLoadFailed(
+                e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>?,
+                isFirstResource: Boolean
+            ): Boolean {
                 block.invoke(false, null)
                 return false
             }
 
-            override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+            override fun onResourceReady(
+                resource: Drawable,
+                model: Any?,
+                target: Target<Drawable>?,
+                dataSource: DataSource?,
+                isFirstResource: Boolean
+            ): Boolean {
                 block.invoke(true, resource)
                 return false
             }

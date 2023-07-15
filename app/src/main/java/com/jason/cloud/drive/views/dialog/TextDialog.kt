@@ -28,36 +28,36 @@ class TextDialog(context: Context) :
         return this
     }
 
-    fun onPositive(text: CharSequence? = null, block: () -> Unit): TextDialog {
+    fun onPositive(text: CharSequence? = null, block: (() -> Unit)? = null): TextDialog {
         if (text != null) {
             binding.btnPositive.text = text
         }
         binding.btnPositive.setOnClickListener {
-            block.invoke()
+            block?.invoke()
             dismiss()
         }
         return this
     }
 
-    fun onNegative(text: CharSequence? = null, block: () -> Unit): TextDialog {
+    fun onNegative(text: CharSequence? = null, block: (() -> Unit)? = null): TextDialog {
         if (text != null) {
             binding.btnNegative.text = text
         }
         binding.btnNegative.isVisible = true
         binding.btnNegative.setOnClickListener {
-            block.invoke()
+            block?.invoke()
             dismiss()
         }
         return this
     }
 
-    fun onNeutral(text: CharSequence? = null, block: () -> Unit): TextDialog {
+    fun onNeutral(text: CharSequence? = null, block: (() -> Unit)? = null): TextDialog {
         if (text != null) {
             binding.btnNeutral.text = text
         }
         binding.btnNeutral.isVisible = true
         binding.btnNeutral.setOnClickListener {
-            block.invoke()
+            block?.invoke()
             dismiss()
         }
         return this

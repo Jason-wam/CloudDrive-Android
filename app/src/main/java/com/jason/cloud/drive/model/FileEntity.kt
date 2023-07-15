@@ -1,5 +1,6 @@
 package com.jason.cloud.drive.model
 
+import com.jason.cloud.drive.utils.MediaType
 import java.io.Serializable
 
 data class FileEntity(
@@ -11,5 +12,6 @@ data class FileEntity(
     val isFile: Boolean,
     val isDirectory: Boolean,
     val childCount: Int,
-    val hasImage: Boolean
+    val firstFileHash: String,
+    val firstFileType: MediaType.Media
 ) : Serializable

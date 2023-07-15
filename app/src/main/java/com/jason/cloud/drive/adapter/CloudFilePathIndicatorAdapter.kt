@@ -5,19 +5,18 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
-import com.jason.cloud.drive.databinding.ItemFileBrowserPathIndicatorBinding
+import com.jason.cloud.drive.databinding.ItemCloudFilePathIndicatorBinding
 import com.jason.cloud.drive.model.FileIndicatorEntity
-import java.io.File
 
 @SuppressLint("NotifyDataSetChanged")
-class FilePathIndicatorAdapter :
-    BaseBindRvAdapter<FileIndicatorEntity, ItemFileBrowserPathIndicatorBinding>(R.layout.item_file_browser_path_indicator) {
+class CloudFilePathIndicatorAdapter :
+    BaseBindRvAdapter<FileIndicatorEntity, ItemCloudFilePathIndicatorBinding>(R.layout.item_cloud_file_path_indicator) {
 
     var currentHash: String? = null
 
     override fun onBindViewHolder(
         context: Context,
-        holder: ViewHolder<ItemFileBrowserPathIndicatorBinding>,
+        holder: ViewHolder<ItemCloudFilePathIndicatorBinding>,
         position: Int,
         item: FileIndicatorEntity
     ) {
@@ -29,10 +28,10 @@ class FilePathIndicatorAdapter :
 
         if (select) {
             holder.binding.tvPath.setTextColor(activeColor)
-            holder.binding.tvPath.icon = null
+            holder.binding.tvPath.setIconTintResource(R.color.colorOnSurface)
         } else {
             holder.binding.tvPath.setTextColor(inactiveColor)
-            holder.binding.tvPath.setIconResource(R.drawable.ic_round_chevron_right_16)
+            holder.binding.tvPath.setIconTintResource(R.color.colorOnSurfaceMedium)
         }
     }
 }

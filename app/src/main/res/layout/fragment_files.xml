@@ -32,7 +32,7 @@
                 app:titleCentered="false"
                 app:titleMarginStart="24dp"
                 app:titleTextAppearance="@style/TitleTextBoldAppearance"
-                app:titleTextColor="@color/colorOnPrimary" />
+                app:titleTextColor="@color/colorOnPrimary"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -57,7 +57,7 @@
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                    tools:listitem="@layout/item_file_browser_path_indicator" />
+                    tools:listitem="@layout/item_cloud_file_path_indicator" />
 
             </com.google.android.material.appbar.AppBarLayout>
 
@@ -77,9 +77,23 @@
                     android:background="@color/colorWindowBackground"
                     android:orientation="vertical"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_file_browser" />
+                    tools:listitem="@layout/item_cloud_file" />
 
             </com.jason.cloud.drive.views.widgets.StateLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_upload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="24dp"
+                android:contentDescription="@string/upload_files_to_current_dir"
+                android:src="@drawable/ic_round_cloud_upload_24"
+                app:backgroundTint="@color/colorSecondary"
+                app:elevation="3dp"
+                app:layout_behavior=".utils.ScrollAwareFabBehavior"
+                app:tint="@color/colorOnSecondary" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </LinearLayout>
 </layout>

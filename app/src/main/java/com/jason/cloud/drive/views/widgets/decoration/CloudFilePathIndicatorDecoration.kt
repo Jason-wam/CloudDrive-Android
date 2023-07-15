@@ -5,7 +5,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.jason.cloud.drive.extension.dp
 
-class FilePathIndicatorDecoration : RecyclerView.ItemDecoration() {
+class CloudFilePathIndicatorDecoration : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
         view: View,

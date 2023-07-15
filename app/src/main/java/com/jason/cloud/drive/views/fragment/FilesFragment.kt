@@ -12,17 +12,20 @@ import android.os.IBinder
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.scopeNetLife
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.drake.net.Delete
 import com.drake.net.Get
 import com.drake.net.utils.scopeDialog
+import com.drake.net.utils.scopeNetLife
 import com.flyjingfish.openimagelib.OpenImage
 import com.flyjingfish.openimagelib.beans.OpenImageUrl
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.adapter.FileAdapter
-import com.jason.cloud.drive.adapter.FilePathIndicatorAdapter
+import com.jason.cloud.drive.adapter.CloudFileAdapter
+import com.jason.cloud.drive.adapter.CloudFilePathIndicatorAdapter
 import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.contract.FileSelectContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
@@ -37,12 +40,14 @@ import com.jason.cloud.drive.service.UploadService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.MediaType
 import com.jason.cloud.drive.viewmodel.FileViewModel
-import com.jason.cloud.drive.views.dialog.FileDetailDialog
+import com.jason.cloud.drive.views.dialog.VideoDetailDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
 import com.jason.cloud.drive.views.dialog.ProgressDialog
+import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
-import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
-import com.jason.cloud.drive.views.widgets.decoration.FilePathIndicatorDecoration
+import com.jason.cloud.drive.views.dialog.UploadDialog
+import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
 
@@ -57,7 +62,6 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
      */
     private val lastPosition: HashMap<String, Pair<Int, Int>> = HashMap()
     private lateinit var fileSelectLauncher: ActivityResultLauncher<String>
-    private var uploadServiceConnection: ServiceConnection? = null
 
     private val viewModel by lazy {
         ViewModelProvider(this)[FileViewModel::class.java]
@@ -67,14 +71,14 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         LoadDialog(requireContext())
     }
 
-    private val adapter = FileAdapter().apply {
+    private val adapter = CloudFileAdapter().apply {
         addOnClickObserver { _, item, _ ->
             if (item.isDirectory) {
                 binding.stateLayout.showLoading()
                 viewModel.getList(item)
             } else {
                 if (MediaType.isVideo(item.name)) {
-                    FileDetailDialog().setFile(item).showNow(parentFragmentManager, "detail")
+                    VideoDetailDialog().setFile(item).showNow(parentFragmentManager, "detail")
                 } else if (MediaType.isImage(item.name)) {
                     viewImages(item)
                 }
@@ -82,7 +86,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
-    private val indicatorAdapter = FilePathIndicatorAdapter().apply {
+    private val indicatorAdapter = CloudFilePathIndicatorAdapter().apply {
         addOnBindViewObserver { _, item, viewHolder ->
             viewHolder.binding.tvPath.setOnClickListener {
                 if (item.hash != viewModel.current()) {
@@ -98,7 +102,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         super.onCreate(savedInstanceState)
         fileSelectLauncher = registerForActivityResult(FileSelectContract()) { uri ->
             if (uri != null) {
-                uploadURI(uri)
+                UploadDialog(requireContext()).setData(uri, viewModel.current()).startNow()
             }
         }
     }
@@ -109,8 +113,12 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         initRecyclerView()
         initViewModel()
 
+        binding.fabUpload.setOnClickListener {
+            fileSelectLauncher.launch("*/*")
+        }
+
         binding.stateLayout.showLoading()
-        viewModel.refresh()
+        viewModel.refresh(false)
 
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -132,6 +140,11 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         binding.toolbar.onMenuItemClickListener(R.id.upload) {
             fileSelectLauncher.launch("*/*")
         }
+        binding.toolbar.onMenuItemClickListener(R.id.refresh) {
+            binding.stateLayout.showLoading()
+            viewModel.refresh(false)
+        }
+
         binding.indicatorBar.addOnOffsetChangedListener { _, verticalOffset ->
             binding.appBarLayout.stateListAnimator = if (verticalOffset != 0) {
                 AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation)
@@ -145,10 +158,10 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
     private fun initRecyclerView() {
         binding.rvPathIndicator.adapter = indicatorAdapter
-        binding.rvPathIndicator.addItemDecoration(FilePathIndicatorDecoration())
+        binding.rvPathIndicator.addItemDecoration(CloudFilePathIndicatorDecoration())
 
         binding.rvData.adapter = adapter
-        binding.rvData.addItemDecoration(FileListDecoration(requireContext()))
+        binding.rvData.addItemDecoration(CloudFileListDecoration(requireContext()))
         binding.rvData.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -174,45 +187,38 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             } else {
                 binding.stateLayout.showError(it) {
                     binding.stateLayout.showLoading()
-                    viewModel.refresh()
+                    viewModel.refresh(false)
                 }
             }
         }
 
         viewModel.onSucceed.observe(this) {
-            indicatorAdapter.currentHash = it.hash
+            indicatorAdapter.currentHash = it.respond.hash
             indicatorAdapter.setData(viewModel.histories)
             indicatorAdapter.notifyDataSetChanged()
             binding.rvPathIndicator.scrollToPosition(indicatorAdapter.itemCount - 1)
+            binding.fabUpload.show()
 
-            adapter.setData(it.list)
+            adapter.setData(it.respond.list)
             adapter.notifyDataSetChanged()
 
-            if (it.list.isNotEmpty()) {
+            if (it.respond.list.isNotEmpty()) {
                 binding.stateLayout.showContent()
             } else {
                 binding.stateLayout.showEmpty(R.string.state_view_nothing_here)
             }
 
-            lastPosition[viewModel.current()]?.run {
-                binding.rvData.layoutManager?.let { manager ->
-                    manager as LinearLayoutManager
-                    manager.scrollToPositionWithOffset(second, first)
-                    lastPosition[viewModel.current()] = Pair(0, 0)
+            if (it.isGoBack.not()) {
+                binding.rvData.scrollToPosition(0)
+            } else {
+                lastPosition[viewModel.current()]?.run {
+                    binding.rvData.layoutManager?.let { manager ->
+                        manager as LinearLayoutManager
+                        manager.scrollToPositionWithOffset(second, first)
+                        lastPosition[viewModel.current()] = Pair(0, 0)
+                    }
                 }
             }
-        }
-
-        viewModel.onDeleteError.observe(this) {
-            loadDialog.dismiss()
-            toast(it)
-        }
-
-        viewModel.onDeleteSucceed.observe(this) {
-            loadDialog.dismiss()
-            toast("文件删除成功！")
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
         }
     }
 
@@ -268,10 +274,6 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     //##############################网络操作
-    private fun refreshList() {
-        binding.stateLayout.showLoading()
-        viewModel.refresh()
-    }
 
     private fun createFolder(name: String) {
         val dialog = LoadDialog(requireContext()).setMessage("正在创建文件夹...")
@@ -282,7 +284,6 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             }.await().asJSONObject().also {
                 if (it.optInt("code") == 200) {
                     toast("文件夹创建成功！")
-                    refreshList()
                 } else {
                     toast(it.getString("message"))
                 }
@@ -292,70 +293,20 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
-    private fun uploadURI(uri: Uri) {
-        XXPermissions.with(requireContext()).permission(Permission.NOTIFICATION_SERVICE)
-            .request { _, allGranted ->
-                if (allGranted.not()) {
-                    toast("请先赋予通知权限")
+    private fun delete(hash: String) {
+        scopeNetLife {
+            Delete<String>("${Configure.hostURL}/delete") {
+                param("hash", hash)
+            }.await().asJSONObject().also {
+                if (it.optInt("code") == 200) {
+                    toast("文件删除成功！")
                 } else {
-                    val service = Intent(context, UploadService::class.java).apply {
-                        putExtra("uri", uri)
-                        putExtra("hash", viewModel.current())
-                    }
-                    val dialog = ProgressDialog(requireContext()).apply {
-                        setOnCancelListener {
-                            context.unbindService(uploadServiceConnection!!)
-                            context.stopService(service)
-                            uploadServiceConnection = null
-                        }
-                    }
-                    uploadServiceConnection = createUploadServiceConnection(dialog)
-                    context?.startService(service)
-                    context?.bindService(
-                        service,
-                        uploadServiceConnection!!,
-                        Context.BIND_AUTO_CREATE
-                    )
+                    toast(it.getString("message"))
                 }
             }
-    }
-
-    private fun createUploadServiceConnection(dialog: ProgressDialog): ServiceConnection {
-        return object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                if (binder is UploadService.UploadBinder) {
-                    binder.onFileCheckListener = {
-                        runOnMainAtFrontOfQueue {
-                            dialog.setIsIndeterminate(true)
-                            dialog.setMessage("正在校验文件...")
-                            if (dialog.isShowing.not()) {
-                                dialog.show()
-                            }
-                        }
-                    }
-                    binder.onProgressListener = { progress, speed ->
-                        runOnMainAtFrontOfQueue {
-                            dialog.update(progress)
-                            dialog.updateSpeed(speed)
-                            dialog.setMessage("正在上传文件：$progress%，请稍候..")
-                            dialog.setIsIndeterminate(false)
-                            if (dialog.isShowing.not()) {
-                                dialog.show()
-                            }
-                        }
-                    }
-                    binder.onUploadDoneListener = {
-                        runOnMainAtFrontOfQueue {
-                            dialog.dismiss()
-                            refreshList()
-                        }
-                    }
-                }
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-
-            }
+        }.catch {
+            toast(it.toMessage())
         }
     }
+
 }

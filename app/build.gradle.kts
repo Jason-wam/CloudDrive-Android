@@ -85,5 +85,6 @@ dependencies {
     implementation("io.github.youth5201314:banner:2.2.2")
     implementation("io.github.jeremyliao:live-event-bus-x:1.8.0")
     implementation("io.github.FlyJingFish.OpenImage:OpenImageGlideLib:2.1.0")
+
     implementation("com.tencent:mmkv:1.2.15")
 }

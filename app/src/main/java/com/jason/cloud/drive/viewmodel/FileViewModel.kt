@@ -20,11 +20,14 @@ import com.jason.cloud.drive.extension.toMessage
 import com.jason.cloud.drive.model.FileIndicatorEntity
 import com.jason.cloud.drive.model.FileListRespondEntity
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.MediaType
 
 class FileViewModel(application: Application) : AndroidViewModel(application) {
     val histories = arrayListOf(FileIndicatorEntity("%root", "%root", "root"))
     val onError = MutableLiveData<String>()
-    val onSucceed = MutableLiveData<FileListRespondEntity>()
+    val onSucceed = MutableLiveData<FileListRespond>()
+
+    class FileListRespond(val isGoBack: Boolean,val respond: FileListRespondEntity)
 
     fun current(): String {
         return if (histories.isEmpty()) "%root" else histories.last().hash
@@ -39,7 +42,7 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
             histories.subList(index, histories.lastIndex + 1).clear()
         }
         histories.add(FileIndicatorEntity(file.hash, file.name, file.path))
-        refresh()
+        refresh(false)
     }
 
     fun getList(hash: String, name: String, path: String) {
@@ -51,7 +54,7 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
             histories.subList(index, histories.lastIndex + 1).clear()
         }
         histories.add(FileIndicatorEntity(hash, name, path))
-        refresh()
+        refresh(false)
     }
 
     fun canGoBack(): Boolean {
@@ -60,10 +63,10 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
 
     fun goBack() {
         histories.removeAt(histories.lastIndex)
-        refresh()
+        refresh(true)
     }
 
-    fun refresh() {
+    fun refresh(isGoBack: Boolean) {
         scopeNetLife {
             Get<String>("${Configure.hostURL}/list") {
                 param("hash", current())
@@ -72,7 +75,7 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
                     onError.postValue(it.getString("message"))
                 } else {
                     onSucceed.postValue(
-                        FileListRespondEntity(
+                        FileListRespond(isGoBack, FileListRespondEntity(
                             it.getString("hash"),
                             it.getString("name"),
                             it.getString("path"),
@@ -88,12 +91,15 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
                                             obj.getBoolean("isFile"),
                                             obj.getBoolean("isDirectory"),
                                             obj.getInt("childCount"),
-                                            obj.getBoolean("hasImage"),
+                                            obj.getString("firstFileHash"),
+                                            obj.getString("firstFileType").let { type ->
+                                                MediaType.Media.valueOf(type)
+                                            }
                                         )
                                     )
                                 }
                             }
-                        )
+                        ))
                     )
                 }
             }
@@ -102,42 +108,4 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val onCreateFolderError = MutableLiveData<String>()
-    val onCreateFolderSucceed = MutableLiveData<Boolean>()
-
-    fun createFolder(name: String) {
-        scopeNetLife {
-            Get<String>("${Configure.hostURL}/newFolder") {
-                param("hash", current())
-                param("name", name)
-            }.await().asJSONObject().also {
-                if (it.optInt("code") == 200) {
-                    onCreateFolderSucceed.postValue(true)
-                } else {
-                    onCreateFolderError.postValue(it.getString("message"))
-                }
-            }
-        }.catch {
-            onCreateFolderError.postValue(it.toMessage())
-        }
-    }
-
-    val onDeleteError = MutableLiveData<String>()
-    val onDeleteSucceed = MutableLiveData<Boolean>()
-
-    fun delete(hash: String) {
-        scopeNetLife {
-            Delete<String>("${Configure.hostURL}/delete") {
-                param("hash", hash)
-            }.await().asJSONObject().also {
-                if (it.optInt("code") == 200) {
-                    onDeleteSucceed.postValue(true)
-                } else {
-                    onDeleteError.postValue(it.getString("message"))
-                }
-            }
-        }.catch {
-            onDeleteError.postValue(it.toMessage())
-        }
-    }
 }

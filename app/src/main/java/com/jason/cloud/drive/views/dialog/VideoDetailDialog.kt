@@ -1,24 +1,21 @@
 package com.jason.cloud.drive.views.dialog
 
 import android.annotation.SuppressLint
-import android.util.LayoutDirection
 import android.view.View
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
-import com.jason.cloud.drive.base.BaseBottomSheetDialogFragment
-import com.jason.cloud.drive.databinding.LayoutFileDetailDialogBinding
+import com.jason.cloud.drive.databinding.LayoutVideoDetailDialogBinding
 import com.jason.cloud.drive.extension.getSerializableEx
 import com.jason.cloud.drive.extension.glide.loadIMG
 import com.jason.cloud.drive.extension.toDateMinuteString
 import com.jason.cloud.drive.extension.toFileSizeString
-import com.jason.cloud.drive.extension.windowWidth
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.Configure
 
-class FileDetailDialog :
-    BaseBindBottomSheetDialogFragment<LayoutFileDetailDialogBinding>(R.layout.layout_file_detail_dialog) {
+class VideoDetailDialog :
+    BaseBindBottomSheetDialogFragment<LayoutVideoDetailDialogBinding>(R.layout.layout_video_detail_dialog) {
     @SuppressLint("SetTextI18n")
     override fun initView(view: View) {
         super.initView(view)
@@ -44,6 +41,7 @@ class FileDetailDialog :
             binding.tvURL.text = it.path
             binding.tvInfo.text = it.size.toFileSizeString() + " / " + it.date.toDateMinuteString()
             binding.ivImage.loadIMG("${Configure.hostURL}/thumbnail?hash=${it.hash}&isGif=true") {
+                timeout(60000)
                 addListener { _, _ ->
                     binding.progressBar.isVisible = false
                 }
@@ -52,7 +50,7 @@ class FileDetailDialog :
         }
     }
 
-    fun setFile(file: FileEntity): FileDetailDialog {
+    fun setFile(file: FileEntity): VideoDetailDialog {
         arguments?.putSerializable("file", file)
         return this
     }

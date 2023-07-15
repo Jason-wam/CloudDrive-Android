@@ -16,4 +16,7 @@
     <string name="cancel">取消</string>
     <string name="upload_files">上传文件</string>
     <string name="upload_files_to_current_dir">上传文件到当前目录</string>
+    <string name="refresh">刷新</string>
+    <string name="refresh_list">刷新列表</string>
+    <string name="search">搜索</string>
 </resources>

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.extension.dp
 
-class FileListDecoration(context: Context) : RecyclerView.ItemDecoration() {
+class CloudFileListDecoration(context: Context) : RecyclerView.ItemDecoration() {
     private val dividerSize = context.resources.getDimension(R.dimen.itemDecorationSize).toInt()
     private val paint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.colorItemDecoration)
