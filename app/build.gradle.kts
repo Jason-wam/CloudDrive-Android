@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -16,6 +18,11 @@ android {
         versionName = "1.0"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
         }
     }
     buildFeatures { //DataBinding必须依赖KAPT
@@ -60,6 +67,11 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
+    val roomVersion = "2.4.2"
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("androidx.room:room-runtime:$roomVersion")
+
     //网络相关
     implementation("com.qiniu:happy-dns:2.0.1")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -70,6 +82,9 @@ dependencies {
     implementation("com.github.getActivity:XXPermissions:16.8")
     implementation("com.github.bumptech.glide:glide:4.15.0")
     implementation("com.github.bumptech.glide:okhttp3-integration:4.15.0")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     ksp("com.github.bumptech.glide:ksp:4.15.0")
 
     //状态栏工具

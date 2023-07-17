@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/shape_sheet_dialog"
+        android:elevation="5dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/ivHandler"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/selector_sheet_handler" />
+
+        <com.jason.cloud.drive.views.widgets.MarqueeTextView
+            android:id="@+id/tvTitle"
+            style="@style/DialogTitleTextBoldMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:gravity="center"
+            android:textColor="@color/colorOnPrimary"
+            tools:text="狂飙2022 - 第一集" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_open"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/open_file"
+            android:textColor="@color/colorSecondary"
+            app:icon="@drawable/ic_round_open_in_new_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="@color/colorSecondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cast"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/wlan_cast"
+            app:icon="@drawable/ic_round_cast_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="#43A047" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_fetch"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/fetch_back_to_local"
+            app:icon="@drawable/ic_outline_cloud_download_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="#FFB300" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_detail"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/file_detail"
+            app:icon="@drawable/ic_outline_info_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="#00897B" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/delete_file"
+            app:icon="@drawable/ic_baseline_delete_outline_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="#E53935" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/cancel" />
+
+        <android.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="20dp" />
+    </LinearLayout>
+</layout>

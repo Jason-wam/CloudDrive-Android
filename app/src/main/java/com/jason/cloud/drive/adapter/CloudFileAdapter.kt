@@ -5,13 +5,12 @@ import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindHeaderRvAdapter
 import com.jason.cloud.drive.databinding.ItemCloudFileBinding
+import com.jason.cloud.drive.extension.glide.loadIMG
 import com.jason.cloud.drive.extension.toDateMinuteString
 import com.jason.cloud.drive.extension.toFileSizeString
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.MediaType
 import com.jason.cloud.drive.utils.MediaType.Media.*
-import com.jason.cloud.drive.extension.glide.loadIMG
-import com.jason.cloud.drive.utils.Configure
 
 class CloudFileAdapter :
     BaseBindHeaderRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
@@ -20,20 +19,22 @@ class CloudFileAdapter :
     ) {
         if (item.isDirectory) {
             when (item.firstFileType) {
-                MediaType.Media.IMAGE, MediaType.Media.VIDEO, MediaType.Media.AUDIO -> {
+                IMAGE, VIDEO, AUDIO -> {
                     holder.binding.flCoverLayout.isVisible = true
                     holder.binding.ivIcon.isVisible = false
                     holder.binding.ivCover.isVisible = false
-                    holder.binding.ivCoverCenter.loadIMG("${Configure.hostURL}/thumbnail?hash=${item.hash}") {
+                    holder.binding.ivCoverCenter.loadIMG(item.thumbnailURL) {
                         placeholder(getFileIcon(item.firstFileType))
                     }
                 }
-                MediaType.Media.UNKNOWN -> {
+
+                UNKNOWN -> {
                     holder.binding.ivIcon.isVisible = true
                     holder.binding.ivCover.isVisible = false
                     holder.binding.ivIcon.setImageResource(R.drawable.ic_round_file_folder_24)
                     holder.binding.flCoverLayout.isVisible = false
                 }
+
                 else -> {
                     holder.binding.ivIcon.isVisible = false
                     holder.binding.ivCover.isVisible = false
@@ -43,14 +44,15 @@ class CloudFileAdapter :
             }
         } else {
             when (MediaType.getMediaType(item.name)) {
-                MediaType.Media.IMAGE, MediaType.Media.VIDEO, MediaType.Media.AUDIO -> {
+                IMAGE, VIDEO, AUDIO -> {
                     holder.binding.flCoverLayout.isVisible = false
                     holder.binding.ivIcon.isVisible = false
                     holder.binding.ivCover.isVisible = true
-                    holder.binding.ivCover.loadIMG("${Configure.hostURL}/thumbnail?hash=${item.hash}") {
+                    holder.binding.ivCover.loadIMG(item.thumbnailURL) {
                         placeholder(getFileIcon(item.name))
                     }
                 }
+
                 else -> {
                     holder.binding.flCoverLayout.isVisible = false
                     holder.binding.ivCover.isVisible = false
@@ -70,20 +72,7 @@ class CloudFileAdapter :
     }
 
     private fun getFileIcon(name: String): Int {
-        return when (MediaType.getMediaType(name)) {
-            VIDEO -> R.drawable.ic_round_file_video_24
-            IMAGE -> R.drawable.ic_round_file_image_24
-            AUDIO -> R.drawable.ic_round_file_audio_24
-            COMPRESS -> R.drawable.ic_round_file_compress_24
-            PPT -> R.drawable.ic_round_file_ppt_24
-            TEXT -> R.drawable.ic_round_file_text_24
-            WORD -> R.drawable.ic_round_file_word_24
-            EXCEL -> R.drawable.ic_round_file_excel_24
-            APPLICATION -> R.drawable.ic_round_file_apk_24
-            DATABASE -> R.drawable.ic_round_file_database_24
-            TORRENT -> R.drawable.ic_round_file_url_24
-            UNKNOWN -> R.drawable.ic_round_file_unknown_24
-        }
+        return getFileIcon(MediaType.getMediaType(name))
     }
 
     private fun getFileIcon(type: MediaType.Media): Int {
@@ -92,6 +81,7 @@ class CloudFileAdapter :
             IMAGE -> R.drawable.ic_round_file_image_24
             AUDIO -> R.drawable.ic_round_file_audio_24
             COMPRESS -> R.drawable.ic_round_file_compress_24
+            EXE -> R.drawable.ic_round_file_exe_24
             PPT -> R.drawable.ic_round_file_ppt_24
             TEXT -> R.drawable.ic_round_file_text_24
             WORD -> R.drawable.ic_round_file_word_24

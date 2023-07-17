@@ -19,4 +19,8 @@
     <string name="refresh">刷新</string>
     <string name="refresh_list">刷新列表</string>
     <string name="search">搜索</string>
+    <string name="open_file">打开文件</string>
+    <string name="fetch_back_to_local">取回本地</string>
+    <string name="delete_file">删除文件</string>
+    <string name="wlan_cast">无线投屏</string>
 </resources>

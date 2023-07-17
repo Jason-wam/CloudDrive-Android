@@ -116,7 +116,7 @@ fun InputStream.createSketchedMD5String(): String? {
         while (this.read(buffer).also { bytesRead = it } != -1) {
             messageDigest.update(buffer, 0, bytesRead)
             totalBytesRead += bytesRead
-            if (totalBytesRead > 2.MB) {//2MB
+            if (totalBytesRead > 0.5.MB) {//2MB
                 break
             }
         }
@@ -129,4 +129,3 @@ fun InputStream.createSketchedMD5String(): String? {
         return null
     }
 }
-

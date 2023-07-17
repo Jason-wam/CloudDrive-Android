@@ -15,7 +15,7 @@
         <ImageView
             android:id="@+id/ivHandler"
             android:layout_width="40dp"
-            android:layout_height="6dp"
+            android:layout_height="4dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:src="@drawable/selector_sheet_handler" />
@@ -169,7 +169,17 @@
             android:layout_height="10dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancel"
+            android:id="@+id/btn_open"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:text="@string/open_file"
+            android:textColor="@color/colorSecondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
             style="@style/MaterialButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -52,18 +52,12 @@
                 <com.jason.cloud.drive.views.widgets.RoundCornerImageView
                     android:id="@+id/iv_cover_center"
                     android:layout_width="32dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:scaleType="centerCrop"
-                    android:src="@color/colorCardViewBackground"
-                    app:radius="2dp" />
-
-                <com.jason.cloud.drive.views.widgets.RoundCornerImageView
-                    android:layout_width="38dp"
                     android:layout_height="22dp"
                     android:layout_gravity="center"
                     android:scaleType="centerCrop"
-                    app:radius="2dp" />
+                    android:src="@color/colorCardViewBackground"
+                    app:radius="4dp"
+                    tools:src="@drawable/ic_round_file_database_24" />
 
                 <ImageView
                     android:layout_width="match_parent"

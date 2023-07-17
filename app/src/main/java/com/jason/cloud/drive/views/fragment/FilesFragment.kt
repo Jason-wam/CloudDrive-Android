@@ -2,17 +2,14 @@ package com.jason.cloud.drive.views.fragment
 
 import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.net.Uri
 import android.os.Bundle
-import android.os.IBinder
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.scopeNetLife
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drake.net.Delete
@@ -21,35 +18,38 @@ import com.drake.net.utils.scopeDialog
 import com.drake.net.utils.scopeNetLife
 import com.flyjingfish.openimagelib.OpenImage
 import com.flyjingfish.openimagelib.beans.OpenImageUrl
-import com.hjq.permissions.Permission
-import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.adapter.CloudFileAdapter
 import com.jason.cloud.drive.adapter.CloudFilePathIndicatorAdapter
 import com.jason.cloud.drive.base.BaseBindFragment
-import com.jason.cloud.drive.contract.FileSelectContract
+import com.jason.cloud.drive.contract.FilesSelectContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
 import com.jason.cloud.drive.extension.asJSONObject
 import com.jason.cloud.drive.extension.cast
-import com.jason.cloud.drive.extension.runOnMainAtFrontOfQueue
 import com.jason.cloud.drive.extension.toMessage
 import com.jason.cloud.drive.extension.toast
 import com.jason.cloud.drive.interfaces.CallActivityInterface
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.service.UploadService
+import com.jason.cloud.drive.model.toOpenImageUrl
+import com.jason.cloud.drive.model.toOpenImageUrlList
+import com.jason.cloud.drive.service.FileUploadService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.MediaType
+import com.jason.cloud.drive.utils.uploader.Uploader
 import com.jason.cloud.drive.viewmodel.FileViewModel
+import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.VideoDetailDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
-import com.jason.cloud.drive.views.dialog.ProgressDialog
-import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
 import com.jason.cloud.drive.views.dialog.UploadDialog
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files) {
     companion object {
@@ -61,14 +61,11 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
      * 记录RecyclerView当前位置
      */
     private val lastPosition: HashMap<String, Pair<Int, Int>> = HashMap()
+
     private lateinit var fileSelectLauncher: ActivityResultLauncher<String>
 
     private val viewModel by lazy {
         ViewModelProvider(this)[FileViewModel::class.java]
-    }
-
-    private val loadDialog by lazy {
-        LoadDialog(requireContext())
     }
 
     private val adapter = CloudFileAdapter().apply {
@@ -81,6 +78,8 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                     VideoDetailDialog().setFile(item).showNow(parentFragmentManager, "detail")
                 } else if (MediaType.isImage(item.name)) {
                     viewImages(item)
+                } else {
+                    FileMenuDialog().setFile(item).showNow(childFragmentManager, "menu")
                 }
             }
         }
@@ -91,7 +90,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             viewHolder.binding.tvPath.setOnClickListener {
                 if (item.hash != viewModel.current()) {
                     binding.stateLayout.showLoading()
-                    viewModel.getList(item.hash, item.name, item.path)
+                    viewModel.getList(item.hash)
                 }
             }
         }
@@ -100,9 +99,30 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fileSelectLauncher = registerForActivityResult(FileSelectContract()) { uri ->
-            if (uri != null) {
-                UploadDialog(requireContext()).setData(uri, viewModel.current()).startNow()
+        fileSelectLauncher = registerForActivityResult(FilesSelectContract()) { uriList ->
+            if (uriList.isNotEmpty()) {
+                println(uriList.first().toString())
+//                UploadDialog(requireContext()).setData(uriList.first(), viewModel.current())
+//                    .startNow()
+//                FileUploadService.upload(
+//                    requireContext(),
+//                    viewModel.current(),
+//                    uriList
+//                )
+
+
+                lifecycleScope.launch {
+                    val hash = "25a7560284295162399e2618bd398170"
+                    val uploader = Uploader().setData(uriList.first(), hash)
+                    uploader.start()
+                    while (true) {
+                        delay(1000)
+                        Log.e("Uploader", uploader.status.toString())
+                        if (uploader.isDone()) {
+                            break
+                        }
+                    }
+                }
             }
         }
     }
@@ -118,31 +138,33 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
 
         binding.stateLayout.showLoading()
-        viewModel.refresh(false)
+        viewModel.refresh(isGoBack = false)
 
-        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (viewModel.canGoBack()) {
-                    binding.stateLayout.showLoading()
-                    viewModel.goBack()
-                } else {
-                    activity?.cast<CallActivityInterface>()?.callOnBackPressed()
+        activity?.onBackPressedDispatcher?.addCallback(
+            this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (viewModel.canGoBack()) {
+                        binding.stateLayout.showLoading()
+                        viewModel.goBack()
+                    } else {
+                        activity?.cast<CallActivityInterface>()?.callOnBackPressed()
+                    }
                 }
             }
-        })
+        )
     }
 
     private fun initToolBar() {
-        binding.toolbar.setTitleFont("FONTS/剑豪体.ttf")
+        binding.toolbar.setTitleFont("fonts/剑豪体.ttf")
+        binding.toolbar.onMenuItemClickListener(R.id.refresh) {
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
+        }
         binding.toolbar.onMenuItemClickListener(R.id.folder) {
             createNewFolder()
         }
         binding.toolbar.onMenuItemClickListener(R.id.upload) {
             fileSelectLauncher.launch("*/*")
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.refresh) {
-            binding.stateLayout.showLoading()
-            viewModel.refresh(false)
         }
 
         binding.indicatorBar.addOnOffsetChangedListener { _, verticalOffset ->
@@ -182,22 +204,19 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     @SuppressLint("NotifyDataSetChanged")
     private fun initViewModel() {
         viewModel.onError.observe(this) {
-            if (adapter.itemCount > 0) {
-                toast(it)
-            } else {
-                binding.stateLayout.showError(it) {
-                    binding.stateLayout.showLoading()
-                    viewModel.refresh(false)
-                }
+            binding.stateLayout.showError(it) {
+                binding.stateLayout.showLoading()
+                viewModel.refresh(isGoBack = false)
             }
         }
 
         viewModel.onSucceed.observe(this) {
+            binding.fabUpload.show()
+
             indicatorAdapter.currentHash = it.respond.hash
-            indicatorAdapter.setData(viewModel.histories)
+            indicatorAdapter.setData(it.respond.navigation)
             indicatorAdapter.notifyDataSetChanged()
             binding.rvPathIndicator.scrollToPosition(indicatorAdapter.itemCount - 1)
-            binding.fabUpload.show()
 
             adapter.setData(it.respond.list)
             adapter.notifyDataSetChanged()
@@ -242,34 +261,16 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
     private fun viewImages(file: FileEntity) {
         var clickPosition = 0
-        val imageUrlList = adapter.itemData.filter { MediaType.isImage(it.name) }.let {
-            ArrayList<OpenImageUrl>().apply {
-                it.forEachIndexed { index, item ->
-                    if (file.path == item.path) {
-                        clickPosition = index
-                    }
-                    add(object : OpenImageUrl {
-                        override fun getImageUrl(): String {
-                            return "${Configure.hostURL}/file?hash=${item.hash}"
-                        }
-
-                        override fun getVideoUrl(): String {
-                            return ""
-                        }
-
-                        override fun getCoverImageUrl(): String {
-                            return "${Configure.hostURL}/file?thumbnail=${item.hash}"
-                        }
-
-                        override fun getType(): com.flyjingfish.openimagelib.enums.MediaType {
-                            return com.flyjingfish.openimagelib.enums.MediaType.IMAGE
-                        }
-                    })
-                }
+        val imageUrlList = adapter.itemData.filter {
+            MediaType.isImage(it.name)
+        }.mapIndexed { index, item ->
+            if (file.path == item.path) {
+                clickPosition = index
             }
+            item.toOpenImageUrl()
         }
 
-        OpenImage.with(requireActivity()).setNoneClickView().setShowDownload()
+        OpenImage.with(requireActivity()).setNoneClickView()
             .setImageUrlList(imageUrlList).setClickPosition(clickPosition).show()
     }
 

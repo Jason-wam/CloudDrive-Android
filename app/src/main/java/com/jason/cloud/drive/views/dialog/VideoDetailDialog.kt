@@ -9,6 +9,7 @@ import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutVideoDetailDialogBinding
 import com.jason.cloud.drive.extension.getSerializableEx
 import com.jason.cloud.drive.extension.glide.loadIMG
+import com.jason.cloud.drive.extension.openURL
 import com.jason.cloud.drive.extension.toDateMinuteString
 import com.jason.cloud.drive.extension.toFileSizeString
 import com.jason.cloud.drive.model.FileEntity
@@ -36,17 +37,24 @@ class VideoDetailDialog :
                 (width * (1080 / 1920f)).toInt()
         }
 
-        arguments?.getSerializableEx("file", FileEntity::class.java)?.let {
-            binding.tvName.text = it.name
-            binding.tvURL.text = it.path
-            binding.tvInfo.text = it.size.toFileSizeString() + " / " + it.date.toDateMinuteString()
-            binding.ivImage.loadIMG("${Configure.hostURL}/thumbnail?hash=${it.hash}&isGif=true") {
+        arguments?.getSerializableEx("file", FileEntity::class.java)?.let { file ->
+            binding.tvName.text = file.name
+            binding.tvURL.text = file.path
+            binding.tvInfo.text =
+                file.size.toFileSizeString() + " / " + file.date.toDateMinuteString()
+
+            binding.ivImage.loadIMG(file.gifURL) {
                 timeout(60000)
                 addListener { _, _ ->
                     binding.progressBar.isVisible = false
                 }
             }
-            binding.btnCancel.setOnClickListener { dismiss() }
+            binding.btnOpen.setOnClickListener {
+                context?.openURL(file.rawURL, "video/*")
+            }
+            binding.btnCancel.setOnClickListener {
+                dismiss()
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.core.os.BundleCompat.getParcelableArrayList
 import androidx.fragment.app.Fragment
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -42,8 +43,23 @@ fun Context.openURL(url: String) {
     }
 }
 
+fun Context.openURL(url: String, mimeType: String) {
+    try {
+        val intent = Intent()
+        intent.action = Intent.ACTION_VIEW
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.setDataAndType(Uri.parse(url), mimeType)
+        startActivity(intent)
+    } catch (e: Exception) {
+        toast(e.toMessage())
+    }
+}
+
 @Suppress("DEPRECATION")
-inline fun <reified T : Serializable> Intent.getSerializableExtraEx(name: String, clazz: Class<T>): T? {
+inline fun <reified T : Serializable> Intent.getSerializableExtraEx(
+    name: String,
+    clazz: Class<T>
+): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getSerializableExtra(name, clazz)
     } else {
@@ -74,6 +90,18 @@ inline fun <reified T : Parcelable> Intent.getParcelableExtraEx(name: String, cl
 }
 
 @Suppress("DEPRECATION")
+inline fun <reified T : Parcelable> Intent.getParcelableArrayListEx(
+    name: String,
+    clazz: Class<T>
+): List<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableArrayListExtra(name, clazz)
+    } else {
+        getParcelableArrayListExtra(name)
+    }
+}
+
+@Suppress("DEPRECATION")
 inline fun <reified T : Parcelable> Bundle.getParcelableExtraEx(name: String, clazz: Class<T>): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getParcelable(name, clazz)
@@ -83,7 +111,10 @@ inline fun <reified T : Parcelable> Bundle.getParcelableExtraEx(name: String, cl
 }
 
 @Suppress("DEPRECATION")
-inline fun <reified T : Parcelable> Bundle.getParcelableArrayListEx(name: String, clazz: Class<T>): List<T>? {
+inline fun <reified T : Parcelable> Bundle.getParcelableArrayListEx(
+    name: String,
+    clazz: Class<T>
+): List<T>? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getParcelableArrayList(name, clazz)
     } else {
@@ -91,19 +122,35 @@ inline fun <reified T : Parcelable> Bundle.getParcelableArrayListEx(name: String
     }
 }
 
-fun Activity?.startActivity(cls: KClass<*>, newTask: Boolean = false, block: (Intent.() -> Unit)? = null) {
+fun Activity?.startActivity(
+    cls: KClass<*>,
+    newTask: Boolean = false,
+    block: (Intent.() -> Unit)? = null
+) {
     this?.startActivityEx(cls, newTask, block)
 }
 
-fun Fragment?.startActivity(cls: KClass<*>, newTask: Boolean = false, block: (Intent.() -> Unit)? = null) {
+fun Fragment?.startActivity(
+    cls: KClass<*>,
+    newTask: Boolean = false,
+    block: (Intent.() -> Unit)? = null
+) {
     this?.context?.startActivityEx(cls, newTask, block)
 }
 
-fun Context?.startActivity(cls: KClass<*>, newTask: Boolean = false, block: (Intent.() -> Unit)? = null) {
+fun Context?.startActivity(
+    cls: KClass<*>,
+    newTask: Boolean = false,
+    block: (Intent.() -> Unit)? = null
+) {
     this?.startActivityEx(cls, newTask, block)
 }
 
-private fun Context.startActivityEx(cls: KClass<*>, newTask: Boolean = false, block: (Intent.() -> Unit)? = null) {
+private fun Context.startActivityEx(
+    cls: KClass<*>,
+    newTask: Boolean = false,
+    block: (Intent.() -> Unit)? = null
+) {
     val intent = Intent(this, cls.java)
     if (newTask) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

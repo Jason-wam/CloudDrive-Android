@@ -16,6 +16,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.drake.net.Get
+import com.drake.net.Net
 import com.drake.net.NetConfig
 import com.drake.net.Post
 import com.drake.net.component.Progress

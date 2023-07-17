@@ -13,7 +13,6 @@ class MMKVStore private constructor(group: String) {
 
         fun with(group: String): MMKVStore {
             val name = group.toMd5String()
-            Log.e("MMKVStore","with >>> $group")
             return hashMap[name] ?: MMKVStore(name).also {
                 hashMap[name] = it
             }

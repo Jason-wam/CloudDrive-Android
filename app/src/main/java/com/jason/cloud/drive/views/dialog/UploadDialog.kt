@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
 import android.os.IBinder
+import com.drake.net.Net
 import com.drake.net.utils.TipUtils.toast
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
