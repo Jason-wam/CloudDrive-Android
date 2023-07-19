@@ -5,7 +5,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutFileMenuDialogBinding
-import com.jason.cloud.drive.extension.getSerializableEx
+import com.jason.cloud.drive.utils.extension.getSerializableEx
 import com.jason.cloud.drive.model.FileEntity
 
 class FileMenuDialog :

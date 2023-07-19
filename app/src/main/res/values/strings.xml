@@ -23,4 +23,14 @@
     <string name="fetch_back_to_local">取回本地</string>
     <string name="delete_file">删除文件</string>
     <string name="wlan_cast">无线投屏</string>
+    <string name="upload_tasks">上传任务</string>
+    <string name="small_tips">小提示</string>
+    <string name="switch_page">切换</string>
+    <string name="task_download">取回任务</string>
+    <string name="task_upload">上传任务</string>
+    <string name="task_cloud_download">离线任务</string>
+    <string name="task_done">完成任务</string>
+    <string name="cancel_all_downloads">取消全部</string>
+    <string name="pause_all_downloads">暂停全部取回任务</string>
+    <string name="cancel_all_uploads">取消全部上传任务</string>
 </resources>

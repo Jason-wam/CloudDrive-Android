@@ -7,7 +7,7 @@ import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindDialog
 import com.jason.cloud.drive.databinding.LayoutProgressDialogBinding
-import com.jason.cloud.drive.extension.toFileSizeString
+import com.jason.cloud.drive.utils.extension.toFileSizeString
 
 open class ProgressDialog(context: Context) :
     BaseBindDialog<LayoutProgressDialogBinding>(context, R.layout.layout_progress_dialog) {

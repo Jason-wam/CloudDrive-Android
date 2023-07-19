@@ -10,7 +10,6 @@ import com.jason.cloud.drive.databinding.ItemCloudFilePathIndicatorBinding
 import com.jason.cloud.drive.model.FileIndicatorEntity
 import com.jason.cloud.drive.model.FileNavigationEntity
 
-@SuppressLint("NotifyDataSetChanged")
 class CloudFilePathIndicatorAdapter :
     BaseBindRvAdapter<FileNavigationEntity, ItemCloudFilePathIndicatorBinding>(R.layout.item_cloud_file_path_indicator) {
 
@@ -22,7 +21,7 @@ class CloudFilePathIndicatorAdapter :
         position: Int,
         item: FileNavigationEntity
     ) {
-        Log.e("IndicatorAdapter","currentHash = $currentHash : item.hash = ${item.hash}")
+        Log.e("IndicatorAdapter", "currentHash = $currentHash : item.hash = ${item.hash}")
         val isActive = currentHash == item.hash
         val activeColor = ContextCompat.getColor(context, R.color.colorOnSurface)
         val inactiveColor = ContextCompat.getColor(context, R.color.colorOnSurfaceMedium)

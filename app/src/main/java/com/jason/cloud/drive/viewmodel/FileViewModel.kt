@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.scopeNetLife
 import com.drake.net.Get
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.extension.asJSONObject
-import com.jason.cloud.drive.extension.toMessage
+import com.jason.cloud.drive.utils.extension.asJSONObject
+import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.model.FileListRespondEntity
 import com.jason.cloud.drive.model.FileNavigationEntity
 import com.jason.cloud.drive.utils.Configure
@@ -16,6 +16,7 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
     val histories = arrayListOf(FileNavigationEntity("Drive", "%root"))
     val onError = MutableLiveData<String>()
     val onSucceed = MutableLiveData<FileListRespond>()
+    var isLoading = false
 
     class FileListRespond(val isGoBack: Boolean, val respond: FileListRespondEntity)
 
@@ -43,6 +44,7 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refresh(hash: String? = null, isGoBack: Boolean) {
+        isLoading = true
         scopeNetLife {
             Get<String>("${Configure.hostURL}/list") {
                 param("hash", hash ?: current())
@@ -63,6 +65,8 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
             }
         }.catch {
             onError.postValue(it.toMessage())
+        }.finally {
+            isLoading = false
         }
     }
 

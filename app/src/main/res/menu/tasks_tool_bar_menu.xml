@@ -3,6 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <item
+        android:id="@+id/switch_page"
+        android:icon="@drawable/ic_round_switch_24"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/switch_page"
+        app:iconTint="@color/colorOnPrimary"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction,UnusedAttribute">
+        <menu>
+            <item
+                android:id="@+id/task_download"
+                android:title="@string/task_download" />
+            <item
+                android:id="@+id/task_upload"
+                android:title="@string/task_upload" />
+            <item
+                android:id="@+id/task_cloud_download"
+                android:title="@string/task_cloud_download" />
+            <item
+                android:id="@+id/task_done"
+                android:title="@string/task_done" />
+            <item
+                android:id="@+id/task_cancel"
+                android:title="@string/cancel" />
+        </menu>
+    </item>
+    <item
         android:id="@+id/more"
         android:icon="@drawable/ic_round_more_vert_24"
         android:iconTint="@color/colorOnPrimary"
@@ -12,11 +38,14 @@
         tools:ignore="UnusedAttribute">
         <menu>
             <item
-                android:id="@+id/folder"
-                android:title="@string/create_new_folder" />
+                android:id="@+id/cancel_all_uploads"
+                android:title="@string/cancel_all_uploads" />
             <item
-                android:id="@+id/upload"
-                android:title="@string/upload_files_to_current_dir" />
+                android:id="@+id/pause_all_downloads"
+                android:title="@string/pause_all_downloads" />
+            <item
+                android:id="@+id/cancel_all_downloads"
+                android:title="@string/cancel_all_downloads" />
             <item
                 android:id="@+id/cancel"
                 android:title="@string/cancel" />

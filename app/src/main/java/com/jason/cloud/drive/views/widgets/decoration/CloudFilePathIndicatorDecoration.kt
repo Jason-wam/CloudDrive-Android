@@ -3,7 +3,7 @@ package com.jason.cloud.drive.views.widgets.decoration
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.jason.cloud.drive.extension.dp
+import com.jason.cloud.drive.utils.extension.dp
 
 class CloudFilePathIndicatorDecoration : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(

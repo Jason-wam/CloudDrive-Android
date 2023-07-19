@@ -1,8 +1,7 @@
 package com.jason.cloud.drive.utils
 
 import android.content.Context
-import android.util.Log
-import com.jason.cloud.drive.extension.toMd5String
+import com.jason.cloud.drive.utils.extension.toMd5String
 import com.tencent.mmkv.MMKV
 
 class MMKVStore private constructor(group: String) {

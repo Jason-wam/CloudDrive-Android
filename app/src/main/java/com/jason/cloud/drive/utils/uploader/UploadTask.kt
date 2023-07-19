@@ -15,5 +15,5 @@ class UploadTask {
     var totalBytes: Long = 0
     var uploadedBytes: Long = 0
     var progress: Int = 0
-    var status: Int = Uploader.Status.QUEUE
+    var status: String = Uploader.Status.QUEUE.name
 }

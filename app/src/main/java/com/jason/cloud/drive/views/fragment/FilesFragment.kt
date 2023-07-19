@@ -3,13 +3,11 @@ package com.jason.cloud.drive.views.fragment
 import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drake.net.Delete
@@ -17,39 +15,31 @@ import com.drake.net.Get
 import com.drake.net.utils.scopeDialog
 import com.drake.net.utils.scopeNetLife
 import com.flyjingfish.openimagelib.OpenImage
-import com.flyjingfish.openimagelib.beans.OpenImageUrl
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.adapter.CloudFileAdapter
 import com.jason.cloud.drive.adapter.CloudFilePathIndicatorAdapter
 import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.contract.FilesSelectContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
-import com.jason.cloud.drive.extension.asJSONObject
-import com.jason.cloud.drive.extension.cast
-import com.jason.cloud.drive.extension.toMessage
-import com.jason.cloud.drive.extension.toast
+import com.jason.cloud.drive.utils.extension.asJSONObject
+import com.jason.cloud.drive.utils.extension.cast
+import com.jason.cloud.drive.utils.extension.toMessage
+import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.interfaces.CallActivityInterface
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.toOpenImageUrl
-import com.jason.cloud.drive.model.toOpenImageUrlList
-import com.jason.cloud.drive.service.FileUploadService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.uploader.Uploader
+import com.jason.cloud.drive.utils.uploader.UploadQueue
 import com.jason.cloud.drive.viewmodel.FileViewModel
 import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.VideoDetailDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
-import com.jason.cloud.drive.views.dialog.UploadDialog
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files) {
     companion object {
@@ -101,27 +91,10 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         super.onCreate(savedInstanceState)
         fileSelectLauncher = registerForActivityResult(FilesSelectContract()) { uriList ->
             if (uriList.isNotEmpty()) {
-                println(uriList.first().toString())
-//                UploadDialog(requireContext()).setData(uriList.first(), viewModel.current())
-//                    .startNow()
-//                FileUploadService.upload(
-//                    requireContext(),
-//                    viewModel.current(),
-//                    uriList
-//                )
-
-
-                lifecycleScope.launch {
-                    val hash = "25a7560284295162399e2618bd398170"
-                    val uploader = Uploader().setData(uriList.first(), hash)
-                    uploader.start()
-                    while (true) {
-                        delay(1000)
-                        Log.e("Uploader", uploader.status.toString())
-                        if (uploader.isDone()) {
-                            break
-                        }
-                    }
+                toast("正在上传 ${uriList.size} 个文件")
+                uriList.forEach { uri ->
+                    Log.i("FilesSelectContract", uri.toString())
+                    UploadQueue.instance.upload(uri, viewModel.current())
                 }
             }
         }
@@ -143,6 +116,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         activity?.onBackPressedDispatcher?.addCallback(
             this, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    if (viewModel.isLoading) return
                     if (viewModel.canGoBack()) {
                         binding.stateLayout.showLoading()
                         viewModel.goBack()
@@ -279,7 +253,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     private fun createFolder(name: String) {
         val dialog = LoadDialog(requireContext()).setMessage("正在创建文件夹...")
         scopeDialog(dialog, cancelable = true) {
-            Get<String>("${Configure.hostURL}/newFolder") {
+            Get<String>("${Configure.hostURL}/createFolder") {
                 param("hash", viewModel.current())
                 param("name", name)
             }.await().asJSONObject().also {

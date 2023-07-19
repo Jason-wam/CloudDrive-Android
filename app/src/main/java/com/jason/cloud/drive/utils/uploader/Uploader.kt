@@ -8,9 +8,9 @@ import com.drake.net.NetConfig
 import com.drake.net.component.Progress
 import com.drake.net.interfaces.ProgressListener
 import com.drake.net.utils.scopeNet
-import com.jason.cloud.drive.extension.asJSONObject
-import com.jason.cloud.drive.extension.createSketchedMD5String
-import com.jason.cloud.drive.extension.toMd5String
+import com.jason.cloud.drive.utils.extension.asJSONObject
+import com.jason.cloud.drive.utils.extension.createSketchedMD5String
+import com.jason.cloud.drive.utils.extension.toMd5String
 import com.jason.cloud.drive.utils.Configure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,13 +27,8 @@ class Uploader {
     var progress: Int = 0
     var status = Status.QUEUE
 
-    object Status {
-        const val QUEUE = 0
-        const val CHECKING = 1
-        const val UPLOADING = 2
-        const val FAILED = 3
-        const val SUCCEED = 4
-        const val FLASH_UPLOADED = 5
+    enum class Status {
+        QUEUE, CHECKING, UPLOADING, FAILED, SUCCEED, FLASH_UPLOADED, PREPARING
     }
 
     fun setData(uri: Uri, hash: String): Uploader {
@@ -47,15 +42,22 @@ class Uploader {
         return this
     }
 
-    suspend fun isSucceed(): Boolean {
+    fun isSucceed(): Boolean {
         return status == Status.SUCCEED || status == Status.FLASH_UPLOADED
     }
 
-    suspend fun isDone(): Boolean {
+    fun isDone(): Boolean {
         return status == Status.SUCCEED || status == Status.FLASH_UPLOADED || status == Status.FAILED
     }
 
-     fun start() {
+    fun isRunning(): Boolean {
+        return status == Status.UPLOADING || status == Status.CHECKING || status == Status.PREPARING
+    }
+
+    fun start() {
+        if (isSucceed()) return
+        if (isRunning()) return
+        status = Status.PREPARING
         scopeNet {
             if (uri == null) {
                 status = Status.FAILED
@@ -76,12 +78,12 @@ class Uploader {
                         //闪传失败，开始上传文件
                         status = Status.UPLOADING
                         Log.e("Uploader", "$name >> 正在上传文件...")
-                        if (startUpload(uri!!, fileHash)) {
+                        status = if (upload(uri!!, fileHash)) {
                             Log.e("Uploader", "$name >> 上传成功！")
-                            status = Status.SUCCEED
+                            Status.SUCCEED
                         } else {
                             Log.e("Uploader", "$name >> 上传失败！")
-                            status = Status.FAILED
+                            Status.FAILED
                         }
                     }
                 }
@@ -97,9 +99,14 @@ class Uploader {
         Net.cancelId(id)
     }
 
-    private fun createFileHash(uri: Uri): String? {
-        return NetConfig.app.contentResolver.openInputStream(uri)?.use {
-            it.createSketchedMD5String()
+    private suspend fun createFileHash(uri: Uri): String? = withContext(Dispatchers.IO) {
+        if(totalBytes <=0) return@withContext null
+
+        NetConfig.app.contentResolver.openInputStream(uri)?.use {
+            it.createSketchedMD5String(totalBytes)
+//            { readBytes ->
+//                progress = (readBytes / totalBytes.toFloat() * 100).toInt()
+//            }
         }
     }
 
@@ -120,27 +127,26 @@ class Uploader {
         }
     }
 
-    private suspend fun startUpload(uri: Uri, fileHash: String): Boolean =
-        withContext(Dispatchers.IO) {
-            Net.post("${Configure.hostURL}/upload") {
-                setId(id)
-                addQuery("hash", hash)
-                addQuery("fileHash", fileHash)
-                param("file", uri)
-                setClient {
-                    readTimeout(1, TimeUnit.HOURS)
-                    writeTimeout(1, TimeUnit.HOURS)
-                }
-                addUploadListener(object : ProgressListener() {
-                    override fun onProgress(p: Progress) {
-                        progress = p.progress()
-                        uploadedBytes = p.currentByteCount
-                        totalBytes = p.totalByteCount
-                        speedBytes = p.speedBytes
-                    }
-                })
-            }.execute<String>().asJSONObject().let {
-                it.optInt("code") == 200
+    private suspend fun upload(uri: Uri, fileHash: String): Boolean = withContext(Dispatchers.IO) {
+        Net.post("${Configure.hostURL}/upload") {
+            setId(id)
+            param("file", uri)
+            addQuery("hash", hash)
+            addQuery("fileHash", fileHash)
+            setClient {
+                readTimeout(1, TimeUnit.HOURS)
+                writeTimeout(1, TimeUnit.HOURS)
             }
+            addUploadListener(object : ProgressListener() {
+                override fun onProgress(p: Progress) {
+                    progress = p.progress()
+                    uploadedBytes = p.currentByteCount
+                    totalBytes = p.totalByteCount
+                    speedBytes = p.speedBytes
+                }
+            })
+        }.execute<String>().asJSONObject().let {
+            it.optInt("code") == 200
         }
+    }
 }

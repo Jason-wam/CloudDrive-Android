@@ -1,60 +1,60 @@
 package com.jason.cloud.drive.views.fragment.tasks
 
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.annotation.SuppressLint
+import android.content.Context
+import com.drake.net.utils.scopeNetLife
 import com.jason.cloud.drive.R
+import com.jason.cloud.drive.adapter.UploadQueueAdapter
+import com.jason.cloud.drive.base.BaseBindFragment
+import com.jason.cloud.drive.databinding.FragmentUploadBinding
+import com.jason.cloud.drive.utils.extension.toFileSizeString
+import com.jason.cloud.drive.utils.uploader.UploadQueue
+import com.jason.cloud.drive.utils.uploader.getStatusText
+import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import kotlinx.coroutines.flow.collectLatest
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [UploadFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class UploadFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_upload, container, false)
-    }
-
+class UploadFragment : BaseBindFragment<FragmentUploadBinding>(R.layout.fragment_upload) {
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment UploadFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            UploadFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+        fun newInstance() = UploadFragment()
+    }
+
+    private val adapter = UploadQueueAdapter()
+
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
+    override fun initView(context: Context) {
+        binding.rvData.adapter = adapter
+        binding.rvData.addItemDecoration(CloudFileListDecoration(requireContext()))
+        adapter.setData(UploadQueue.instance.tasks)
+        adapter.notifyDataSetChanged()
+
+        if (UploadQueue.instance.tasks.isEmpty()) {
+            binding.stateLayout.showEmpty(R.string.state_view_nothing_here)
+        } else {
+            binding.stateLayout.showContent()
+        }
+
+        scopeNetLife {
+            UploadQueue.instance.runningTaskFlow.collectLatest { taskList ->
+                if (taskList.size != adapter.itemData.size) {
+                    adapter.setData(taskList)
+                    adapter.notifyDataSetChanged()
+                }
+                if (taskList.isEmpty()) {
+                    binding.stateLayout.showEmpty(R.string.state_view_nothing_here)
+                } else {
+                    binding.stateLayout.showContent()
+                }
+
+                taskList.forEachIndexed { index, uploader ->
+                    adapter.getViewHolder(binding.rvData, index)?.let { holder ->
+                        holder.binding.indicator.progress = uploader.progress
+                        holder.binding.tvStatus.text = uploader.getStatusText()
+                        holder.binding.tvSize.text =
+                            uploader.uploadedBytes.toFileSizeString() + " / " + uploader.totalBytes.toFileSizeString()
+                    }
                 }
             }
+        }
     }
 }

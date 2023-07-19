@@ -10,13 +10,11 @@ import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.drake.net.Get
-import com.drake.net.Net
 import com.drake.net.NetConfig
 import com.drake.net.Post
 import com.drake.net.component.Progress
@@ -25,19 +23,15 @@ import com.drake.net.scope.NetCoroutineScope
 import com.drake.net.utils.fileName
 import com.drake.net.utils.scopeNet
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.extension.asJSONObject
-import com.jason.cloud.drive.extension.createSketchedMD5String
-import com.jason.cloud.drive.extension.getParcelableExtraEx
-import com.jason.cloud.drive.extension.getSerializableExtraEx
-import com.jason.cloud.drive.extension.runOnMainAtFrontOfQueue
-import com.jason.cloud.drive.extension.toFileSizeString
-import com.jason.cloud.drive.extension.toMessage
-import com.jason.cloud.drive.extension.toast
+import com.jason.cloud.drive.utils.extension.asJSONObject
+import com.jason.cloud.drive.utils.extension.createMD5String
+import com.jason.cloud.drive.utils.extension.getParcelableExtraEx
+import com.jason.cloud.drive.utils.extension.runOnMainAtFrontOfQueue
+import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.utils.Configure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 class UploadService : Service() {
@@ -115,7 +109,7 @@ class UploadService : Service() {
             }
             val fileHash = withContext(Dispatchers.IO) { //创建文件HASH
                 NetConfig.app.contentResolver.openInputStream(uri)?.use {
-                    it.createSketchedMD5String()
+                    it.createMD5String()
                 }
             }
 

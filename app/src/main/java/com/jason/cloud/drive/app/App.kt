@@ -1,16 +1,15 @@
 package com.jason.cloud.drive.app
 
 import android.app.Application
-import com.drake.net.BuildConfig
 import com.drake.net.NetConfig
 import com.drake.net.interceptor.LogRecordInterceptor
 import com.drake.net.interfaces.NetErrorHandler
 import com.drake.net.okhttp.setDebug
 import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
-import com.jason.cloud.drive.extension.GB
-import com.jason.cloud.drive.extension.toMessage
-import com.jason.cloud.drive.extension.toast
+import com.jason.cloud.drive.utils.extension.GB
+import com.jason.cloud.drive.utils.extension.toMessage
+import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.FileUtil
 import com.jason.cloud.drive.utils.MMKVStore

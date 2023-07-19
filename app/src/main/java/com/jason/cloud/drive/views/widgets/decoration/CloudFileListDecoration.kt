@@ -8,7 +8,7 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.extension.dp
+import com.jason.cloud.drive.utils.extension.dp
 
 class CloudFileListDecoration(context: Context) : RecyclerView.ItemDecoration() {
     private val dividerSize = context.resources.getDimension(R.dimen.itemDecorationSize).toInt()

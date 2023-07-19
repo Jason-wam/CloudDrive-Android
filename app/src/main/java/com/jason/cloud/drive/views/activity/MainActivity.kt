@@ -1,7 +1,6 @@
 package com.jason.cloud.drive.views.activity
 
 import android.view.View
-import androidx.activity.OnBackPressedCallback
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindActivity
 import com.jason.cloud.drive.base.BaseViewPager2Adapter
@@ -9,8 +8,9 @@ import com.jason.cloud.drive.databinding.ActivityMainBinding
 import com.jason.cloud.drive.views.fragment.FilesFragment
 import com.jason.cloud.drive.views.fragment.HomeFragment
 import com.jason.cloud.drive.views.fragment.MineFragment
-import com.jason.cloud.drive.extension.toast
+import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.interfaces.CallActivityInterface
+import com.jason.cloud.drive.views.fragment.TasksFragment
 import com.jason.videocat.utils.extension.view.bindBottomNavigationView
 import kotlin.system.exitProcess
 
@@ -23,7 +23,8 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
         binding.viewPager2.adapter = BaseViewPager2Adapter(this).apply {
             addFragment("0", HomeFragment.newInstance())
             addFragment("1", FilesFragment.newInstance())
-            addFragment("2", MineFragment.newInstance())
+            addFragment("2", TasksFragment.newInstance())
+            addFragment("3", MineFragment.newInstance())
         }
 
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
@@ -38,8 +39,12 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
                     return@setOnItemSelectedListener true
                 }
 
-                R.id.mine -> {
+                R.id.transfer -> {
                     binding.viewPager2.setCurrentItem(2, false)
+                    return@setOnItemSelectedListener true
+                }
+                R.id.mine -> {
+                    binding.viewPager2.setCurrentItem(3, false)
                     return@setOnItemSelectedListener true
                 }
 

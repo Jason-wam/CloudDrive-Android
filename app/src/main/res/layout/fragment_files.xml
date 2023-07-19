@@ -32,7 +32,7 @@
                 app:titleCentered="false"
                 app:titleMarginStart="24dp"
                 app:titleTextAppearance="@style/TitleTextBoldAppearance"
-                app:titleTextColor="@color/colorOnPrimary"/>
+                app:titleTextColor="@color/colorOnPrimary" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

@@ -5,9 +5,9 @@ import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindHeaderRvAdapter
 import com.jason.cloud.drive.databinding.ItemCloudFileBinding
-import com.jason.cloud.drive.extension.glide.loadIMG
-import com.jason.cloud.drive.extension.toDateMinuteString
-import com.jason.cloud.drive.extension.toFileSizeString
+import com.jason.cloud.drive.utils.extension.glide.loadIMG
+import com.jason.cloud.drive.utils.extension.toDateMinuteString
+import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.MediaType
 import com.jason.cloud.drive.utils.MediaType.Media.*
@@ -15,7 +15,10 @@ import com.jason.cloud.drive.utils.MediaType.Media.*
 class CloudFileAdapter :
     BaseBindHeaderRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
     override fun onBindViewHolder(
-        context: Context, holder: ViewHolder<ItemCloudFileBinding>, position: Int, item: FileEntity
+        context: Context,
+        holder: ViewHolder<ItemCloudFileBinding>,
+        position: Int,
+        item: FileEntity
     ) {
         if (item.isDirectory) {
             when (item.firstFileType) {
@@ -71,9 +74,7 @@ class CloudFileAdapter :
         }
     }
 
-    private fun getFileIcon(name: String): Int {
-        return getFileIcon(MediaType.getMediaType(name))
-    }
+    private fun getFileIcon(name: String): Int = getFileIcon(MediaType.getMediaType(name))
 
     private fun getFileIcon(type: MediaType.Media): Int {
         return when (type) {
@@ -81,6 +82,7 @@ class CloudFileAdapter :
             IMAGE -> R.drawable.ic_round_file_image_24
             AUDIO -> R.drawable.ic_round_file_audio_24
             COMPRESS -> R.drawable.ic_round_file_compress_24
+            WEB -> R.drawable.ic_round_file_web_24
             EXE -> R.drawable.ic_round_file_exe_24
             PPT -> R.drawable.ic_round_file_ppt_24
             TEXT -> R.drawable.ic_round_file_text_24
@@ -89,6 +91,8 @@ class CloudFileAdapter :
             APPLICATION -> R.drawable.ic_round_file_apk_24
             DATABASE -> R.drawable.ic_round_file_database_24
             TORRENT -> R.drawable.ic_round_file_url_24
+            FONT -> R.drawable.ic_round_file_fonts_24
+            FOLDER -> R.drawable.ic_round_file_folder_24
             UNKNOWN -> R.drawable.ic_round_file_unknown_24
         }
     }

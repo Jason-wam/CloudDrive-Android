@@ -16,8 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.drake.net.utils.fileName
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.extension.getParcelableArrayListEx
-import com.jason.cloud.drive.extension.toMd5String
+import com.jason.cloud.drive.utils.extension.getParcelableArrayListEx
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
