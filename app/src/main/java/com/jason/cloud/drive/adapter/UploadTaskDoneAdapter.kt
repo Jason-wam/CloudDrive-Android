@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
-import com.jason.cloud.drive.utils.extension.toFileSizeString
-import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.MediaType.Media.*
 import com.jason.cloud.drive.database.uploader.UploadTaskEntity
 import com.jason.cloud.drive.databinding.ItemUploadTaskDoneBinding
-import com.jason.cloud.drive.utils.extension.toDateMillisecondString
+import com.jason.cloud.drive.utils.MediaType
+import com.jason.cloud.drive.utils.MediaType.Media.*
+import com.jason.cloud.drive.utils.extension.toDateSecondsString
+import com.jason.cloud.drive.utils.extension.toFileSizeString
 
 class UploadTaskDoneAdapter :
     BaseBindRvAdapter<UploadTaskEntity, ItemUploadTaskDoneBinding>(R.layout.item_upload_task_done) {
@@ -24,7 +24,7 @@ class UploadTaskDoneAdapter :
         holder.binding.tvName.text = item.name
         holder.binding.indicator.progress = item.progress
         holder.binding.tvStatus.text =
-            if (item.succeed) item.timestamp.toDateMillisecondString() else "上传失败！"
+            if (item.succeed) item.timestamp.toDateSecondsString() else "上传失败！"
         holder.binding.tvSize.text =
             item.uploadedBytes.toFileSizeString() + " / " + item.totalBytes.toFileSizeString()
     }

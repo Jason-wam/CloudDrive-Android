@@ -8,13 +8,12 @@ import com.drake.net.okhttp.setDebug
 import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
 import com.jason.cloud.drive.database.TaskDatabase
-import com.jason.cloud.drive.database.downloader.DownloadQueue
-import com.jason.cloud.drive.utils.extension.GB
-import com.jason.cloud.drive.utils.extension.toMessage
-import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.FileUtil
 import com.jason.cloud.drive.utils.MMKVStore
+import com.jason.cloud.drive.utils.extension.GB
+import com.jason.cloud.drive.utils.extension.toMessage
+import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.views.widgets.SrlRefreshFooter
 import com.jason.cloud.drive.views.widgets.SrlRefreshHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -31,9 +30,6 @@ class App : Application() {
 
         Configure.host = "192.168.0.5"
         Configure.port = 8820
-
-        DownloadQueue.loadTasks()
-        DownloadQueue.instance.start()
 
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
             SrlRefreshHeader(context)

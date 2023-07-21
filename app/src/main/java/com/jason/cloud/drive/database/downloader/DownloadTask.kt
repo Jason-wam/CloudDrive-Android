@@ -1,10 +1,13 @@
 package com.jason.cloud.drive.database.downloader
 
+import TaskQueue
 import com.drake.net.NetConfig
-import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.extension.toFileSizeString
-import com.jason.cloud.drive.utils.extension.toMd5String
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody
 import okio.buffer
 import okio.sink
 import java.io.File
@@ -16,7 +19,6 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
     TaskQueue.Task() {
     val file = File(dir, name)
 
-    val id = hash.toMd5String()
     var totalBytes: Long = 0
     var downloadBytes: Long = 0
     var speedBytes: Long = 0
@@ -36,6 +38,9 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
         isRunning = true
         status = Status.CONNECTING
 
+        if (dir.exists().not()) {
+            dir.mkdirs()
+        }
         if (file.exists().not()) {
             file.createNewFile()
         }
@@ -136,7 +141,7 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
     }
 
     override fun getTaskId(): Any {
-        return id
+        return hash
     }
 
     private fun FileOutputStream.writeBody(
@@ -166,7 +171,7 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
                         val progress = (downloadBytes / totalBytes.toFloat() * 100).toInt()
                         block?.invoke(downloadBytes, totalBytes, speedBytes, progress)
                         startTime = System.currentTimeMillis()
-                        print("\r下载进度：$progress %, $downloadBytes/$totalBytes >> ${speedBytes.toFileSizeString()} /s")
+                        println("下载进度：$progress %, $downloadBytes/$totalBytes >> ${speedBytes.toFileSizeString()} /s")
                     }
                 }
             }

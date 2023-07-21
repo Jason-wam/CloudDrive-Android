@@ -11,7 +11,6 @@ import androidx.annotation.LayoutRes
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.jason.cloud.drive.R
 
 
 abstract class BaseBottomSheetDialogFragment(@LayoutRes open val layoutId: Int) : BottomSheetDialogFragment() {
@@ -24,7 +23,10 @@ abstract class BaseBottomSheetDialogFragment(@LayoutRes open val layoutId: Int) 
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return BottomSheetDialog(requireContext(), R.style.Theme_BottomSheetDialog).also {
+        return BottomSheetDialog(
+            requireContext(),
+            com.jason.theme.R.style.Theme_BottomSheetDialog
+        ).also {
             behavior = it.behavior
             it.setOnShowListener { dialog ->
                 onShowListeners.forEach { listener ->

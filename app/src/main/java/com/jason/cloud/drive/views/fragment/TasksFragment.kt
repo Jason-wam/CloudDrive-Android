@@ -2,18 +2,12 @@ package com.jason.cloud.drive.views.fragment
 
 import android.animation.AnimatorInflater
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.view.View
-import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.base.BaseViewPager2Adapter
 import com.jason.cloud.drive.databinding.FragmentTasksBinding
-import com.jason.cloud.drive.views.dialog.DownTipWindow
+import com.jason.cloud.drive.views.fragment.tasks.DownloadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.DownloadFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadFragment
@@ -49,6 +43,7 @@ class TasksFragment : BaseBindFragment<FragmentTasksBinding>(R.layout.fragment_t
             addFragment("1", DownloadFragment.newInstance())
             addFragment("2", DownloadFragment.newInstance())
             addFragment("3", UploadDoneFragment.newInstance())
+            addFragment("4", DownloadDoneFragment.newInstance())
         }
 
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("上传任务"))

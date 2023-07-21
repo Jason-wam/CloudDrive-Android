@@ -8,7 +8,9 @@ import com.gyf.immersionbar.ImmersionBar
 import com.jason.cloud.drive.R
 
 
-abstract class BaseBindActivity<VB : ViewDataBinding>(layoutResID: Int) : AppCompatActivity(layoutResID) {
+abstract class BaseBindActivity<VB : ViewDataBinding>(layoutResID: Int) :
+    AppCompatActivity(layoutResID) {
+
     protected lateinit var binding: VB
     protected lateinit var context: AppCompatActivity
 
@@ -26,8 +28,8 @@ abstract class BaseBindActivity<VB : ViewDataBinding>(layoutResID: Int) : AppCom
     private fun initImmersionBar() {
         val darkFont = resources.getBoolean(R.bool.isStatusDarkFont)
         val immersionBar = ImmersionBar.with(this)
-        immersionBar.statusBarColor(R.color.colorStatusBar)
-        immersionBar.navigationBarColor(R.color.colorNavigationBar)
+        immersionBar.statusBarColor(com.jason.theme.R.color.colorStatusBar)
+        immersionBar.navigationBarColor(com.jason.theme.R.color.colorNavigationBar)
         immersionBar.autoDarkModeEnable(true, 0.2f)
         if (findViewById<View>(R.id.status_view) != null) {
             immersionBar.statusBarView(R.id.status_view)

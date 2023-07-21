@@ -49,36 +49,41 @@
                 app:elevation="0dp"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tabLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="38dp"
-                    android:background="@android:color/transparent"
-                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                    app:tabBackground="@android:color/transparent"
-                    app:tabGravity="fill"
-                    app:tabIndicator="@drawable/tab_indicator"
-                    app:tabIndicatorAnimationMode="elastic"
-                    app:tabIndicatorColor="@color/colorSecondary"
-                    app:tabIndicatorFullWidth="false"
-                    app:tabIndicatorHeight="2.5dp"
-                    app:tabMaxWidth="0dp"
-                    app:tabMinWidth="10dp"
-                    app:tabMode="scrollable"
-                    app:tabPaddingEnd="16dp"
-                    app:tabPaddingStart="16dp"
-                    app:tabRippleColor="@android:color/transparent"
-                    app:tabSelectedTextColor="@color/colorSecondary"
-                    app:tabTextAppearance="@style/TabTextBoldMedium" />
-
-                <com.google.android.material.divider.MaterialDivider
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dividerColor="@color/colorItemDecoration"
-                    app:dividerInsetEnd="16dp"
-                    app:dividerInsetStart="16dp"
-                    app:dividerThickness="0.8dp"
-                    app:layout_scrollFlags="scroll|exitUntilCollapsed" />
+                    android:orientation="vertical"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/tabLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="38dp"
+                        android:background="@android:color/transparent"
+                        app:tabBackground="@android:color/transparent"
+                        app:tabGravity="fill"
+                        app:tabIndicator="@drawable/tab_indicator"
+                        app:tabIndicatorAnimationMode="elastic"
+                        app:tabIndicatorColor="@color/colorSecondary"
+                        app:tabIndicatorFullWidth="false"
+                        app:tabIndicatorHeight="2.5dp"
+                        app:tabMaxWidth="0dp"
+                        app:tabMinWidth="10dp"
+                        app:tabMode="scrollable"
+                        app:tabPaddingEnd="16dp"
+                        app:tabPaddingStart="16dp"
+                        app:tabRippleColor="@android:color/transparent"
+                        app:tabSelectedTextColor="@color/colorSecondary"
+                        app:tabTextAppearance="@style/TabTextBoldMedium" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:dividerColor="@color/colorItemDecoration"
+                        app:dividerInsetEnd="16dp"
+                        app:dividerInsetStart="16dp"
+                        app:dividerThickness="0.8dp" />
+                </LinearLayout>
             </com.google.android.material.appbar.AppBarLayout>
 
             <androidx.viewpager2.widget.ViewPager2

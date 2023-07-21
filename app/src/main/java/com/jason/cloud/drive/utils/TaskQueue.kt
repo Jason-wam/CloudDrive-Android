@@ -1,15 +1,25 @@
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.util.concurrent.locks.ReentrantLock
 
 class TaskQueue<T : TaskQueue.Task> {
     private val taskList = arrayListOf<T>()
     private val taskLock = ReentrantLock()
-    private var queueMonitor: Job? = null
     private var threadSize = 1
     private var onTaskDoneListener: ((T) -> Unit)? = null
     private var onTaskStartListener: ((T) -> Unit)? = null
+    private var onTaskListDoneListener: (() -> Unit)? = null
+
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private var queueMonitor: Job? = null
+    private var isActive = true
 
     abstract class Task {
         abstract fun start()
@@ -23,7 +33,7 @@ class TaskQueue<T : TaskQueue.Task> {
 
     val taskFlow: Flow<List<T>> by lazy {
         flow {
-            while (true) {
+            while (isActive) {
                 if (taskLock.isLocked.not()) {
                     emit(ArrayList(taskList))
                     delay(1000)
@@ -37,12 +47,24 @@ class TaskQueue<T : TaskQueue.Task> {
         return this
     }
 
+    /**
+     * 任务队列执行完毕
+     */
+    fun onTaskListDone(listener: () -> Unit): TaskQueue<T> {
+        this.onTaskListDoneListener = listener
+        return this
+    }
+
     fun onTaskStart(listener: (T) -> Unit): TaskQueue<T> {
         this.onTaskStartListener = listener
         return this
     }
 
     fun getTaskList() = ArrayList(taskList)
+
+    fun hasRunningTask() = taskList.any { it.isRunning() }
+
+    fun getRunningTaskList() = ArrayList(taskList.filter { it.isRunning() })
 
     fun addTask(task: T): TaskQueue<T> {
         taskLock.lock()
@@ -93,7 +115,7 @@ class TaskQueue<T : TaskQueue.Task> {
     private fun launchQueueMonitor() {
         if (queueMonitor?.isActive != true) {
             println("启动轮循器...")
-            queueMonitor = CoroutineScope(Dispatchers.IO).launch {
+            queueMonitor = scope.launch {
                 while (isActive) {
                     delay(1000)
                     if (taskLock.isLocked.not() && taskList.isNotEmpty()) {
@@ -124,7 +146,9 @@ class TaskQueue<T : TaskQueue.Task> {
     }
 
     private fun startNextTask() {
-        if (taskList.isNotEmpty()) {
+        if (taskList.isEmpty()) {
+            onTaskListDoneListener?.invoke()
+        } else {
             taskList.forEachIndexed { index, t ->
                 if (index < threadSize) {
                     println("启动任务：${t.getTaskId()}")
@@ -133,5 +157,21 @@ class TaskQueue<T : TaskQueue.Task> {
                 }
             }
         }
+    }
+
+
+    fun release() {
+        taskLock.lock()
+        taskList.clear()
+        taskLock.unlock()
+
+        queueMonitor?.cancel()
+        queueMonitor = null
+        scope.cancel()
+
+        onTaskDoneListener = null
+        onTaskListDoneListener = null
+        onTaskStartListener = null
+        isActive = false
     }
 }

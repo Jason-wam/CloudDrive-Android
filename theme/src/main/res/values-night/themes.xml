@@ -1,0 +1,43 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorNavigationBar</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">@bool/isStatusDarkFont</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">
+            @bool/isStatusDarkFont
+        </item>
+        <item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">
+            @color/colorNavigationBar
+        </item>
+        <!-- Customize your theme here. -->
+        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="android:windowBackground">@color/colorWindowBackground</item>
+
+        <item name="popupMenuStyle">@style/MyPopupMenuStyle</item>
+        <item name="android:popupMenuStyle">@style/MyPopupMenuStyle</item>
+        <item name="actionOverflowMenuStyle">@style/MyPopupMenuStyle</item>
+
+        <item name="textAppearanceLargePopupMenu">@style/MyTextAppearanceLargePopupMenu</item>
+        <item name="textAppearanceSmallPopupMenu">@style/MyTextAppearanceSmallPopupMenu</item>
+        <item name="textAppearancePopupMenuHeader">@style/MyTextAppearancePopupMenuHeader</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/MyTextAppearanceLargePopupMenu
+        </item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/MyTextAppearanceSmallPopupMenu
+        </item>
+        <item name="android:textAppearancePopupMenuHeader" tools:targetApi="n">
+            @style/MyTextAppearancePopupMenuHeader
+        </item>
+    </style>
+</resources>

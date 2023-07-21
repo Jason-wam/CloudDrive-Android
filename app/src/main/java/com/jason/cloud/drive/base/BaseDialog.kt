@@ -4,10 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import com.jason.cloud.drive.R
 
 @SuppressLint("ResourceType")
-abstract class BaseDialog(context: Context) : Dialog(context, R.style.DialogStyle) {
+abstract class BaseDialog(context: Context) : Dialog(context, com.jason.theme.R.style.DialogStyle) {
     private val onShowListeners = arrayListOf<DialogInterface.OnShowListener>()
     private val onDismissListeners = arrayListOf<DialogInterface.OnDismissListener>()
 

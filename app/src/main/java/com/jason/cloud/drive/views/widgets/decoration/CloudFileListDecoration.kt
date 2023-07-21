@@ -13,7 +13,7 @@ import com.jason.cloud.drive.utils.extension.dp
 class CloudFileListDecoration(context: Context) : RecyclerView.ItemDecoration() {
     private val dividerSize = context.resources.getDimension(R.dimen.itemDecorationSize).toInt()
     private val paint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.colorItemDecoration)
+        color = ContextCompat.getColor(context, com.jason.theme.R.color.colorItemDecoration)
     }
 
     override fun getItemOffsets(

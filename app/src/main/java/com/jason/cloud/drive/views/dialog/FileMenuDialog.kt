@@ -4,11 +4,10 @@ import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
-import com.jason.cloud.drive.database.downloader.DownloadQueue
-import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.databinding.LayoutFileMenuDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.mimeType
+import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.extension.externalFilesDir
 import com.jason.cloud.drive.utils.extension.getSerializableEx
 import com.jason.cloud.drive.utils.extension.openURL
@@ -50,9 +49,17 @@ class FileMenuDialog :
     }
 
     private fun download(file: FileEntity) {
-        val dir = requireContext().externalFilesDir("downloads")
-        DownloadQueue.instance.addTask(DownloadTask(file, dir))
-        DownloadQueue.instance.start()
+        DownloadService.launchWith(
+            requireActivity(),
+            listOf(
+                DownloadService.DownloadParam(
+                    file.name,
+                    file.rawURL,
+                    file.hash,
+                    requireContext().externalFilesDir("downloads")
+                )
+            )
+        )
         toast("正在取回文件：${file.name}")
         dismiss()
     }

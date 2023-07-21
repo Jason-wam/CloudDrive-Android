@@ -54,6 +54,21 @@ fun Context.openURL(url: String, mimeType: String) {
     }
 }
 
+@Suppress("DEPRECATION", "UNCHECKED_CAST")
+inline fun <reified T : Serializable> Intent.getSerializableListExtraEx(
+    name: String
+): List<T> {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getSerializableExtra(name, Serializable::class.java)?.let { it as List<T> } ?: emptyList()
+    } else {
+        getSerializableExtra(name)?.let { it as List<T> } ?: emptyList()
+    }
+}
+
+fun Intent.putSerializableListExtra(name: String, serializableList: List<Serializable>) {
+    putExtra(name, serializableList as Serializable)
+}
+
 @Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Intent.getSerializableExtraEx(
     name: String,

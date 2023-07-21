@@ -15,9 +15,10 @@ object UploadQueue {
                 this.progress = it.progress
                 this.totalBytes = it.totalBytes
                 this.uploadedBytes = it.uploadedBytes
-                this.succeed = it.status == UploadTask.Status.SUCCEED ||
-                        it.status == UploadTask.Status.FLASH_UPLOADED
+                this.succeed =
+                    it.status == UploadTask.Status.SUCCEED || it.status == UploadTask.Status.FLASH_UPLOADED
                 this.timestamp = System.currentTimeMillis()
+                this.progress = if (succeed) 100 else it.progress
             })
         }
     }

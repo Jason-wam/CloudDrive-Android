@@ -8,15 +8,16 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "downloader")
 class DownloadTaskEntity {
     @PrimaryKey
-    var id: String = ""
+    var hash: String = ""
+
     var url: String = ""
     var dir: String = ""
     var path: String = ""
-    var hash: String = ""
     var name: String = ""
     var progress: Int = 0
     var totalBytes: Long = 0
     var downloadedBytes: Long = 0
     var timestamp: Long = 0
-    var succeed: Boolean = false
+
+    var status: DownloadTask.Status = DownloadTask.Status.QUEUE
 }

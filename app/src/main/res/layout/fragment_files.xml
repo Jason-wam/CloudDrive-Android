@@ -49,24 +49,29 @@
                 app:elevation="0dp"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPathIndicator"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                <LinearLayout
                     app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                    tools:listitem="@layout/item_cloud_file_path_indicator" />
-
-                <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:dividerColor="@color/colorItemDecoration"
-                    app:dividerInsetEnd="16dp"
-                    app:dividerInsetStart="16dp"
-                    app:dividerThickness="0.8dp"
-                    app:layout_scrollFlags="scroll|exitUntilCollapsed" />
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvPathIndicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:listitem="@layout/item_cloud_file_path_indicator" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:dividerColor="@color/colorItemDecoration"
+                        app:dividerInsetEnd="16dp"
+                        app:dividerInsetStart="16dp"
+                        app:dividerThickness="0.8dp" />
+                </LinearLayout>
             </com.google.android.material.appbar.AppBarLayout>
 
             <com.jason.cloud.drive.views.widgets.StateLayout

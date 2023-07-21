@@ -7,6 +7,7 @@ import com.jason.cloud.drive.utils.MediaType
 import org.json.JSONObject
 import java.io.Serializable
 
+
 data class FileEntity(
     val name: String,
     val path: String,
