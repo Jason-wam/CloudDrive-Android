@@ -15,6 +15,8 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.drake.net.utils.fileName
+import com.hjq.permissions.Permission
+import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.utils.extension.getParcelableArrayListEx
 import kotlinx.coroutines.CoroutineScope
@@ -32,11 +34,22 @@ class FileUploadService : Service() {
     companion object {
         fun upload(context: Context, hash: String, uriList: List<Uri>) {
             Log.e("FileUploadService", "launch...")
-            if (uriList.isNotEmpty()) {
+            fun start() {
                 context.startService(Intent(context, FileUploadService::class.java).apply {
                     putExtra("hash", hash)
                     putParcelableArrayListExtra("list", ArrayList(uriList))
                 })
+            }
+
+            if (uriList.isNotEmpty()) {
+                if (XXPermissions.isGranted(context, Permission.POST_NOTIFICATIONS)) {
+                    start()
+                } else {
+                    XXPermissions.with(context).permission(Permission.POST_NOTIFICATIONS)
+                        .request { _, _ ->
+                            start()
+                        }
+                }
             }
         }
     }

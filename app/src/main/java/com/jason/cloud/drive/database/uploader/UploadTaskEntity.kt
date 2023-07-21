@@ -1,4 +1,4 @@
-package com.jason.cloud.drive.utils.uploader
+package com.jason.cloud.drive.database.uploader
 
 import androidx.annotation.Keep
 import androidx.room.Entity
@@ -6,14 +6,16 @@ import androidx.room.PrimaryKey
 
 @Keep
 @Entity(tableName = "uploader")
-class UploadTask {
+class UploadTaskEntity {
     @PrimaryKey
     var id: String = ""
     var uri: String = ""
-    var url: String = ""
+    var hash: String = ""
     var name: String = ""
+    var fileHash: String = ""
+    var progress: Int = 0
     var totalBytes: Long = 0
     var uploadedBytes: Long = 0
-    var progress: Int = 0
-    var status: String = Uploader.Status.QUEUE.name
+    var timestamp: Long = 0
+    var succeed: Boolean = false
 }

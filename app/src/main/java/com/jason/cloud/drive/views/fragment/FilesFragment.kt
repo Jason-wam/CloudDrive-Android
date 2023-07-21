@@ -30,7 +30,8 @@ import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.toOpenImageUrl
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.uploader.UploadQueue
+import com.jason.cloud.drive.database.uploader.UploadQueue
+import com.jason.cloud.drive.database.uploader.UploadTask
 import com.jason.cloud.drive.viewmodel.FileViewModel
 import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.VideoDetailDialog
@@ -64,13 +65,14 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 binding.stateLayout.showLoading()
                 viewModel.getList(item)
             } else {
-                if (MediaType.isVideo(item.name)) {
-                    VideoDetailDialog().setFile(item).showNow(parentFragmentManager, "detail")
-                } else if (MediaType.isImage(item.name)) {
-                    viewImages(item)
-                } else {
-                    FileMenuDialog().setFile(item).showNow(childFragmentManager, "menu")
-                }
+                FileMenuDialog().setFile(item).showNow(childFragmentManager, "menu")
+//                if (MediaType.isVideo(item.name)) {
+//                    VideoDetailDialog().setFile(item).showNow(parentFragmentManager, "detail")
+//                } else if (MediaType.isImage(item.name)) {
+//                    viewImages(item)
+//                } else {
+//                    FileMenuDialog().setFile(item).showNow(childFragmentManager, "menu")
+//                }
             }
         }
     }
@@ -86,16 +88,16 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fileSelectLauncher = registerForActivityResult(FilesSelectContract()) { uriList ->
             if (uriList.isNotEmpty()) {
                 toast("正在上传 ${uriList.size} 个文件")
-                uriList.forEach { uri ->
-                    Log.i("FilesSelectContract", uri.toString())
-                    UploadQueue.instance.upload(uri, viewModel.current())
-                }
+                UploadQueue.instance.addTask(ArrayList<UploadTask>().apply {
+                    uriList.forEach { uri ->
+                        add(UploadTask(uri, viewModel.current()))
+                    }
+                }).start()
             }
         }
     }

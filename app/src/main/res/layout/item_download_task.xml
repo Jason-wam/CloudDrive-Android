@@ -69,7 +69,7 @@
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="11sp"
                     tools:targetApi="m"
-                    tools:text="正在校验文件中(65%)，请稍候..." />
+                    tools:text="正在连接服务器，请稍候..." />
 
                 <Space
                     android:layout_width="8dp"
@@ -83,6 +83,7 @@
                     android:textSize="11sp"
                     tools:targetApi="m"
                     tools:text="0B / 9.3 GB" />
+
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

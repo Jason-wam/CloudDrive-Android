@@ -16,6 +16,7 @@ import kotlin.system.exitProcess
 
 class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_main),
     CallActivityInterface {
+
     override fun initView() {
         binding.viewPager2.isUserInputEnabled = false
         binding.viewPager2.getChildAt(0)?.overScrollMode = View.OVER_SCROLL_NEVER

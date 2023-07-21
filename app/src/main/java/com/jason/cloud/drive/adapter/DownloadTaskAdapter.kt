@@ -4,27 +4,31 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
+import com.jason.cloud.drive.database.downloader.DownloadTask
+import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.databinding.ItemUploadTaskBinding
 import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.utils.MediaType
 import com.jason.cloud.drive.utils.MediaType.Media.*
-import com.jason.cloud.drive.utils.uploader.Uploader
-import com.jason.cloud.drive.utils.uploader.getStatusText
+import com.jason.cloud.drive.database.uploader.getStatusText
+import com.jason.cloud.drive.database.uploader.UploadTask
+import com.jason.cloud.drive.databinding.ItemDownloadTaskBinding
 
-class UploadQueueAdapter :
-    BaseBindRvAdapter<Uploader, ItemUploadTaskBinding>(R.layout.item_upload_task) {
+class DownloadTaskAdapter :
+    BaseBindRvAdapter<DownloadTask, ItemDownloadTaskBinding>(R.layout.item_download_task) {
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(
         context: Context,
-        holder: ViewHolder<ItemUploadTaskBinding>,
+        holder: ViewHolder<ItemDownloadTaskBinding>,
         position: Int,
-        item: Uploader
+        item: DownloadTask
     ) {
-        holder.binding.ivIcon.setImageResource(getFileIcon(item.name))
-        holder.binding.tvName.text = item.name
+        holder.binding.ivIcon.setImageResource(getFileIcon(item.fileEntity.name))
+        holder.binding.tvName.text = item.fileEntity.name
+        holder.binding.indicator.progress = item.progress
         holder.binding.tvStatus.text = item.getStatusText()
         holder.binding.tvSize.text =
-            item.uploadedBytes.toFileSizeString() + " / " + item.totalBytes.toFileSizeString()
+            item.downloadBytes.toFileSizeString() + " / " + item.totalBytes.toFileSizeString()
     }
 
     private fun getFileIcon(name: String): Int {

@@ -6,6 +6,16 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -23,8 +33,14 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:theme"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="ScopedStorage"
+            android:value="true" />
+
         <service android:name=".service.UploadService" />
         <service android:name=".service.FileUploadService" />
+
         <activity
             android:name=".views.activity.MainActivity"
             android:exported="true">

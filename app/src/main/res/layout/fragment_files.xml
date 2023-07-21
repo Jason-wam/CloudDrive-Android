@@ -59,6 +59,14 @@
                     app:layout_scrollFlags="scroll|exitUntilCollapsed"
                     tools:listitem="@layout/item_cloud_file_path_indicator" />
 
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:dividerColor="@color/colorItemDecoration"
+                    app:dividerInsetEnd="16dp"
+                    app:dividerInsetStart="16dp"
+                    app:dividerThickness="0.8dp"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed" />
             </com.google.android.material.appbar.AppBarLayout>
 
             <com.jason.cloud.drive.views.widgets.StateLayout

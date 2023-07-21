@@ -27,8 +27,9 @@
             android:layout_height="4dp" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
@@ -64,12 +65,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:layout_weight="1"
                     android:maxLines="1"
+                    android:layout_weight="1"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="11sp"
                     tools:targetApi="m"
-                    tools:text="正在校验文件中(65%)，请稍候..." />
+                    tools:text="上传成功！" />
 
                 <Space
                     android:layout_width="8dp"
@@ -79,6 +80,7 @@
                     android:id="@+id/tv_size"
                     android:layout_width="wrap_content"
                     android:layout_height="16dp"
+                    android:gravity="center_vertical"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="11sp"
                     tools:targetApi="m"

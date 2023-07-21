@@ -1,5 +1,6 @@
 package com.jason.cloud.drive.model
 
+import android.webkit.MimeTypeMap
 import com.flyjingfish.openimagelib.beans.OpenImageUrl
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.MediaType
@@ -43,6 +44,11 @@ data class FileEntity(
             )
         }
     }
+}
+
+fun FileEntity.mimeType(): String {
+    val extension = "." + name.substringAfterLast(".")
+    return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
 }
 
 fun FileEntity.toOpenImageUrl(): OpenImageUrl {
