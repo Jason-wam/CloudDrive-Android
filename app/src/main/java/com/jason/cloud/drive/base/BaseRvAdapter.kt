@@ -3,10 +3,14 @@ package com.jason.cloud.drive.base
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class BaseRvAdapter<ITEM, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    protected var onClickObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> = arrayListOf()
-    protected var onBindViewObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> = arrayListOf()
-    protected var onLongClickObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> = arrayListOf()
+abstract class BaseRvAdapter<ITEM, VH : RecyclerView.ViewHolder> :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    protected var onClickObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> =
+        arrayListOf()
+    protected var onBindViewObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> =
+        arrayListOf()
+    protected var onLongClickObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> =
+        arrayListOf()
     open var itemData = ArrayList<ITEM>()
 
     override fun getItemCount(): Int {

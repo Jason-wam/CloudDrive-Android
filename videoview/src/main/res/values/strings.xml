@@ -1,0 +1,15 @@
+<resources>
+    <!--播放器-->
+    <string name="player_fast_forward">× %s 倍速播放</string>
+    <string name="player_play_speed">倍速</string>
+    <string name="player_scale_size">缩放</string>
+    <string name="player_select_video">选集</string>
+    <string name="player_wifi_tip">您正在使用移动网络，继续播放将消耗流量</string>
+    <string name="player_continue_play">继续播放</string>
+    <string name="player_buffing">视频正在缓冲...</string>
+    <string name="player_opening">正在打开视频...</string>
+    <string name="player_error_message">出了点小问题，请稍后重试</string>
+    <string name="player_retry"> 重 试 </string>
+    <string name="player_skip">跳 过</string>
+    <string name="player_replay">重新播放</string>
+</resources>

@@ -15,7 +15,10 @@ open class BaseViewPager2Adapter : FragmentStateAdapter {
 
     constructor(fragmentActivity: FragmentActivity) : super(fragmentActivity)
 
-    constructor(fragmentManager: FragmentManager, lifecycle: Lifecycle) : super(fragmentManager, lifecycle)
+    constructor(fragmentManager: FragmentManager, lifecycle: Lifecycle) : super(
+        fragmentManager,
+        lifecycle
+    )
 
     override fun createFragment(position: Int): Fragment {
         return fragmentList[position]

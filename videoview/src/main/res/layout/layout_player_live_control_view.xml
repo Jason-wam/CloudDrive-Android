@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_gravity="bottom"
+    android:background="@drawable/shadow_player_controller_bottom">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="@android:color/transparent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+
+        <ImageButton
+            android:id="@+id/ibPlay"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/selector_player_play_button"
+            app:tint="@color/selector_player_video_press_color" />
+
+        <ImageButton
+            android:id="@+id/ibNext"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_player_skip_next_24"
+            app:tint="@color/selector_player_video_press_color"
+            tools:visibility="visible" />
+
+
+        <TextView
+            android:id="@+id/tvSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:alpha="0.5"
+            android:visibility="gone"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            tools:text="1920×1080" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tvScale"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:minWidth="55dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/player_scale_size"
+            android:textColor="@color/selector_player_video_press_color"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tvSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:minWidth="55dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/player_select_video"
+            android:textColor="@color/selector_player_video_press_color"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/ibReload"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_player_refresh_24"
+            app:tint="@color/selector_player_video_press_color"
+            tools:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/ibFullscreen"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_player_rotation_24"
+            app:tint="@color/selector_player_video_press_color" />
+
+    </LinearLayout>
+
+</FrameLayout>

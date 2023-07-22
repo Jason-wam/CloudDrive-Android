@@ -23,9 +23,9 @@ import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.database.downloader.toTaskEntity
-import com.jason.cloud.drive.utils.extension.getSerializableListExtraEx
-import com.jason.cloud.drive.utils.extension.putSerializableListExtra
-import com.jason.cloud.drive.utils.extension.toast
+import com.jason.cloud.extension.getSerializableListExtraEx
+import com.jason.cloud.extension.putSerializableListExtra
+import com.jason.cloud.extension.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -59,7 +59,7 @@ class DownloadService : Service() {
          * @param dir 要下载到的目标文件夹
          * @param list 本地文件URI列表
          */
-        fun launchWith(context: Context, params: List<DownloadParam>) {
+        fun launchWith(context: Context, params: List<DownloadParam>, block: (() -> Unit)? = null) {
             val service = Intent(context, DownloadService::class.java).apply {
                 putSerializableListExtra("params", params)
             }
@@ -68,6 +68,7 @@ class DownloadService : Service() {
                     if (allGranted.not()) {
                         context.toast("请赋予软件通知权限")
                     } else {
+                        block?.invoke()
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             context.startForegroundService(service)
                         } else {
@@ -171,39 +172,40 @@ class DownloadService : Service() {
         update()
 
         taskObserver?.cancel()
-        taskObserver = scope.launch(Dispatchers.IO) {
+        taskObserver = scope.launch {
             var status = DownloadTask.Status.QUEUE
             var progress = 0
             var downloadBytes = 0L
 
             while (isActive) {
-                if (task.isRunning()) {
-                    if (task.progress != progress) {
-                        progress = task.progress
-                        TaskDatabase.INSTANCE.getDownloadDao()
-                            .updateProgress(task.hash, task.progress)
-                    }
-                    if (task.downloadBytes != downloadBytes) {
-                        downloadBytes = task.downloadBytes
-                        TaskDatabase.INSTANCE.getDownloadDao()
-                            .updateDownloadedBytes(task.hash, task.downloadBytes)
-                    }
-                    if (task.status != status) {
-                        status = task.status
-                        TaskDatabase.INSTANCE.getDownloadDao().updateStatus(task.hash, task.status)
+                withContext(Dispatchers.IO) {
+                    if (task.isRunning()) {
+                        if (task.progress != progress) {
+                            progress = task.progress
+                            TaskDatabase.INSTANCE.getDownloadDao()
+                                .updateProgress(task.hash, task.progress)
+                        }
+                        if (task.downloadBytes != downloadBytes) {
+                            downloadBytes = task.downloadBytes
+                            TaskDatabase.INSTANCE.getDownloadDao()
+                                .updateDownloadedBytes(task.hash, task.downloadBytes)
+                        }
+                        if (task.status != status) {
+                            status = task.status
+                            TaskDatabase.INSTANCE.getDownloadDao()
+                                .updateStatus(task.hash, task.status)
+                        }
                     }
                 }
 
-                withContext(Dispatchers.Main) {
-                    notificationBuilder.setContentTitle(task.name)
-                    notificationBuilder.setContentText(task.getStatusText())
-                    notificationBuilder.setProgress(100, task.progress, false)
+                notificationBuilder.setContentTitle(task.name)
+                notificationBuilder.setContentText(task.getStatusText())
+                notificationBuilder.setProgress(100, task.progress, false)
 
-                    val taskList = downloadQueue.getTaskList()
-                    val doneSize = taskList.count { it.isDone() }
-                    notificationBuilder.setSubText("$doneSize/${taskList.size}")
-                    update()
-                }
+                val taskList = downloadQueue.getTaskList()
+                val doneSize = taskList.count { it.isDone() }
+                notificationBuilder.setSubText("$doneSize/${taskList.size}")
+                update()
                 delay(1000)
             }
         }

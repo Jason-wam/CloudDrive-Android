@@ -3,7 +3,7 @@ package com.jason.cloud.drive.model
 import android.webkit.MimeTypeMap
 import com.flyjingfish.openimagelib.beans.OpenImageUrl
 import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.MediaType
+import com.jason.cloud.drive.utils.FileType
 import org.json.JSONObject
 import java.io.Serializable
 
@@ -18,7 +18,8 @@ data class FileEntity(
     val isDirectory: Boolean,
     val childCount: Int,
     val firstFileHash: String,
-    val firstFileType: MediaType.Media,
+    val firstFileType: FileType.Media,
+    val isVirtual: Boolean,
     val rawURL: String,
     val gifURL: String,
     val thumbnailURL: String,
@@ -36,9 +37,8 @@ data class FileEntity(
                 obj.getBoolean("isDirectory"),
                 obj.getInt("childCount"),
                 obj.getString("firstFileHash"),
-                obj.getString("firstFileType").let { type ->
-                    MediaType.Media.valueOf(type)
-                },
+                obj.getString("firstFileType").let { type -> FileType.Media.valueOf(type) },
+                obj.getBoolean("isVirtual"),
                 rawURL = "${Configure.hostURL}/file?hash=$hash",
                 gifURL = "${Configure.hostURL}/thumbnail?hash=$hash&isGif=true",
                 thumbnailURL = "${Configure.hostURL}/thumbnail?hash=$hash"
@@ -48,7 +48,7 @@ data class FileEntity(
 }
 
 fun FileEntity.mimeType(): String {
-    val extension = "." + name.substringAfterLast(".")
+    val extension = name.substringAfterLast(".")
     return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
 }
 

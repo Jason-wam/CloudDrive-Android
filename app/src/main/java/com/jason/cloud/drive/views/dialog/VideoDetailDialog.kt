@@ -7,13 +7,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutVideoDetailDialogBinding
-import com.jason.cloud.drive.utils.extension.getSerializableEx
-import com.jason.cloud.drive.utils.extension.glide.loadIMG
-import com.jason.cloud.drive.utils.extension.openURL
-import com.jason.cloud.drive.utils.extension.toDateMinuteString
-import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.UrlBuilder
+import com.jason.cloud.extension.getSerializableEx
+import com.jason.cloud.extension.glide.loadIMG
+import com.jason.cloud.extension.openURL
+import com.jason.cloud.extension.toDateMinuteString
+import com.jason.cloud.extension.toFileSizeString
 
 class VideoDetailDialog :
     BaseBindBottomSheetDialogFragment<LayoutVideoDetailDialogBinding>(R.layout.layout_video_detail_dialog) {

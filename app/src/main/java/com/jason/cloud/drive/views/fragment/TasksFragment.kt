@@ -21,17 +21,17 @@ class TasksFragment : BaseBindFragment<FragmentTasksBinding>(R.layout.fragment_t
     }
 
     override fun initView(context: Context) {
-        binding.toolbar.setTitleFont("fonts/剑豪体.ttf")
-        binding.toolbar.onMenuItemClickListener(R.id.task_download){
+        binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
+        binding.toolbar.onMenuItemClickListener(R.id.task_download) {
             binding.viewPager2.setCurrentItem(0, false)
         }
-        binding.toolbar.onMenuItemClickListener(R.id.task_upload){
+        binding.toolbar.onMenuItemClickListener(R.id.task_upload) {
             binding.viewPager2.setCurrentItem(1, false)
         }
-        binding.toolbar.onMenuItemClickListener(R.id.task_cloud_download){
+        binding.toolbar.onMenuItemClickListener(R.id.task_cloud_download) {
             binding.viewPager2.setCurrentItem(2, false)
         }
-        binding.toolbar.onMenuItemClickListener(R.id.task_done){
+        binding.toolbar.onMenuItemClickListener(R.id.task_done) {
             binding.viewPager2.setCurrentItem(3, false)
         }
 

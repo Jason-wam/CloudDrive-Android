@@ -1,6 +1,6 @@
 package com.jason.cloud.drive.model
 
-import com.jason.cloud.drive.utils.extension.forEachObject
+import com.jason.cloud.extension.forEachObject
 import org.json.JSONObject
 
 data class FileListRespondEntity(

@@ -2,7 +2,7 @@ package com.jason.cloud.drive.database.downloader
 
 import TaskQueue
 import com.drake.net.NetConfig
-import com.jason.cloud.drive.utils.extension.toFileSizeString
+import com.jason.cloud.extension.toFileSizeString
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -19,11 +19,11 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
     TaskQueue.Task() {
     val file = File(dir, name)
 
+    var status = Status.QUEUE
+    var progress: Int = 0
     var totalBytes: Long = 0
     var downloadBytes: Long = 0
     var speedBytes: Long = 0
-    var progress: Int = 0
-    var status = Status.QUEUE
 
     enum class Status {
         QUEUE, CONNECTING, DOWNLOADING, FAILED, SUCCEED
@@ -33,10 +33,15 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
     private var isDone = false
     private var isRunning = false
 
+    private var onStatusListener: ((status: Status) -> Unit)? = null
+    private var onProgressListener: ((downloadBytes: Long, totalBytes: Long, speedBytes: Long, progress: Int) -> Unit)? =
+        null
+
     override fun start() {
         if (call != null || isRunning) return
         isRunning = true
         status = Status.CONNECTING
+        onStatusListener?.invoke(status)
 
         if (dir.exists().not()) {
             dir.mkdirs()
@@ -52,9 +57,7 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
             Request.Builder().url(url).build()
         } else {
             println("尝试获取分块：$startPos- ...")
-            Request.Builder().url(url)
-                .header("Range", "bytes=$startPos-")
-                .build()
+            Request.Builder().url(url).header("Range", "bytes=$startPos-").build()
         }
 
         call = NetConfig.okHttpClient.newCall(request)
@@ -63,6 +66,7 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
                 e.printStackTrace()
                 isDone = true
                 status = Status.FAILED
+                onStatusListener?.invoke(status)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -70,47 +74,62 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
                     HttpURLConnection.HTTP_PARTIAL -> {
                         println("成功获得分块内容，开始断点续传...")
                         status = Status.DOWNLOADING
+                        onStatusListener?.invoke(status)
+
                         response.body?.use { body ->
                             FileOutputStream(file, true).writeBody(
-                                body,
-                                startPos
+                                body, startPos
                             ) { downloadBytes: Long, totalBytes: Long, speedBytes: Long, progress: Int ->
                                 this@DownloadTask.totalBytes = totalBytes
                                 this@DownloadTask.downloadBytes = downloadBytes
                                 this@DownloadTask.speedBytes = speedBytes
                                 this@DownloadTask.progress = progress
+                                this@DownloadTask.onProgressListener?.invoke(
+                                    downloadBytes,
+                                    totalBytes,
+                                    speedBytes,
+                                    progress
+                                )
                             }
                         }
-                        println()
+
                         status = Status.SUCCEED
+                        onStatusListener?.invoke(status)
                     }
 
                     HttpURLConnection.HTTP_OK -> {
                         println("服务器返回完整文件内容，从头开始下载...")
                         status = Status.DOWNLOADING
                         response.body?.use { body ->
-                            FileOutputStream(file, false).writeBody(
-                                body,
+                            FileOutputStream(file, false).writeBody(body,
                                 block = { downloadBytes: Long, totalBytes: Long, speedBytes: Long, progress: Int ->
                                     this@DownloadTask.totalBytes = totalBytes
                                     this@DownloadTask.downloadBytes = downloadBytes
                                     this@DownloadTask.speedBytes = speedBytes
                                     this@DownloadTask.progress = progress
-                                }
-                            )
+                                    this@DownloadTask.onProgressListener?.invoke(
+                                        downloadBytes,
+                                        totalBytes,
+                                        speedBytes,
+                                        progress
+                                    )
+                                })
                         }
                         println()
                         status = Status.SUCCEED
+                        onStatusListener?.invoke(status)
                     }
 
                     416 -> { //Requested Range not satisfiable
                         println("获得分块内容失败,分块位置超出文件总长度...")
                         status = Status.FAILED
+                        onStatusListener?.invoke(status)
                     }
 
                     else -> {
                         println("文件下载失败：code = ${response.code}...")
                         status = Status.FAILED
+                        onStatusListener?.invoke(status)
                     }
                 }
 
@@ -142,6 +161,16 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
 
     override fun getTaskId(): Any {
         return hash
+    }
+
+    fun onProgress(listener: (downloadBytes: Long, totalBytes: Long, speedBytes: Long, progress: Int) -> Unit): DownloadTask {
+        this.onProgressListener = listener
+        return this
+    }
+
+    fun onStatusChanged(listener: (status: Status) -> Unit): DownloadTask {
+        this.onStatusListener = listener
+        return this
     }
 
     private fun FileOutputStream.writeBody(

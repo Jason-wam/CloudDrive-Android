@@ -1,7 +1,6 @@
 package com.jason.cloud.drive.database.uploader
 
-import com.jason.cloud.drive.database.downloader.DownloadTask
-import com.jason.cloud.drive.utils.extension.toFileSizeString
+import com.jason.cloud.extension.toFileSizeString
 
 fun UploadTask.getStatusText(): String {
     return when (status) {

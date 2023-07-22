@@ -5,12 +5,27 @@ import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindHeaderRvAdapter
 import com.jason.cloud.drive.databinding.ItemCloudFileBinding
-import com.jason.cloud.drive.utils.extension.glide.loadIMG
-import com.jason.cloud.drive.utils.extension.toDateMinuteString
-import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.MediaType.Media.*
+import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.FileType.Media.APPLICATION
+import com.jason.cloud.drive.utils.FileType.Media.AUDIO
+import com.jason.cloud.drive.utils.FileType.Media.COMPRESS
+import com.jason.cloud.drive.utils.FileType.Media.DATABASE
+import com.jason.cloud.drive.utils.FileType.Media.EXCEL
+import com.jason.cloud.drive.utils.FileType.Media.EXE
+import com.jason.cloud.drive.utils.FileType.Media.FOLDER
+import com.jason.cloud.drive.utils.FileType.Media.FONT
+import com.jason.cloud.drive.utils.FileType.Media.IMAGE
+import com.jason.cloud.drive.utils.FileType.Media.PPT
+import com.jason.cloud.drive.utils.FileType.Media.TEXT
+import com.jason.cloud.drive.utils.FileType.Media.TORRENT
+import com.jason.cloud.drive.utils.FileType.Media.UNKNOWN
+import com.jason.cloud.drive.utils.FileType.Media.VIDEO
+import com.jason.cloud.drive.utils.FileType.Media.WEB
+import com.jason.cloud.drive.utils.FileType.Media.WORD
+import com.jason.cloud.extension.glide.loadIMG
+import com.jason.cloud.extension.toDateMinuteString
+import com.jason.cloud.extension.toFileSizeString
 
 class CloudFileAdapter :
     BaseBindHeaderRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
@@ -46,7 +61,7 @@ class CloudFileAdapter :
                 }
             }
         } else {
-            when (MediaType.getMediaType(item.name)) {
+            when (FileType.getMediaType(item.name)) {
                 IMAGE, VIDEO, AUDIO -> {
                     holder.binding.flCoverLayout.isVisible = false
                     holder.binding.ivIcon.isVisible = false
@@ -66,6 +81,7 @@ class CloudFileAdapter :
         }
 
         holder.binding.tvName.text = item.name
+        holder.binding.icVirtual.isVisible = item.isVirtual
         holder.binding.tvDate.text = item.date.toDateMinuteString()
         holder.binding.tvSize.text = if (item.isDirectory) {
             "${item.childCount} 个项目"
@@ -74,9 +90,9 @@ class CloudFileAdapter :
         }
     }
 
-    private fun getFileIcon(name: String): Int = getFileIcon(MediaType.getMediaType(name))
+    private fun getFileIcon(name: String): Int = getFileIcon(FileType.getMediaType(name))
 
-    private fun getFileIcon(type: MediaType.Media): Int {
+    private fun getFileIcon(type: FileType.Media): Int {
         return when (type) {
             VIDEO -> R.drawable.ic_round_file_video_24
             IMAGE -> R.drawable.ic_round_file_image_24

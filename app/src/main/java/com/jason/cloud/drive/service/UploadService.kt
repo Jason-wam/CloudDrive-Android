@@ -24,8 +24,8 @@ import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.database.uploader.UploadTask
 import com.jason.cloud.drive.database.uploader.UploadTaskEntity
 import com.jason.cloud.drive.database.uploader.getStatusText
-import com.jason.cloud.drive.utils.extension.getParcelableArrayListEx
-import com.jason.cloud.drive.utils.extension.toast
+import com.jason.cloud.extension.getParcelableArrayListEx
+import com.jason.cloud.extension.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

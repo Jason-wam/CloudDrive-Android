@@ -64,6 +64,16 @@
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_round_file_folder_foreground_24" />
             </FrameLayout>
+
+            <ImageView
+                android:id="@+id/ic_virtual"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="2dp"
+                android:src="@drawable/ic_external_link_square_alt_24"
+                android:visibility="gone"
+                tools:visibility="visible" />
         </FrameLayout>
 
         <Space
@@ -71,13 +81,13 @@
             android:layout_height="4dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="3"
@@ -87,7 +97,7 @@
                 tools:text="疾速追杀1.John.Wick.Chapter1.2014.Bluray.UHD.HDR.2160p.H265.10bit.AC3.5.1.mkv" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -115,6 +125,22 @@
                     tools:targetApi="m"
                     tools:text="9.3 GB" />
 
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_local"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@string/exist_at_local"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    tools:targetApi="m"
+                    tools:visibility="visible" />
             </LinearLayout>
         </LinearLayout>
 

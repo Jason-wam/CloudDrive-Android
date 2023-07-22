@@ -18,8 +18,8 @@ import com.jason.cloud.drive.database.downloader.DownloadQueue
 import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.databinding.FragmentDownloadBinding
 import com.jason.cloud.drive.service.DownloadService
-import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.extension.toFileSizeString
 import kotlinx.coroutines.launch
 
 class DownloadFragment : BaseBindFragment<FragmentDownloadBinding>(R.layout.fragment_download),

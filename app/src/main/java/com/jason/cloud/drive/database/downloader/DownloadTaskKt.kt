@@ -1,6 +1,6 @@
 package com.jason.cloud.drive.database.downloader
 
-import com.jason.cloud.drive.utils.extension.toFileSizeString
+import com.jason.cloud.extension.toFileSizeString
 
 
 fun DownloadTask.getStatusText(): String {

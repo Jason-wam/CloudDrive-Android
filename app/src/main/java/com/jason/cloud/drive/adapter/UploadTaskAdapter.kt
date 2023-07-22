@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
-import com.jason.cloud.drive.databinding.ItemUploadTaskBinding
-import com.jason.cloud.drive.utils.extension.toFileSizeString
-import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.MediaType.Media.*
-import com.jason.cloud.drive.database.uploader.getStatusText
 import com.jason.cloud.drive.database.uploader.UploadTask
+import com.jason.cloud.drive.database.uploader.getStatusText
+import com.jason.cloud.drive.databinding.ItemUploadTaskBinding
+import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.FileType.Media.*
+import com.jason.cloud.extension.toFileSizeString
 
 class UploadTaskAdapter :
     BaseBindRvAdapter<UploadTask, ItemUploadTaskBinding>(R.layout.item_upload_task) {
@@ -28,7 +28,7 @@ class UploadTaskAdapter :
     }
 
     private fun getFileIcon(name: String): Int {
-        return when (MediaType.getMediaType(name)) {
+        return when (FileType.getMediaType(name)) {
             VIDEO -> R.drawable.ic_round_file_video_24
             IMAGE -> R.drawable.ic_round_file_image_24
             AUDIO -> R.drawable.ic_round_file_audio_24

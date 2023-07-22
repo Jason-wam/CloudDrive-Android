@@ -6,19 +6,35 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutFileMenuDialogBinding
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.model.mimeType
-import com.jason.cloud.drive.service.DownloadService
-import com.jason.cloud.drive.utils.extension.externalFilesDir
-import com.jason.cloud.drive.utils.extension.getSerializableEx
-import com.jason.cloud.drive.utils.extension.openURL
-import com.jason.cloud.drive.utils.extension.toast
+import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.extension.getSerializableListExtraEx
+import java.io.Serializable
 
 class FileMenuDialog :
     BaseBindBottomSheetDialogFragment<LayoutFileMenuDialogBinding>(R.layout.layout_file_menu_dialog) {
+    private var callback: Callback? = null
 
-    fun setFile(file: FileEntity): FileMenuDialog {
-        arguments?.putSerializable("file", file)
+    fun setFile(list: List<FileEntity>, position: Int): FileMenuDialog {
+        arguments?.putSerializable("file", list as Serializable)
+        arguments?.putInt("position", position)
         return this
+    }
+
+    fun setCallback(callback: Callback): FileMenuDialog {
+        this.callback = callback
+        return this
+    }
+
+    interface Callback {
+        fun viewVideos(list: List<FileEntity>, position: Int)
+
+        fun viewImages(list: List<FileEntity>, position: Int)
+
+        fun viewOthers(list: List<FileEntity>, position: Int)
+
+        fun downloadIt(file: FileEntity)
+
+        fun deleteIt(file: FileEntity)
     }
 
     override fun initView(view: View) {
@@ -34,33 +50,33 @@ class FileMenuDialog :
             }
         })
 
-        arguments?.getSerializableEx("file", FileEntity::class.java)?.let { file ->
-            binding.tvTitle.text = file.name
+        arguments?.getSerializableListExtraEx<FileEntity>("file")?.let { list ->
+            val position = arguments?.getInt("position") ?: 0
+            val current = list[position]
+
+            binding.tvTitle.text = current.name
             binding.btnOpen.setOnClickListener {
-                context?.openURL(file.rawURL, file.mimeType())
+                if (FileType.isVideo(current.name)) {
+                    callback?.viewVideos(list, position)
+                    dismiss()
+                } else if (FileType.isImage(current.name)) {
+                    callback?.viewImages(list, position)
+                    dismiss()
+                } else {
+                    callback?.viewOthers(list, position)
+                }
             }
             binding.btnFetch.setOnClickListener {
-                download(file)
+                callback?.downloadIt(current)
+                dismiss()
+            }
+            binding.btnDelete.setOnClickListener {
+                callback?.deleteIt(current)
+                dismiss()
             }
             binding.btnCancel.setOnClickListener {
                 dismiss()
             }
         }
-    }
-
-    private fun download(file: FileEntity) {
-        DownloadService.launchWith(
-            requireActivity(),
-            listOf(
-                DownloadService.DownloadParam(
-                    file.name,
-                    file.rawURL,
-                    file.hash,
-                    requireContext().externalFilesDir("downloads")
-                )
-            )
-        )
-        toast("正在取回文件：${file.name}")
-        dismiss()
     }
 }

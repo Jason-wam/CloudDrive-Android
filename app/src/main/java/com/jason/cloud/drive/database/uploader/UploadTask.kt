@@ -10,9 +10,9 @@ import com.drake.net.component.Progress
 import com.drake.net.interfaces.ProgressListener
 import com.drake.net.utils.scopeNet
 import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.extension.asJSONObject
-import com.jason.cloud.drive.utils.extension.createSketchedMD5String
-import com.jason.cloud.drive.utils.extension.toMd5String
+import com.jason.cloud.extension.asJSONObject
+import com.jason.cloud.extension.createSketchedMD5String
+import com.jason.cloud.extension.toMd5String
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit

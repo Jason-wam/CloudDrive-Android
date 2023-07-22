@@ -3,43 +3,51 @@ package com.jason.cloud.drive.views.fragment
 import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.drake.net.Delete
 import com.drake.net.Get
 import com.drake.net.utils.scopeDialog
-import com.drake.net.utils.scopeNetLife
+import com.drake.spannable.replaceSpan
+import com.drake.spannable.span.ColorSpan
 import com.flyjingfish.openimagelib.OpenImage
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.adapter.CloudFileAdapter
 import com.jason.cloud.drive.adapter.CloudFilePathIndicatorAdapter
 import com.jason.cloud.drive.base.BaseBindFragment
-import com.jason.cloud.drive.contract.FilesSelectContract
+import com.jason.cloud.drive.contract.SelectFilesContract
+import com.jason.cloud.drive.contract.SelectFolderContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
 import com.jason.cloud.drive.interfaces.CallActivityInterface
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.toOpenImageUrl
+import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.service.UploadService
 import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.extension.asJSONObject
-import com.jason.cloud.drive.utils.extension.cast
+import com.jason.cloud.drive.utils.DirManager
+import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.extension.toMessage
-import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.viewmodel.FileViewModel
+import com.jason.cloud.drive.views.activity.VideoPreviewActivity
 import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
+import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
+import com.jason.cloud.extension.asJSONObject
+import com.jason.cloud.extension.toast
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
+import com.jason.videoview.model.VideoData
 
-class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files) {
+class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files),
+    FileMenuDialog.Callback {
     companion object {
         @JvmStatic
         fun newInstance() = FilesFragment()
@@ -51,25 +59,20 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     private val lastPosition: HashMap<String, Pair<Int, Int>> = HashMap()
 
     private lateinit var fileSelectLauncher: ActivityResultLauncher<String>
+    private lateinit var selectFolderLauncher: ActivityResultLauncher<Any?>
 
     private val viewModel by lazy {
         ViewModelProvider(this)[FileViewModel::class.java]
     }
 
     private val adapter = CloudFileAdapter().apply {
-        addOnClickObserver { _, item, _ ->
+        addOnClickObserver { position, item, _ ->
             if (item.isDirectory) {
                 binding.stateLayout.showLoading()
                 viewModel.getList(item)
             } else {
-                FileMenuDialog().setFile(item).showNow(childFragmentManager, "menu")
-//                if (MediaType.isVideo(item.name)) {
-//                    VideoDetailDialog().setFile(item).showNow(parentFragmentManager, "detail")
-//                } else if (MediaType.isImage(item.name)) {
-//                    viewImages(item)
-//                } else {
-//                    FileMenuDialog().setFile(item).showNow(childFragmentManager, "menu")
-//                }
+                FileMenuDialog().setFile(itemData, position)
+                    .setCallback(this@FilesFragment).showNow(childFragmentManager, "menu")
             }
         }
     }
@@ -87,15 +90,35 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fileSelectLauncher = registerForActivityResult(FilesSelectContract()) { uriList ->
+        fileSelectLauncher = registerForActivityResult(SelectFilesContract()) { uriList ->
             if (uriList.isNotEmpty()) {
                 toast("开始上传 ${uriList.size} 个文件")
                 UploadService.launchWith(requireContext(), viewModel.current(), uriList)
-//                UploadQueue.instance.addTask(ArrayList<UploadTask>().apply {
-//                    uriList.forEach { uri ->
-//                        add(UploadTask(uri, viewModel.current()))
-//                    }
-//                }).start()
+            }
+        }
+
+        selectFolderLauncher = registerForActivityResult(SelectFolderContract()) { uri ->
+            if (uri != null) {
+                DocumentFile.fromTreeUri(
+                    requireContext(), uri
+                )?.listFiles()?.filter {
+                    it.isFile
+                }?.onEach {
+                    println("${it.name} >> ${it.uri}")
+                }?.let { list ->
+                    ArrayList<Uri>().apply {
+                        list.forEach { file ->
+                            add(file.uri)
+                        }
+                    }
+                }?.let { uriList ->
+                    if (uriList.isEmpty()) {
+                        toast("此目录下没有查找到文件")
+                    } else {
+                        toast("开始上传 ${uriList.size} 个文件")
+                        UploadService.launchWith(requireContext(), viewModel.current(), uriList)
+                    }
+                }
             }
         }
     }
@@ -108,28 +131,29 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
         binding.fabUpload.setOnClickListener {
             fileSelectLauncher.launch("*/*")
+//            selectFolderLauncher.launch(null)
         }
 
         binding.stateLayout.showLoading()
         viewModel.refresh(isGoBack = false)
 
-        activity?.onBackPressedDispatcher?.addCallback(
-            this, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (viewModel.isLoading) return
-                    if (viewModel.canGoBack()) {
-                        binding.stateLayout.showLoading()
-                        viewModel.goBack()
-                    } else {
-                        activity?.cast<CallActivityInterface>()?.callOnBackPressed()
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (viewModel.isLoading) return
+                if (viewModel.canGoBack()) {
+                    binding.stateLayout.showLoading()
+                    viewModel.goBack()
+                } else {
+                    if (activity is CallActivityInterface) {
+                        (activity as CallActivityInterface).callOnBackPressed()
                     }
                 }
             }
-        )
+        })
     }
 
     private fun initToolBar() {
-        binding.toolbar.setTitleFont("fonts/剑豪体.ttf")
+        binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
         binding.toolbar.onMenuItemClickListener(R.id.refresh) {
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
@@ -141,6 +165,32 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             fileSelectLauncher.launch("*/*")
         }
 
+        binding.toolbar.onMenuItemClickListener(R.id.name) {
+            Configure.sortModel = FileViewModel.ListSort.NAME
+            updateSortMenu()
+        }
+        binding.toolbar.onMenuItemClickListener(R.id.name_desc) {
+            Configure.sortModel = FileViewModel.ListSort.NAME_DESC
+            updateSortMenu()
+        }
+        binding.toolbar.onMenuItemClickListener(R.id.date) {
+            Configure.sortModel = FileViewModel.ListSort.DATE
+            updateSortMenu()
+        }
+        binding.toolbar.onMenuItemClickListener(R.id.date_desc) {
+            Configure.sortModel = FileViewModel.ListSort.DATE_DESC
+            updateSortMenu()
+        }
+        binding.toolbar.onMenuItemClickListener(R.id.size) {
+            Configure.sortModel = FileViewModel.ListSort.SIZE
+            updateSortMenu()
+        }
+        binding.toolbar.onMenuItemClickListener(R.id.size_desc) {
+            Configure.sortModel = FileViewModel.ListSort.SIZE_DESC
+            updateSortMenu()
+        }
+        updateSortMenu()
+
         binding.indicatorBar.addOnOffsetChangedListener { _, verticalOffset ->
             binding.appBarLayout.stateListAnimator = if (verticalOffset != 0) {
                 AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation)
@@ -150,6 +200,20 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 )
             }
         }
+    }
+
+    private fun updateSortMenu() {
+        val sort = Configure.sortModel
+        binding.toolbar.menu.findItem(R.id.name).isChecked = sort == FileViewModel.ListSort.NAME
+        binding.toolbar.menu.findItem(R.id.date).isChecked = sort == FileViewModel.ListSort.DATE
+        binding.toolbar.menu.findItem(R.id.size).isChecked = sort == FileViewModel.ListSort.SIZE
+        binding.toolbar.menu.findItem(R.id.name_desc).isChecked =
+            sort == FileViewModel.ListSort.NAME_DESC
+        binding.toolbar.menu.findItem(R.id.date_desc).isChecked =
+            sort == FileViewModel.ListSort.DATE_DESC
+        binding.toolbar.menu.findItem(R.id.size_desc).isChecked =
+            sort == FileViewModel.ListSort.SIZE_DESC
+        viewModel.refresh(isGoBack = false)
     }
 
     private fun initRecyclerView() {
@@ -216,6 +280,25 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     private fun createNewFolder() {
+        fun create(name: String) {
+            val dialog = LoadDialog(requireContext()).setMessage("正在创建文件夹...")
+            scopeDialog(dialog, cancelable = true) {
+                Get<String>("${Configure.hostURL}/createFolder") {
+                    param("hash", viewModel.current())
+                    param("name", name)
+                }.await().asJSONObject().also {
+                    if (it.optInt("code") == 200) {
+                        toast("文件夹创建成功！")
+                        viewModel.refresh(isGoBack = false)
+                    } else {
+                        toast(it.getString("message"))
+                    }
+                }
+            }.catch {
+                toast(it.toMessage())
+            }
+        }
+
         TextEditDialog(requireContext()).apply {
             setTitle("新建文件夹")
             setHintText("请输入文件夹名称...")
@@ -225,7 +308,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                     toast("请输入文件夹名称！")
                     false
                 } else {
-                    createFolder(it.trim())
+                    create(it.trim())
                     true
                 }
             }
@@ -233,55 +316,73 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
-    private fun viewImages(file: FileEntity) {
+    override fun viewVideos(list: List<FileEntity>, position: Int) {
+        VideoPreviewActivity.open(requireContext(), position, list.map {
+            VideoData(it.hash, it.name, it.rawURL)
+        })
+    }
+
+    override fun viewImages(list: List<FileEntity>, position: Int) {
+        val current = list[position]
         var clickPosition = 0
-        val imageUrlList = adapter.itemData.filter {
-            MediaType.isImage(it.name)
+        val imageUrlList = list.filter {
+            FileType.isImage(it.name)
         }.mapIndexed { index, item ->
-            if (file.path == item.path) {
+            if (current.path == item.path) {
                 clickPosition = index
             }
             item.toOpenImageUrl()
         }
 
-        OpenImage.with(requireActivity()).setNoneClickView()
-            .setImageUrlList(imageUrlList).setClickPosition(clickPosition).show()
+        OpenImage.with(requireActivity()).setNoneClickView().setImageUrlList(imageUrlList)
+            .setClickPosition(clickPosition).show()
     }
 
-    //##############################网络操作
+    override fun viewOthers(list: List<FileEntity>, position: Int) {
 
-    private fun createFolder(name: String) {
-        val dialog = LoadDialog(requireContext()).setMessage("正在创建文件夹...")
-        scopeDialog(dialog, cancelable = true) {
-            Get<String>("${Configure.hostURL}/createFolder") {
-                param("hash", viewModel.current())
-                param("name", name)
-            }.await().asJSONObject().also {
-                if (it.optInt("code") == 200) {
-                    toast("文件夹创建成功！")
-                } else {
-                    toast(it.getString("message"))
-                }
-            }
-        }.catch {
-            toast(it.toMessage())
+    }
+
+    override fun downloadIt(file: FileEntity) {
+        DownloadService.launchWith(
+            requireContext(),
+            listOf(
+                DownloadService.DownloadParam(
+                    file.name,
+                    file.rawURL,
+                    file.hash,
+                    DirManager.getDownloadDir(requireContext())
+                )
+            )
+        ) {
+            toast("正在取回文件：${file.name}")
         }
     }
 
-    private fun delete(hash: String) {
-        scopeNetLife {
-            Delete<String>("${Configure.hostURL}/delete") {
-                param("hash", hash)
-            }.await().asJSONObject().also {
-                if (it.optInt("code") == 200) {
-                    toast("文件删除成功！")
-                } else {
-                    toast(it.getString("message"))
-                }
+    override fun deleteIt(file: FileEntity) {
+        TextDialog(requireContext()).setTitle("删除提醒")
+            .setText("是否确认删除文件：${file.name}? 删除后无法恢复！".replaceSpan(file.name) {
+                ColorSpan(requireContext(), com.jason.theme.R.color.colorSecondary)
+            }).onPositive("取消") {
+                //啥也不做
             }
-        }.catch {
-            toast(it.toMessage())
-        }
+            .onNegative("确认删除") {
+                val dialog = LoadDialog(requireContext()).setMessage("正在删除文件...")
+                scopeDialog(dialog, cancelable = true) {
+                    Get<String>("${Configure.hostURL}/delete") {
+                        param("hash", viewModel.current())
+                        param("fileHash", file.hash)
+                    }.await().asJSONObject().also {
+                        if (it.optInt("code") == 200) {
+                            toast("文件删除成功！")
+                            viewModel.refresh(isGoBack = false)
+                        } else {
+                            toast(it.getString("message"))
+                        }
+                    }
+                }.catch {
+                    toast(it.toMessage())
+                }
+            }.show()
     }
 
 }

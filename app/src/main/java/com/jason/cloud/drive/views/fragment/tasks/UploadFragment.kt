@@ -18,8 +18,8 @@ import com.jason.cloud.drive.database.uploader.UploadQueue
 import com.jason.cloud.drive.database.uploader.getStatusText
 import com.jason.cloud.drive.databinding.FragmentUploadBinding
 import com.jason.cloud.drive.service.UploadService
-import com.jason.cloud.drive.utils.extension.toFileSizeString
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.extension.toFileSizeString
 import kotlinx.coroutines.launch
 
 class UploadFragment : BaseBindFragment<FragmentUploadBinding>(R.layout.fragment_upload),

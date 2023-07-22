@@ -9,13 +9,13 @@ import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.FileUtil
-import com.jason.cloud.drive.utils.MMKVStore
-import com.jason.cloud.drive.utils.extension.GB
 import com.jason.cloud.drive.utils.extension.toMessage
-import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.views.widgets.SrlRefreshFooter
 import com.jason.cloud.drive.views.widgets.SrlRefreshHeader
+import com.jason.cloud.extension.GB
+import com.jason.cloud.extension.cacheDirectory
+import com.jason.cloud.extension.toast
+import com.jason.cloud.utils.MMKVStore
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import okhttp3.Cache
 import java.net.Proxy
@@ -40,8 +40,7 @@ class App : Application() {
     }
 
     private fun initNet() {
-        val dir = FileUtil.getCacheDir(this, "Net")
-
+        val dir = cacheDirectory("Net")
         NetConfig.initialize(context = this) {
             cache(Cache(dir, 2.GB))
             proxy(Proxy.NO_PROXY)

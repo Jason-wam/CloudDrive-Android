@@ -67,6 +67,9 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(project(mapOf("path" to ":theme")))
+    implementation(project(mapOf("path" to ":videoview")))
+    implementation(project(mapOf("path" to ":videoview-exo-extension")))
+    implementation(project(mapOf("path" to ":extension")))
 
     val roomVersion = "2.4.2"
     ksp("androidx.room:room-compiler:$roomVersion")
@@ -79,6 +82,7 @@ dependencies {
     implementation("com.github.liangjingkanji:Net:3.5.8")
     implementation("com.github.liangjingkanji:spannable:1.2.6")
     implementation("com.github.liangjingkanji:soft-input-event:1.0.9")
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.15.0")
 
     implementation("com.github.getActivity:XXPermissions:16.8")
     implementation("com.github.bumptech.glide:glide:4.15.0")
@@ -86,7 +90,6 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    ksp("com.github.bumptech.glide:ksp:4.15.0")
 
     //状态栏工具
     implementation("com.geyifeng.immersionbar:immersionbar:3.2.2")
@@ -98,8 +101,6 @@ dependencies {
     implementation("io.github.scwang90:refresh-layout-kernel:2.0.5")
     implementation("io.github.scwang90:refresh-header-material:2.0.5")
 
-    implementation("io.github.youth5201314:banner:2.2.2")
-    implementation("io.github.jeremyliao:live-event-bus-x:1.8.0")
     implementation("io.github.FlyJingFish.OpenImage:OpenImageGlideLib:2.1.0")
 
     implementation("com.tencent:mmkv:1.2.15")

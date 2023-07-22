@@ -11,12 +11,12 @@ import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import com.jason.cloud.drive.databinding.ActivityMainBinding
 import com.jason.cloud.drive.interfaces.CallActivityInterface
 import com.jason.cloud.drive.service.DownloadService
-import com.jason.cloud.drive.utils.extension.toast
 import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.fragment.FilesFragment
 import com.jason.cloud.drive.views.fragment.HomeFragment
 import com.jason.cloud.drive.views.fragment.MineFragment
 import com.jason.cloud.drive.views.fragment.TasksFragment
+import com.jason.cloud.extension.toast
 import com.jason.videocat.utils.extension.view.bindBottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first

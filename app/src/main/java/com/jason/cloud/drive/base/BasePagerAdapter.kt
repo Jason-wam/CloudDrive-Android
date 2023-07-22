@@ -6,7 +6,8 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 
 
-class BasePagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+class BasePagerAdapter(fm: FragmentManager) :
+    FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     private val fragmentIds = ArrayList<Long>()
     private val fragmentList = ArrayList<Fragment>()
     private val fragmentTitleList = ArrayList<String?>()
@@ -23,8 +24,8 @@ class BasePagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm, BEHAVIOR_
         return fragmentList.size
     }
 
-    fun addFragment( fragment: Fragment) {
-        fragmentIds.add(fragmentList.size.toLong() )
+    fun addFragment(fragment: Fragment) {
+        fragmentIds.add(fragmentList.size.toLong())
         fragmentList.add(fragment)
         fragmentTitleList.add(fragmentList.size.toString())
     }

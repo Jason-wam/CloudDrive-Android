@@ -6,10 +6,10 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
 import com.jason.cloud.drive.database.uploader.UploadTaskEntity
 import com.jason.cloud.drive.databinding.ItemUploadTaskDoneBinding
-import com.jason.cloud.drive.utils.MediaType
-import com.jason.cloud.drive.utils.MediaType.Media.*
-import com.jason.cloud.drive.utils.extension.toDateSecondsString
-import com.jason.cloud.drive.utils.extension.toFileSizeString
+import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.FileType.Media.*
+import com.jason.cloud.extension.toDateSecondsString
+import com.jason.cloud.extension.toFileSizeString
 
 class UploadTaskDoneAdapter :
     BaseBindRvAdapter<UploadTaskEntity, ItemUploadTaskDoneBinding>(R.layout.item_upload_task_done) {
@@ -30,7 +30,7 @@ class UploadTaskDoneAdapter :
     }
 
     private fun getFileIcon(name: String): Int {
-        return when (MediaType.getMediaType(name)) {
+        return when (FileType.getMediaType(name)) {
             VIDEO -> R.drawable.ic_round_file_video_24
             IMAGE -> R.drawable.ic_round_file_image_24
             AUDIO -> R.drawable.ic_round_file_audio_24

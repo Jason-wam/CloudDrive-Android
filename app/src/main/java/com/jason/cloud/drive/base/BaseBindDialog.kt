@@ -8,7 +8,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 
 @SuppressLint("ResourceType")
-abstract class BaseBindDialog<VB : ViewDataBinding>(context: Context, @LayoutRes layoutId: Int) : BaseDialog(context) {
+abstract class BaseBindDialog<VB : ViewDataBinding>(context: Context, @LayoutRes layoutId: Int) :
+    BaseDialog(context) {
     protected lateinit var binding: VB
 
     init {

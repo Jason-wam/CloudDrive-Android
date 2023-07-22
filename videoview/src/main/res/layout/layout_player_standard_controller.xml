@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:background="@android:color/black">
+
+    <com.jason.videoview.view.TimedTextView
+        android:id="@+id/timedTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tvFastForward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:padding="6dp"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="5"
+        android:text="@string/player_fast_forward"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:drawableLeftCompat="@drawable/ic_player_fast_forward_24"
+        app:drawableStartCompat="@drawable/ic_player_fast_forward_24"
+        app:drawableTint="?attr/colorSecondary"
+        tools:text="× 3.0 倍速播放"
+        tools:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvDownloadSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical|end"
+        android:includeFontPadding="false"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="5"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:alpha="0.8"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        tools:text="23.12 MB/s" />
+
+    <LinearLayout
+        android:id="@+id/positionContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start">
+
+        <TextView
+            android:id="@+id/tvPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:shadowColor="@android:color/black"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="10"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:visibility="gone"
+            tools:text="00:48"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lockContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start">
+
+        <ImageView
+            android:id="@+id/ibLock"
+            style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/selector_player_lock_button"
+            android:visibility="gone"
+            app:tint="@color/selector_player_video_press_color"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pipContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/ibPictureInPicture"
+            style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_player_picture_in_picture_24"
+            android:visibility="gone"
+            app:tint="@color/selector_player_video_press_color"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+    </LinearLayout>
+</FrameLayout>

@@ -13,7 +13,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
-abstract class BaseBottomSheetDialogFragment(@LayoutRes open val layoutId: Int) : BottomSheetDialogFragment() {
+abstract class BaseBottomSheetDialogFragment(@LayoutRes open val layoutId: Int) :
+    BottomSheetDialogFragment() {
     protected lateinit var behavior: BottomSheetBehavior<FrameLayout>
     protected val onShowListeners = arrayListOf<DialogInterface.OnShowListener>()
     protected val onDismissListeners = arrayListOf<DialogInterface.OnDismissListener>()
@@ -36,12 +37,18 @@ abstract class BaseBottomSheetDialogFragment(@LayoutRes open val layoutId: Int) 
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(layoutId, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState) //解决导航栏灰色 <item name="android:windowIsFloating">false</item>//
+        super.onViewCreated(view, savedInstanceState)
+
+        //解决导航栏灰色 <item name="android:windowIsFloating">false</item>//
         //ImmersionBar.with(this).navigationBarColor(R.color.colorDialogBackground).init()
         try {
             initView(view)

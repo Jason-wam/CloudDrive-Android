@@ -30,3 +30,6 @@ dependencyResolutionManagement {
 rootProject.name = "CloudDrive"
 include ':app'
 include ':theme'
+include ':videoview'
+include ':videoview-exo-extension'
+include ':extension'
