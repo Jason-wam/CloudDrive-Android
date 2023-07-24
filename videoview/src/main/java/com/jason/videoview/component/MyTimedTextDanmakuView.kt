@@ -65,10 +65,11 @@ class MyTimedTextDanmakuView(context: Context) : DanmakuView(context), IControlC
 //            this[BaseDanmaku.TYPE_SCROLL_RL] = 5 // 滚动弹幕最大显示5行
 //        })
         mContext.setMaximumLines(null)
-        mContext.setMaximumVisibleSizeInScreen(40)
+        mContext.setMaximumVisibleSizeInScreen(-1)
+
         // 设置是否禁止重叠
         mContext.preventOverlapping(HashMap<Int, Boolean>().apply {
-            this[BaseDanmaku.TYPE_SCROLL_RL] = false
+            this[BaseDanmaku.TYPE_SCROLL_RL] = true
             this[BaseDanmaku.TYPE_FIX_TOP] = true
             this[BaseDanmaku.TYPE_FIX_BOTTOM] = true
         })
@@ -222,7 +223,7 @@ class MyTimedTextDanmakuView(context: Context) : DanmakuView(context), IControlC
             danmaku.priority = 100 // 可能会被各种过滤器过滤并隐藏显示
             danmaku.isLive = false
             danmaku.time = currentTime
-            danmaku.textSize = PlayerUtils.sp2px(context, 15f).toFloat()
+            danmaku.textSize = PlayerUtils.sp2px(context, 14f).toFloat()
             danmaku.textColor = Color.WHITE
             danmaku.textShadowColor = Color.BLACK
             //danmaku.underlineColor = Color.TRANSPARENT;
@@ -239,7 +240,7 @@ class MyTimedTextDanmakuView(context: Context) : DanmakuView(context), IControlC
             danmaku.priority = 100 // 可能会被各种过滤器过滤并隐藏显示
             danmaku.isLive = false
             danmaku.time = currentTime
-            danmaku.textSize = PlayerUtils.sp2px(context, 15f).toFloat()
+            danmaku.textSize = PlayerUtils.sp2px(context, 14f).toFloat()
             danmaku.textColor = Color.WHITE
             danmaku.textShadowColor = Color.BLACK
             //danmaku.underlineColor = Color.TRANSPARENT;

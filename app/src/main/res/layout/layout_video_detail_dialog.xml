@@ -169,13 +169,13 @@
             android:layout_height="10dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_open"
+            android:id="@+id/btn_play"
             style="@style/MaterialButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="18dp"
             android:layout_marginEnd="18dp"
-            android:text="@string/open_file"
+            android:text="@string/play_now"
             android:textColor="@color/colorSecondary" />
 
         <com.google.android.material.button.MaterialButton

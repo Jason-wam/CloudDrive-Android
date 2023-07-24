@@ -1,7 +1,6 @@
 package com.jason.cloud.drive.adapter
 
 import android.content.Context
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
@@ -19,7 +18,6 @@ class CloudFilePathIndicatorAdapter :
         position: Int,
         item: FileNavigationEntity
     ) {
-        Log.e("IndicatorAdapter", "currentHash = $currentHash : item.hash = ${item.hash}")
         val isActive = currentHash == item.hash
         val activeColor = ContextCompat.getColor(context, com.jason.theme.R.color.colorOnSurface)
         val inactiveColor =

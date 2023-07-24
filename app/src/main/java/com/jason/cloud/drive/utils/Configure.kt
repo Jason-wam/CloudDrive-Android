@@ -38,4 +38,14 @@ object Configure {
                     FileViewModel.ListSort.valueOf(it)
                 }
         }
+
+    var showHidden: Boolean = true
+        set(value) {
+            field = value
+            MMKVStore.with("Configure").put("showHidden", value)
+        }
+        get() {
+            return MMKVStore.with("Configure")
+                .getBool("showHidden", true)
+        }
 }

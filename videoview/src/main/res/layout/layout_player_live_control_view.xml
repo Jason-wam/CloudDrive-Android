@@ -35,18 +35,6 @@
             app:tint="@color/selector_player_video_press_color"
             tools:visibility="visible" />
 
-
-        <TextView
-            android:id="@+id/tvSize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:alpha="0.5"
-            android:visibility="gone"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            tools:text="1920×1080" />
-
         <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"

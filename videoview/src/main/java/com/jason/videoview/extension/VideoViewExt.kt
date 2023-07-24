@@ -16,7 +16,7 @@ import xyz.doikki.videoplayer.player.VideoView
  * @Description: TODO
  */
 fun BaseVideoView<*>.bindLifecycle(owner: LifecycleOwner) {
-    this.bindLifecycle(owner.lifecycle)
+    bindLifecycle(owner.lifecycle)
 }
 
 fun BaseVideoView<*>.bindLifecycleWithPIPMode(

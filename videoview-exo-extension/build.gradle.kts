@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import com.jason.cloud.buildsrc.Android
+import com.jason.cloud.buildsrc.Dependencies
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -8,10 +11,10 @@ plugins {
 
 android {
     namespace = "com.jason.exo.extension"
-    compileSdk = 33
+    compileSdk = Android.compileSdk
 
     defaultConfig {
-        minSdk = 21
+        minSdk = Android.minSdk
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -39,18 +42,16 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.10.0")
     compileOnly(project(mapOf("path" to ":videoview")))
+    implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
 
-    val exoVersion = "2.18.4"
-    api("com.google.android.exoplayer:exoplayer-core:$exoVersion")
-    api("com.google.android.exoplayer:exoplayer-dash:$exoVersion")
-    api("com.google.android.exoplayer:exoplayer-hls:$exoVersion")
-    api("com.google.android.exoplayer:exoplayer-rtsp:$exoVersion")
-    api("com.google.android.exoplayer:exoplayer-smoothstreaming:$exoVersion")
-    api("com.google.android.exoplayer:extension-rtmp:$exoVersion")
+    implementation("com.google.android.exoplayer:exoplayer-core:${Dependencies.exo}")
+    implementation("com.google.android.exoplayer:exoplayer-dash:${Dependencies.exo}")
+    implementation("com.google.android.exoplayer:exoplayer-hls:${Dependencies.exo}")
+    implementation("com.google.android.exoplayer:exoplayer-rtsp:${Dependencies.exo}")
+    implementation("com.google.android.exoplayer:extension-rtmp:${Dependencies.exo}")
+    implementation("com.google.android.exoplayer:exoplayer-smoothstreaming:${Dependencies.exo}")
 }
-
 
 // 创建一个task来发布源码
 tasks.register<Jar>("sourcesJar") {

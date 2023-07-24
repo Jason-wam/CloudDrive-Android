@@ -60,13 +60,15 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
             if (fileHash.isBlank()) { //校验文件失败.
                 status = Status.FAILED
                 Log.e("Uploader", "$name >> 校验文件失败...")
-            } else { //校验文件完成，尝试闪传文件
-                if (tryFlashUpload(fileHash)) {
+            } else {
+                //校验文件完成，开始上传文件
+                status = Status.UPLOADING
+                //尝试闪传文件
+                if (flashTransfer(fileHash)) {
                     status = Status.FLASH_UPLOADED
                     Log.e("Uploader", "$name >> 闪传成功！")
                 } else {
                     //闪传失败，开始上传文件
-                    status = Status.UPLOADING
                     Log.e("Uploader", "$name >> 正在上传文件...")
                     status = if (upload(uri, fileHash)) {
                         Log.e("Uploader", "$name >> 上传成功！")
@@ -79,12 +81,13 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
             }
         }.catch {
             it.printStackTrace()
-            Log.e("Uploader", "$name >> 上传失败！")
             status = Status.FAILED
+            Log.e("Uploader", "$name >> 上传失败！")
         }
     }
 
     override fun pause() {
+        Net.cancelId(id)
     }
 
     override fun stop() {
@@ -92,15 +95,17 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
     }
 
     private suspend fun createFileHash(uri: Uri): String = withContext(Dispatchers.IO) {
-        if (totalBytes <= 0) return@withContext ""
         NetConfig.app.contentResolver.openInputStream(uri)?.use {
             it.createSketchedMD5String(totalBytes)
         }.orEmpty()
     }
 
-    private suspend fun tryFlashUpload(fileHash: String): Boolean = withContext(Dispatchers.IO) {
+    /**
+     * 尝试闪传
+     */
+    private suspend fun flashTransfer(fileHash: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            Net.get("${Configure.hostURL}/flash") {
+            Net.get("${Configure.hostURL}/flashTransfer") {
                 setId(id)
                 addQuery("hash", hash)
                 addQuery("fileName", name)

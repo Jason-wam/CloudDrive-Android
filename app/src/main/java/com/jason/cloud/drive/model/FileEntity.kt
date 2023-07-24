@@ -41,7 +41,7 @@ data class FileEntity(
                 obj.getBoolean("isVirtual"),
                 rawURL = "${Configure.hostURL}/file?hash=$hash",
                 gifURL = "${Configure.hostURL}/thumbnail?hash=$hash&isGif=true",
-                thumbnailURL = "${Configure.hostURL}/thumbnail?hash=$hash"
+                thumbnailURL = "${Configure.hostURL}/thumbnail?hash=$hash&size=200"
             )
         }
     }

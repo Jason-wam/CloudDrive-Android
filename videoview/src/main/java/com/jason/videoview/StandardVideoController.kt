@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
@@ -53,9 +52,9 @@ class StandardVideoController(context: Context) : GestureVideoController(context
 
     private lateinit var dataController: MediaDataController
 
-    private var isFullScreenButtonEnabled = true
     private var takeoverRetryLogic: (() -> Unit)? = null
     private var takeoverFullScreenLogic: (ControlWrapper.() -> Unit)? = null
+    private var isFullScreenButtonEnabled = true
 
     fun getDataController(): MediaDataController {
         return dataController
@@ -107,11 +106,13 @@ class StandardVideoController(context: Context) : GestureVideoController(context
         tvDownloadSpeed.isVisible = false
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
         super.onVisibilityChanged(isVisible, anim)
         if (isVisible.not()) {
             tvDownloadSpeed.isVisible = false
         }
+
         if (controlWrapper.isFullScreen) {
             if (isLocked && isVisible) {
                 if (tvPosition.isVisible.not()) {
@@ -165,6 +166,8 @@ class StandardVideoController(context: Context) : GestureVideoController(context
     }
 
     private var job: Job? = null
+    private val scope = CoroutineScope(Dispatchers.Main)
+    private var isFirstStart = true
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onPlayStateChanged(playState: Int) {
@@ -183,41 +186,25 @@ class StandardVideoController(context: Context) : GestureVideoController(context
             }
 
             VideoView.STATE_PLAYING -> { //切换剧集后重新根据视频宽高切换横竖屏
-                if (autoToggleScreenDirectionInFullscreen) {
+                if (autoToggleScreenDirectionInFullscreen && isFirstStart) {
                     job?.cancel()
-                    job = CoroutineScope(Dispatchers.Main).launch {
+                    job = scope.launch {
+                        isFirstStart = false
                         while (isAttachedToWindow && controlWrapper.isPlaying) {
                             delay(500)
                             val size = controlWrapper.videoSize
                             val width = size[0]
                             val height = size[1]
                             if (width > 0 && height > 0) {
-                                Log.i(
-                                    "StandardVideoController",
-                                    "isInPortrait = ${PlayerUtils.isInPortrait(context)}"
-                                )
-                                Log.i(
-                                    "StandardVideoController",
-                                    "controlWrapper.isFullScreen = ${controlWrapper.isFullScreen}"
-                                )
-                                Log.i("StandardVideoController", "videoSize = $width,$height")
                                 if (controlWrapper.isFullScreen && width != height) {
                                     //如果是在竖屏全屏模式且视频是宽的则切换横屏
                                     if (width > height) {
                                         if (PlayerUtils.isNotInLandscape(context)) {
-                                            Log.i(
-                                                "StandardVideoController",
-                                                "set SCREEN_ORIENTATION_LANDSCAPE"
-                                            )
                                             PlayerUtils.scanForActivity(context)?.requestedOrientation =
                                                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                                         }
                                     } else {
                                         if (PlayerUtils.isNotInLandscape(context).not()) {
-                                            Log.i(
-                                                "StandardVideoController",
-                                                "set SCREEN_ORIENTATION_PORTRAIT"
-                                            )
                                             PlayerUtils.scanForActivity(context)?.requestedOrientation =
                                                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                                         }
@@ -634,10 +621,7 @@ class StandardVideoController(context: Context) : GestureVideoController(context
     }
 
     fun addDanmaku(
-        text: CharSequence,
-        color: String,
-        type: Int = BaseDanmaku.TYPE_SCROLL_RL,
-        time: Long
+        text: CharSequence, color: String, type: Int = BaseDanmaku.TYPE_SCROLL_RL, time: Long
     ) {
         this.danmakuView.addDanmaku(text, color, type, time)
     }

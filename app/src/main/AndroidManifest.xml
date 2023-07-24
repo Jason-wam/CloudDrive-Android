@@ -43,17 +43,21 @@
 
         <activity
             android:name=".views.activity.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.jason.cloud.drive.views.activity.VideoPreviewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
             android:resizeableActivity="true"
+            android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
             tools:targetApi="n" />
     </application>

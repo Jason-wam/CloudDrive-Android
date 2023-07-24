@@ -35,6 +35,7 @@ class ControlView(context: Context) : FrameLayout(context), IControlComponent {
         visibility = View.GONE
         LayoutInflater.from(context)
             .inflate(R.layout.layout_player_portrait_control_view, this, true)
+
         ibPlay.setOnClickListener {
             wrapper.togglePlay()
         }

@@ -5,8 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.view.MenuCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +23,7 @@ import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.contract.SelectFilesContract
 import com.jason.cloud.drive.contract.SelectFolderContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
-import com.jason.cloud.drive.interfaces.CallActivityInterface
+import com.jason.cloud.drive.interfaces.FragmentCallback
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.toOpenImageUrl
 import com.jason.cloud.drive.service.DownloadService
@@ -38,6 +38,7 @@ import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
 import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
+import com.jason.cloud.drive.views.dialog.VideoDetailDialog
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
 import com.jason.cloud.extension.asJSONObject
@@ -47,7 +48,7 @@ import com.jason.videocat.utils.extension.view.setTitleFont
 import com.jason.videoview.model.VideoData
 
 class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files),
-    FileMenuDialog.Callback {
+    FileMenuDialog.Callback, FragmentCallback {
     companion object {
         @JvmStatic
         fun newInstance() = FilesFragment()
@@ -57,7 +58,6 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
      * 记录RecyclerView当前位置
      */
     private val lastPosition: HashMap<String, Pair<Int, Int>> = HashMap()
-
     private lateinit var fileSelectLauncher: ActivityResultLauncher<String>
     private lateinit var selectFolderLauncher: ActivityResultLauncher<Any?>
 
@@ -71,8 +71,8 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 binding.stateLayout.showLoading()
                 viewModel.getList(item)
             } else {
-                FileMenuDialog().setFile(itemData, position)
-                    .setCallback(this@FilesFragment).showNow(childFragmentManager, "menu")
+                FileMenuDialog().setFile(itemData, position).setCallback(this@FilesFragment)
+                    .showNow(childFragmentManager, "menu")
             }
         }
     }
@@ -84,6 +84,18 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                     binding.stateLayout.showLoading()
                     viewModel.getList(item.hash)
                 }
+            }
+        }
+    }
+
+    override fun callBackPressed(): Boolean {
+        return if (viewModel.isLoading) false else {
+            if (viewModel.canGoBack().not()) {
+                true
+            } else {
+                binding.stateLayout.showLoading()
+                viewModel.goBack()
+                false
             }
         }
     }
@@ -131,28 +143,15 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
         binding.fabUpload.setOnClickListener {
             fileSelectLauncher.launch("*/*")
-//            selectFolderLauncher.launch(null)
         }
 
         binding.stateLayout.showLoading()
         viewModel.refresh(isGoBack = false)
-
-        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (viewModel.isLoading) return
-                if (viewModel.canGoBack()) {
-                    binding.stateLayout.showLoading()
-                    viewModel.goBack()
-                } else {
-                    if (activity is CallActivityInterface) {
-                        (activity as CallActivityInterface).callOnBackPressed()
-                    }
-                }
-            }
-        })
     }
 
     private fun initToolBar() {
+        MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
+
         binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
         binding.toolbar.onMenuItemClickListener(R.id.refresh) {
             binding.stateLayout.showLoading()
@@ -161,34 +160,50 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         binding.toolbar.onMenuItemClickListener(R.id.folder) {
             createNewFolder()
         }
-        binding.toolbar.onMenuItemClickListener(R.id.upload) {
-            fileSelectLauncher.launch("*/*")
-        }
 
         binding.toolbar.onMenuItemClickListener(R.id.name) {
             Configure.sortModel = FileViewModel.ListSort.NAME
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.name_desc) {
             Configure.sortModel = FileViewModel.ListSort.NAME_DESC
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.date) {
             Configure.sortModel = FileViewModel.ListSort.DATE
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.date_desc) {
             Configure.sortModel = FileViewModel.ListSort.DATE_DESC
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.size) {
             Configure.sortModel = FileViewModel.ListSort.SIZE
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.size_desc) {
             Configure.sortModel = FileViewModel.ListSort.SIZE_DESC
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
+        binding.toolbar.onMenuItemClickListener(R.id.show_hidden) {
+            Configure.showHidden = !Configure.showHidden
+            binding.stateLayout.showLoading()
+            viewModel.refresh(isGoBack = false)
+            updateSortMenu()
+        }
+
         updateSortMenu()
 
         binding.indicatorBar.addOnOffsetChangedListener { _, verticalOffset ->
@@ -213,7 +228,8 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             sort == FileViewModel.ListSort.DATE_DESC
         binding.toolbar.menu.findItem(R.id.size_desc).isChecked =
             sort == FileViewModel.ListSort.SIZE_DESC
-        viewModel.refresh(isGoBack = false)
+
+        binding.toolbar.menu.findItem(R.id.show_hidden).isChecked = Configure.showHidden
     }
 
     private fun initRecyclerView() {
@@ -317,25 +333,36 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     override fun viewVideos(list: List<FileEntity>, position: Int) {
-        VideoPreviewActivity.open(requireContext(), position, list.map {
+        val hash = list[position].hash
+        val videos = list.filter { FileType.isVideo(it.name) }
+        val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+        VideoPreviewActivity.open(requireContext(), videoIndex, videos.map {
             VideoData(it.hash, it.name, it.rawURL)
         })
     }
 
     override fun viewImages(list: List<FileEntity>, position: Int) {
-        val current = list[position]
-        var clickPosition = 0
-        val imageUrlList = list.filter {
-            FileType.isImage(it.name)
-        }.mapIndexed { index, item ->
-            if (current.path == item.path) {
-                clickPosition = index
-            }
-            item.toOpenImageUrl()
-        }
+        val hash = list[position].hash
+        val images = list.filter { FileType.isImage(it.name) }
+        val imageIndex = images.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
 
-        OpenImage.with(requireActivity()).setNoneClickView().setImageUrlList(imageUrlList)
-            .setClickPosition(clickPosition).show()
+        images.map { item ->
+            item.toOpenImageUrl()
+        }.also {
+            OpenImage.with(requireActivity()).setNoneClickView().setImageUrlList(it)
+                .setClickPosition(imageIndex).show()
+        }
+    }
+
+    override fun viewVideoDetail(list: List<FileEntity>, position: Int) {
+        val hash = list[position].hash
+        val videos = list.filter { FileType.isVideo(it.name) }
+        val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+        VideoDetailDialog().setFileList(videos, videoIndex).showNow(childFragmentManager, "detail")
+    }
+
+    override fun viewAudioDetail(list: List<FileEntity>, position: Int) {
+
     }
 
     override fun viewOthers(list: List<FileEntity>, position: Int) {
@@ -343,17 +370,9 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     override fun downloadIt(file: FileEntity) {
-        DownloadService.launchWith(
-            requireContext(),
-            listOf(
-                DownloadService.DownloadParam(
-                    file.name,
-                    file.rawURL,
-                    file.hash,
-                    DirManager.getDownloadDir(requireContext())
-                )
-            )
-        ) {
+        val dir = DirManager.getDownloadDir(requireContext())
+        val taskParam = DownloadService.DownloadParam(file.name, file.rawURL, file.hash, dir)
+        DownloadService.launchWith(requireContext(), listOf(taskParam)) {
             toast("正在取回文件：${file.name}")
         }
     }
@@ -364,8 +383,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 ColorSpan(requireContext(), com.jason.theme.R.color.colorSecondary)
             }).onPositive("取消") {
                 //啥也不做
-            }
-            .onNegative("确认删除") {
+            }.onNegative("确认删除") {
                 val dialog = LoadDialog(requireContext()).setMessage("正在删除文件...")
                 scopeDialog(dialog, cancelable = true) {
                     Get<String>("${Configure.hostURL}/delete") {

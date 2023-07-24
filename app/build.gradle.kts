@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import com.jason.cloud.buildsrc.Android
+import com.jason.cloud.buildsrc.Dependencies
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,26 +11,30 @@ plugins {
 
 android {
     namespace = "com.jason.cloud.drive"
-    compileSdk = 33
+    compileSdk = Android.compileSdk
 
     defaultConfig {
         applicationId = "com.jason.cloud.drive"
-        minSdk = 21
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = Android.minSdk
+        targetSdk = Android.targetSdk
+        versionCode = Android.versionCode
+        versionName = Android.versionName
+
         vectorDrawables {
             useSupportLibrary = true
         }
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments["room.schemaLocation"] = "$projectDir/schemas"
             }
         }
     }
+
     buildFeatures { //DataBinding必须依赖KAPT
         dataBinding = true
     }
+
     signingConfigs {
         getByName("debug") {
             keyAlias = "key0"
@@ -51,6 +58,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -62,46 +70,46 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(project(mapOf("path" to ":theme")))
     implementation(project(mapOf("path" to ":videoview")))
     implementation(project(mapOf("path" to ":videoview-exo-extension")))
     implementation(project(mapOf("path" to ":extension")))
 
-    val roomVersion = "2.4.2"
-    ksp("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
+    implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")
+    implementation("com.google.android.material:material:${Dependencies.google_material}")
+    implementation("androidx.constraintlayout:constraintlayout:${Dependencies.androidx_constraintlayout}")
+
+    ksp("androidx.room:room-compiler:${Dependencies.androidx_room}")
+    implementation("androidx.room:room-ktx:${Dependencies.androidx_room}")
+    implementation("androidx.room:room-runtime:${Dependencies.androidx_room}")
+
+    implementation("androidx.legacy:legacy-support-v4:${Dependencies.androidx_legacy_support_v4}")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Dependencies.androidx_lifecycle}")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Dependencies.androidx_lifecycle}")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Dependencies.androidx_lifecycle}")
 
     //网络相关
-    implementation("com.qiniu:happy-dns:2.0.1")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.github.liangjingkanji:Net:3.5.8")
-    implementation("com.github.liangjingkanji:spannable:1.2.6")
-    implementation("com.github.liangjingkanji:soft-input-event:1.0.9")
-    implementation("com.github.bumptech.glide:okhttp3-integration:4.15.0")
+    implementation("com.qiniu:happy-dns:${Dependencies.qiniu_dns}")
+    implementation("com.squareup.okhttp3:okhttp:${Dependencies.okhttp3}")
 
-    implementation("com.github.getActivity:XXPermissions:16.8")
-    implementation("com.github.bumptech.glide:glide:4.15.0")
-    implementation("com.github.bumptech.glide:okhttp3-integration:4.15.0")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("com.github.liangjingkanji:Net:${Dependencies.net}")
+    implementation("com.github.liangjingkanji:spannable:${Dependencies.spannable}")
+    implementation("com.github.liangjingkanji:soft-input-event:${Dependencies.soft_input_event}")
+
+    implementation("com.github.bumptech.glide:glide:${Dependencies.glide}")
+    implementation("com.github.bumptech.glide:okhttp3-integration:${Dependencies.glide}")
+
+    implementation("com.github.getActivity:XXPermissions:${Dependencies.xx_permissions}")
 
     //状态栏工具
-    implementation("com.geyifeng.immersionbar:immersionbar:3.2.2")
-    implementation("com.geyifeng.immersionbar:immersionbar-ktx:3.2.2")
+    implementation("com.geyifeng.immersionbar:immersionbar:${Dependencies.immersionbar}")
+    implementation("com.geyifeng.immersionbar:immersionbar-ktx:${Dependencies.immersionbar}")
 
-    //多类型RecyclerView布局
-    implementation("com.drakeet.multitype:multitype:4.3.0")
+    implementation("io.github.scwang90:refresh-layout-kernel:${Dependencies.smart_refresh}")
+    implementation("io.github.scwang90:refresh-header-material:${Dependencies.smart_refresh}")
 
-    implementation("io.github.scwang90:refresh-layout-kernel:2.0.5")
-    implementation("io.github.scwang90:refresh-header-material:2.0.5")
+    implementation("io.github.FlyJingFish.OpenImage:OpenImageGlideLib:${Dependencies.open_image}")
 
-    implementation("io.github.FlyJingFish.OpenImage:OpenImageGlideLib:2.1.0")
-
-    implementation("com.tencent:mmkv:1.2.15")
+    implementation("com.tencent:mmkv:${Dependencies.mmkv}")
 }

@@ -15,13 +15,14 @@
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
-    <LinearLayout
+    <com.jason.videoview.view.MaxWidthLinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@drawable/player_right_bar_background"
         android:gravity="center_vertical"
         android:minWidth="150dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:maxWidth="300dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvData"
@@ -32,6 +33,6 @@
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             tools:itemCount="7"
             tools:listitem="@layout/item_player_video_track_view" />
-    </LinearLayout>
+    </com.jason.videoview.view.MaxWidthLinearLayout>
 
 </LinearLayout>

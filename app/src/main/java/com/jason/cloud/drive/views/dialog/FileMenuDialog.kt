@@ -15,7 +15,7 @@ class FileMenuDialog :
     private var callback: Callback? = null
 
     fun setFile(list: List<FileEntity>, position: Int): FileMenuDialog {
-        arguments?.putSerializable("file", list as Serializable)
+        arguments?.putSerializable("list", list as Serializable)
         arguments?.putInt("position", position)
         return this
     }
@@ -27,6 +27,10 @@ class FileMenuDialog :
 
     interface Callback {
         fun viewVideos(list: List<FileEntity>, position: Int)
+
+        fun viewVideoDetail(list: List<FileEntity>, position: Int)
+
+        fun viewAudioDetail(list: List<FileEntity>, position: Int)
 
         fun viewImages(list: List<FileEntity>, position: Int)
 
@@ -50,11 +54,13 @@ class FileMenuDialog :
             }
         })
 
-        arguments?.getSerializableListExtraEx<FileEntity>("file")?.let { list ->
-            val position = arguments?.getInt("position") ?: 0
-            val current = list[position]
 
+        val position = arguments?.getInt("position") ?: 0
+        val list = arguments?.getSerializableListExtraEx<FileEntity>("list") ?: emptyList()
+        if (list.isNotEmpty()) {
+            val current = list[position]
             binding.tvTitle.text = current.name
+
             binding.btnOpen.setOnClickListener {
                 if (FileType.isVideo(current.name)) {
                     callback?.viewVideos(list, position)
@@ -66,14 +72,29 @@ class FileMenuDialog :
                     callback?.viewOthers(list, position)
                 }
             }
-            binding.btnFetch.setOnClickListener {
+
+            binding.btnDownload.setOnClickListener {
                 callback?.downloadIt(current)
                 dismiss()
             }
+
+            binding.btnDetail.setOnClickListener {
+                if (FileType.isVideo(current.name)) {
+                    callback?.viewVideoDetail(list, position)
+                    dismiss()
+                } else if (FileType.isAudio(current.name)) {
+                    callback?.viewAudioDetail(list, position)
+                    dismiss()
+                } else {
+
+                }
+            }
+
             binding.btnDelete.setOnClickListener {
                 callback?.deleteIt(current)
                 dismiss()
             }
+
             binding.btnCancel.setOnClickListener {
                 dismiss()
             }

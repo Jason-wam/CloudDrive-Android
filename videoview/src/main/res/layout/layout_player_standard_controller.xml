@@ -35,25 +35,6 @@
         tools:text="× 3.0 倍速播放"
         tools:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvDownloadSpeed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:drawablePadding="5dp"
-        android:gravity="center_vertical|end"
-        android:includeFontPadding="false"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="5"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:alpha="0.8"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        tools:text="23.12 MB/s" />
-
     <LinearLayout
         android:id="@+id/positionContainer"
         android:layout_width="wrap_content"
@@ -119,4 +100,25 @@
             tools:ignore="ContentDescription"
             tools:visibility="visible" />
     </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tvDownloadSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.8"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical|end"
+        android:includeFontPadding="false"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="5"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:text="23.12 MB/s"
+        tools:visibility="visible" />
+
 </FrameLayout>

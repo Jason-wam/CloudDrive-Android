@@ -3,6 +3,7 @@ package com.jason.cloud.drive.views.fragment
 import android.animation.AnimatorInflater
 import android.content.Context
 import android.view.View
+import androidx.core.view.MenuCompat
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.base.BaseViewPager2Adapter
@@ -11,7 +12,6 @@ import com.jason.cloud.drive.views.fragment.tasks.DownloadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.DownloadFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadFragment
-import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.onTabSelected
 import com.jason.videocat.utils.extension.view.setTitleFont
 
@@ -21,19 +21,9 @@ class TasksFragment : BaseBindFragment<FragmentTasksBinding>(R.layout.fragment_t
     }
 
     override fun initView(context: Context) {
+        MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
+
         binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
-        binding.toolbar.onMenuItemClickListener(R.id.task_download) {
-            binding.viewPager2.setCurrentItem(0, false)
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.task_upload) {
-            binding.viewPager2.setCurrentItem(1, false)
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.task_cloud_download) {
-            binding.viewPager2.setCurrentItem(2, false)
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.task_done) {
-            binding.viewPager2.setCurrentItem(3, false)
-        }
 
         binding.viewPager2.offscreenPageLimit = 3
         binding.viewPager2.isUserInputEnabled = false

@@ -45,9 +45,10 @@ public final class PlayerUtils {
         if (activity == null) {
             return false;
         }
-
+        int orientation = activity.getRequestedOrientation();
         Log.i("PlayerUntils", "Orientation = " + activity.getRequestedOrientation());
-        return activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        return orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ||
+                orientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     }
 
     public static boolean isInLandscape(Context context) {

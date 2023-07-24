@@ -3,6 +3,7 @@ package com.jason.videoview.component
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -26,7 +27,6 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
     private val tvSelect: TextView by lazy { findViewById(R.id.tvSelect) }
 
     private val seekBar: SeekBar by lazy { findViewById(R.id.seekBar) }
-    private val tvSize: TextView by lazy { findViewById(R.id.tvSize) }
     private val tvPosition: TextView by lazy { findViewById(R.id.tvPosition) }
     private val tvDuration: TextView by lazy { findViewById(R.id.tvDuration) }
 
@@ -34,6 +34,8 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
     private val ibPlay: ImageButton by lazy { findViewById(R.id.ibPlay) }
     private val container: View by lazy { findViewById(R.id.container) }
     private val ibFullscreen: ImageButton by lazy { findViewById(R.id.ibFullscreen) }
+    private val tvSize: TextView by lazy { findViewById(R.id.tvSize) }
+    private val tvTitle: TextView by lazy { findViewById(R.id.tvTitle) }
     private var dragging = false
 
     init {
@@ -105,18 +107,14 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
 
     @SuppressLint("SetTextI18n")
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
-        tvSize.isVisible = PlayerUtils.isInLandscape(context) && wrapper.isFullScreen
         if (isVisible) {
             if (visibility == GONE) {
                 bringToFront()
                 this.isVisible = wrapper.isFullScreen
-                this.tvSize.text =
-                    "${wrapper.videoSize[0]} × ${wrapper.videoSize[1]}"
                 if (anim != null && wrapper.isFullScreen) {
                     startAnimation(anim)
                 }
             }
-            applyCutout()
         } else {
             if (visibility == VISIBLE) {
                 this.isVisible = false
@@ -127,6 +125,7 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
             VideoView.STATE_IDLE, VideoView.STATE_PLAYBACK_COMPLETED -> {
@@ -135,18 +134,7 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
                 seekBar.secondaryProgress = 0
             }
 
-            VideoView.STATE_ERROR -> {
-                visibility = GONE
-            }
-
-            VideoView.STATE_PREPARING -> {
-                visibility = GONE
-            }
-
-            VideoView.STATE_PREPARED -> {
-                visibility = GONE
-            }
-
+            VideoView.STATE_ERROR, VideoView.STATE_PREPARING, VideoView.STATE_PREPARED,
             VideoView.STATE_START_ABORT -> {
                 visibility = GONE
             }
@@ -157,6 +145,7 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
                 } //开始刷新进度
                 wrapper.startProgress()
 
+                tvSize.text = "${wrapper.videoSize[0]} × ${wrapper.videoSize[1]}"
                 if (wrapper.isFullScreen && (wrapper.videoSize[0] > 0 && wrapper.videoSize[1] > 0)) {
                     tvScale.alpha = 1f
                     tvScale.isEnabled = true
@@ -174,16 +163,10 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
 
             VideoView.STATE_BUFFERING -> {
                 wrapper.stopProgress() //亲测必须停止进度刷新才不会导致UI卡顿，否则会阻塞UI
-//                if (ibPlay.isSelected) {
-//                    ibPlay.isSelected = false
-//                }
             }
 
             VideoView.STATE_BUFFERED -> {
                 wrapper.startProgress()
-//                if (!ibPlay.isSelected) {
-//                    ibPlay.isSelected = true
-//                }
             }
         }
     }
@@ -215,27 +198,27 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
         if (wrapper.isShowing && !wrapper.isLocked) {
             isVisible = isFullScreen
         }
-
-        tvSize.isVisible = PlayerUtils.isInLandscape(context) && wrapper.isFullScreen
         applyCutout()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        tvSize.isVisible = PlayerUtils.isInLandscape(context) && wrapper.isFullScreen
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
         applyCutout()
     }
 
     private fun applyCutout() {
-        val activity = PlayerUtils.scanForActivity(context)
-        if (activity != null && wrapper.hasCutout()) {
-            val orientation = activity.requestedOrientation
-            if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                container.setPadding(0, 0, 0, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                container.setPadding(wrapper.cutoutHeight, 0, 0, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-                container.setPadding(0, 0, wrapper.cutoutHeight, 0)
+        tvSize.isVisible = PlayerUtils.isInPortrait(context).not()
+        tvTitle.isVisible = PlayerUtils.isInPortrait(context)
+        PlayerUtils.scanForActivity(context)?.let { activity ->
+            if (wrapper.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    container.setPadding(0, 0, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    container.setPadding(wrapper.cutoutHeight, 0, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                    container.setPadding(0, 0, wrapper.cutoutHeight, 0)
+                }
             }
         }
     }
@@ -271,6 +254,10 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
         }
     }
 
+    fun setTitle(title: String) {
+        tvTitle.text = title
+    }
+
     fun getIbNext(): View = ibNext
 
     fun getIbSelect(): View = tvSelect
@@ -287,6 +274,13 @@ class LandscapeControlView(context: Context) : FrameLayout(context), IControlCom
         this.controller = controller
         controller.addOnPlayListener(object : MediaDataController.OnPlayListener {
             override fun onPlay(position: Int, videoData: VideoData) {
+                val videoName = controller.getVideoName()
+                if (videoName.isNotBlank()) {
+                    setTitle(videoName + " - " + videoData.name)
+                } else {
+                    setTitle(videoData.name)
+                }
+
                 ibNext.also { next ->
                     if (hasAttached) {
                         if (controller.hasNext() && wrapper.isFullScreen) {

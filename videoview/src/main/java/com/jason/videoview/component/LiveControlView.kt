@@ -24,8 +24,6 @@ class LiveControlView(context: Context) : FrameLayout(context), IControlComponen
     private val tvScale: TextView by lazy { findViewById(R.id.tvScale) }
     private val tvSelect: TextView by lazy { findViewById(R.id.tvSelect) }
 
-    private val tvSize: TextView by lazy { findViewById(R.id.tvSize) }
-
     private val ibPlay: ImageButton by lazy { findViewById(R.id.ibPlay) }
     private val ibNext: ImageButton by lazy { findViewById(R.id.ibNext) }
     private val ibReload: ImageButton by lazy { findViewById(R.id.ibReload) }
@@ -73,17 +71,14 @@ class LiveControlView(context: Context) : FrameLayout(context), IControlComponen
 
     @SuppressLint("SetTextI18n")
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
-        tvSize.isVisible = PlayerUtils.isInLandscape(context) && wrapper.isFullScreen
         if (isVisible) {
             if (visibility == GONE) {
                 visibility = VISIBLE
                 bringToFront()
-                tvSize.text = "${wrapper.videoSize[0]} × ${wrapper.videoSize[1]}"
                 if (anim != null && wrapper.isFullScreen) {
                     startAnimation(anim)
                 }
             }
-            applyCutout()
         } else {
             if (visibility == VISIBLE) {
                 visibility = GONE
@@ -96,23 +91,8 @@ class LiveControlView(context: Context) : FrameLayout(context), IControlComponen
 
     override fun onPlayStateChanged(playState: Int) {
         when (playState) {
-            VideoView.STATE_IDLE, VideoView.STATE_PLAYBACK_COMPLETED -> {
-                visibility = GONE
-            }
-
-            VideoView.STATE_ERROR -> {
-                visibility = GONE
-            }
-
-            VideoView.STATE_PREPARING -> {
-                visibility = GONE
-            }
-
-            VideoView.STATE_PREPARED -> {
-                visibility = GONE
-            }
-
-            VideoView.STATE_START_ABORT -> {
+            VideoView.STATE_IDLE, VideoView.STATE_PLAYBACK_COMPLETED, VideoView.STATE_ERROR,
+            VideoView.STATE_PREPARING, VideoView.STATE_PREPARED, VideoView.STATE_START_ABORT -> {
                 visibility = GONE
             }
 
@@ -155,6 +135,7 @@ class LiveControlView(context: Context) : FrameLayout(context), IControlComponen
     }
 
     override fun onPlayerStateChanged(playerState: Int) {
+        applyCutout()
         val isFullScreen = playerState == VideoView.PLAYER_FULL_SCREEN
         if (isFullScreen.not()) {
             ibNext.isVisible = false
@@ -186,25 +167,19 @@ class LiveControlView(context: Context) : FrameLayout(context), IControlComponen
         if (wrapper.isShowing && !wrapper.isLocked && isFullScreen) {
             isVisible = true
         }
-        applyCutout()
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        tvSize.isVisible = PlayerUtils.isInLandscape(context) && wrapper.isFullScreen
-        applyCutout()
     }
 
     private fun applyCutout() {
-        val activity = PlayerUtils.scanForActivity(context)
-        if (activity != null && wrapper.hasCutout()) {
-            val orientation = activity.requestedOrientation
-            if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                container.setPadding(0, 0, 0, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                container.setPadding(wrapper.cutoutHeight, 0, 0, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-                container.setPadding(0, 0, wrapper.cutoutHeight, 0)
+        PlayerUtils.scanForActivity(context)?.let { activity ->
+            if (wrapper.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    container.setPadding(0, 0, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    container.setPadding(wrapper.cutoutHeight, 0, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                    container.setPadding(0, 0, wrapper.cutoutHeight, 0)
+                }
             }
         }
     }

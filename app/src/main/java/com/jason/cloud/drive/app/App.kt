@@ -9,11 +9,11 @@ import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.DirManager
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.views.widgets.SrlRefreshFooter
 import com.jason.cloud.drive.views.widgets.SrlRefreshHeader
 import com.jason.cloud.extension.GB
-import com.jason.cloud.extension.cacheDirectory
 import com.jason.cloud.extension.toast
 import com.jason.cloud.utils.MMKVStore
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -28,8 +28,8 @@ class App : Application() {
         TaskDatabase.init(this)
         initNet()
 
-        Configure.host = "192.168.0.5"
         Configure.port = 8820
+        Configure.host = "192.168.0.5"
 
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
             SrlRefreshHeader(context)
@@ -40,9 +40,9 @@ class App : Application() {
     }
 
     private fun initNet() {
-        val dir = cacheDirectory("Net")
         NetConfig.initialize(context = this) {
-            cache(Cache(dir, 2.GB))
+            val cacheDir = DirManager.getNetDir(this@App)
+            cache(Cache(cacheDir, 2.GB))
             proxy(Proxy.NO_PROXY)
             trustSSLCertificate()
 

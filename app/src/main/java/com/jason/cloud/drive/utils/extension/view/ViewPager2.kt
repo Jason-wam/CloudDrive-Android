@@ -1,4 +1,4 @@
-package com.jason.videocat.utils.extension.view
+package com.jason.cloud.drive.utils.extension.view
 
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView

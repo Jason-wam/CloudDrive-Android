@@ -1,3 +1,8 @@
+@file:Suppress("UnstableApiUsage")
+
+import com.jason.cloud.buildsrc.Android
+import com.jason.cloud.buildsrc.Dependencies
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -6,11 +11,10 @@ plugins {
 
 android {
     namespace = "com.jason.cloud.extension"
-    compileSdk = 33
+    compileSdk = Android.compileSdk
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
+        minSdk = Android.minSdk
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -35,13 +39,13 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.8.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    api("com.github.bumptech.glide:glide:4.15.0")
-    ksp("com.github.bumptech.glide:ksp:4.15.0")
-    api("com.tencent:mmkv:1.2.15")
+    implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
+    implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")
+    implementation("com.google.android.material:material:${Dependencies.google_material}")
+    testImplementation("junit:junit:${Dependencies.junit}")
+    androidTestImplementation("androidx.test.ext:${Dependencies.androidx_test_junit}")
+    androidTestImplementation("androidx.test.espresso:espresso-core:${Dependencies.androidx_espresso_core}")
+    api("com.github.bumptech.glide:glide:${Dependencies.glide}")
+    ksp("com.github.bumptech.glide:ksp:${Dependencies.glide}")
+    api("com.tencent:mmkv:${Dependencies.mmkv}")
 }

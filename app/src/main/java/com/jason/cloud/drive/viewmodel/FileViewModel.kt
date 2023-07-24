@@ -54,6 +54,7 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
             Get<String>("${Configure.hostURL}/list") {
                 param("hash", hash ?: current())
                 param("sort", Configure.sortModel.name)
+                param("showHidden", Configure.showHidden)
             }.await().asJSONObject().also {
                 if (it.has("code")) {
                     onError.postValue(it.getString("message"))

@@ -114,7 +114,7 @@ class UploadService : Service() {
     private fun showNotification() {
         val notificationChannel = NotificationChannelCompat.Builder(
             channelId,
-            NotificationManagerCompat.IMPORTANCE_HIGH
+            NotificationManagerCompat.IMPORTANCE_DEFAULT
         ).setName(name).build()
 
         notificationManager.createNotificationChannel(notificationChannel)
@@ -177,14 +177,17 @@ class UploadService : Service() {
         taskObserver = scope.launch {
             while (isActive) {
                 delay(1000)
-                notificationBuilder.setContentTitle(task.name)
-                notificationBuilder.setContentText(task.getStatusText())
-                notificationBuilder.setProgress(100, task.progress, false)
+                if (isActive) {
+                    notificationBuilder.setContentTitle(task.name)
+                    notificationBuilder.setContentText(task.getStatusText())
+                    notificationBuilder.setProgress(100, task.progress, false)
+                    notificationBuilder.setOngoing(task.isDone().not())
 
-                val taskList = uploadQueue.getTaskList()
-                val doneSize = taskList.count { it.isDone() }
-                notificationBuilder.setSubText("$doneSize/${taskList.size}")
-                update()
+                    val taskList = uploadQueue.getTaskList()
+                    val doneSize = taskList.count { it.isDone() }
+                    notificationBuilder.setSubText("${doneSize}/${taskList.size}")
+                    update()
+                }
             }
         }
     }

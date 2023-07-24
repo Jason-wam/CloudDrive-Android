@@ -18,44 +18,6 @@
         app:iconTint="@color/colorOnPrimary"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,UnusedAttribute" />
-    <item
-        android:id="@+id/sort"
-        android:icon="@drawable/ic_round_sort_24"
-        android:iconTint="@color/colorOnPrimary"
-        android:title="@string/sort"
-        app:iconTint="@color/colorOnPrimary"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction,UnusedAttribute">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/name"
-                    android:checkable="true"
-                    android:title="@string/sort_by_name" />
-                <item
-                    android:id="@+id/name_desc"
-                    android:checkable="true"
-                    android:title="@string/sort_by_name_desc" />
-                <item
-                    android:id="@+id/date"
-                    android:checkable="true"
-                    android:title="@string/sort_by_date" />
-                <item
-                    android:id="@+id/date_desc"
-                    android:checkable="true"
-                    android:title="@string/sort_by_date_desc" />
-                <item
-                    android:id="@+id/size"
-                    android:checkable="true"
-                    android:title="@string/sort_by_size" />
-                <item
-                    android:id="@+id/size_desc"
-                    android:checkable="true"
-                    android:title="@string/sort_by_size_desc" />
-            </group>
-            <item android:title="@string/cancel" />
-        </menu>
-    </item>
 
     <item
         android:id="@+id/more"
@@ -67,11 +29,59 @@
         tools:ignore="UnusedAttribute">
         <menu>
             <item
+                android:id="@+id/sort"
+                android:title="@string/sort_mode">
+                <menu>
+                    <group
+                        android:id="@+id/group1"
+                        android:checkableBehavior="single">
+                        <item
+                            android:id="@+id/name"
+                            android:checkable="true"
+                            android:title="@string/sort_by_name" />
+                        <item
+                            android:id="@+id/name_desc"
+                            android:checkable="true"
+                            android:title="@string/sort_by_name_desc" />
+                    </group>
+                    <group
+                        android:id="@+id/group2"
+                        android:checkableBehavior="single">
+                        <item
+                            android:id="@+id/date"
+                            android:checkable="true"
+                            android:title="@string/sort_by_date" />
+                        <item
+                            android:id="@+id/date_desc"
+                            android:checkable="true"
+                            android:title="@string/sort_by_date_desc" />
+                    </group>
+                    <group
+                        android:id="@+id/group3"
+                        android:checkableBehavior="single">
+                        <item
+                            android:id="@+id/size"
+                            android:checkable="true"
+                            android:title="@string/sort_by_size" />
+                        <item
+                            android:id="@+id/size_desc"
+                            android:checkable="true"
+                            android:title="@string/sort_by_size_desc" />
+                    </group>
+                    <group
+                        android:id="@+id/group4"
+                        android:checkableBehavior="single">
+                        <item
+                            android:id="@+id/show_hidden"
+                            android:checkable="true"
+                            android:title="@string/show_hidden_files" />
+                        <item android:title="@string/cancel" />
+                    </group>
+                </menu>
+            </item>
+            <item
                 android:id="@+id/folder"
                 android:title="@string/create_new_folder" />
-            <item
-                android:id="@+id/upload"
-                android:title="@string/upload_files_to_current_dir" />
             <item
                 android:id="@+id/cancel"
                 android:title="@string/cancel" />

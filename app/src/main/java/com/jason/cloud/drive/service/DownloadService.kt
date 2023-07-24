@@ -37,8 +37,8 @@ import java.io.File
 import java.io.Serializable
 
 class DownloadService : Service() {
-    private val name = "文件上传服务"
-    private val channelId = "file_upload_service"
+    private val name = "文件取回服务"
+    private val channelId = "file_download_service"
     private val notificationId: Int = 20001
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notificationManager: NotificationManagerCompat
@@ -108,7 +108,7 @@ class DownloadService : Service() {
     private fun showNotification() {
         val notificationChannel = NotificationChannelCompat.Builder(
             channelId,
-            NotificationManagerCompat.IMPORTANCE_HIGH
+            NotificationManagerCompat.IMPORTANCE_DEFAULT
         ).setName(name).build()
 
         notificationManager.createNotificationChannel(notificationChannel)
@@ -122,7 +122,7 @@ class DownloadService : Service() {
         )
 
         notificationBuilder.setContentTitle(name)
-        notificationBuilder.setContentText("文件上传服务正在启动..")
+        notificationBuilder.setContentText("文件取回服务正在启动..")
         notificationBuilder.setOngoing(true) //不能被清除
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             notificationBuilder.foregroundServiceBehavior =
@@ -178,35 +178,38 @@ class DownloadService : Service() {
             var downloadBytes = 0L
 
             while (isActive) {
-                withContext(Dispatchers.IO) {
-                    if (task.isRunning()) {
-                        if (task.progress != progress) {
-                            progress = task.progress
-                            TaskDatabase.INSTANCE.getDownloadDao()
-                                .updateProgress(task.hash, task.progress)
-                        }
-                        if (task.downloadBytes != downloadBytes) {
-                            downloadBytes = task.downloadBytes
-                            TaskDatabase.INSTANCE.getDownloadDao()
-                                .updateDownloadedBytes(task.hash, task.downloadBytes)
-                        }
-                        if (task.status != status) {
-                            status = task.status
-                            TaskDatabase.INSTANCE.getDownloadDao()
-                                .updateStatus(task.hash, task.status)
+                delay(1000)
+
+                if (isActive) {
+                    withContext(Dispatchers.IO) {
+                        if (task.isRunning()) {
+                            if (task.progress != progress) {
+                                progress = task.progress
+                                TaskDatabase.INSTANCE.getDownloadDao()
+                                    .updateProgress(task.hash, task.progress)
+                            }
+                            if (task.downloadBytes != downloadBytes) {
+                                downloadBytes = task.downloadBytes
+                                TaskDatabase.INSTANCE.getDownloadDao()
+                                    .updateDownloadedBytes(task.hash, task.downloadBytes)
+                            }
+                            if (task.status != status) {
+                                status = task.status
+                                TaskDatabase.INSTANCE.getDownloadDao()
+                                    .updateStatus(task.hash, task.status)
+                            }
                         }
                     }
+
+                    notificationBuilder.setContentTitle(task.name)
+                    notificationBuilder.setContentText(task.getStatusText())
+                    notificationBuilder.setProgress(100, task.progress, false)
+
+                    val taskList = downloadQueue.getTaskList()
+                    val doneSize = taskList.count { it.isDone() }
+                    notificationBuilder.setSubText("$doneSize/${taskList.size}")
+                    update()
                 }
-
-                notificationBuilder.setContentTitle(task.name)
-                notificationBuilder.setContentText(task.getStatusText())
-                notificationBuilder.setProgress(100, task.progress, false)
-
-                val taskList = downloadQueue.getTaskList()
-                val doneSize = taskList.count { it.isDone() }
-                notificationBuilder.setSubText("$doneSize/${taskList.size}")
-                update()
-                delay(1000)
             }
         }
     }

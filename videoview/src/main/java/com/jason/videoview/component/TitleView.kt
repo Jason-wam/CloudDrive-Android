@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.Animation
@@ -37,6 +38,7 @@ class TitleView(context: Context) : FrameLayout(context), IControlComponent {
     private val ibSubtitle: ImageButton by lazy { findViewById(R.id.ibSubtitle) }
     private var mIsRegister = false
     private val mBatteryReceiver: BatteryReceiver
+    private val hideInPortrait = true
 
     init {
         isVisible = false
@@ -62,21 +64,26 @@ class TitleView(context: Context) : FrameLayout(context), IControlComponent {
     }
 
     override fun onVisibilityChanged(isVisible: Boolean, anim: Animation?) {
+        if (PlayerUtils.isInPortrait(context) && hideInPortrait) {
+            if (this.isVisible) {
+                this.isVisible = false
+            }
+            return
+        }
         if (wrapper.isFullScreen.not() && showWhenPortrait.not()) { //只在全屏时才有效
-            visibility = GONE
+            this.isVisible = false
             return
         }
         if (isVisible) {
             if (visibility == GONE) {
-                visibility = VISIBLE
+                this.isVisible = true
                 if (anim != null && wrapper.isFullScreen) {
                     startAnimation(anim)
                 }
             }
-            applyCutout()
         } else {
             if (visibility == VISIBLE) {
-                visibility = GONE
+                this.isVisible = false
                 if (anim != null && wrapper.isFullScreen) {
                     startAnimation(anim)
                 }
@@ -91,13 +98,21 @@ class TitleView(context: Context) : FrameLayout(context), IControlComponent {
                 ibSubtitle.isVisible = wrapper.isFullScreen && (wrapper.subtitles?.size ?: 0) > 0
             }
 
-            VideoView.STATE_IDLE, VideoView.STATE_START_ABORT, VideoView.STATE_PREPARING, VideoView.STATE_PREPARED, VideoView.STATE_ERROR, VideoView.STATE_PLAYBACK_COMPLETED -> {
+            VideoView.STATE_IDLE, VideoView.STATE_START_ABORT, VideoView.STATE_PREPARING,
+            VideoView.STATE_PREPARED, VideoView.STATE_ERROR, VideoView.STATE_PLAYBACK_COMPLETED -> {
                 visibility = GONE
             }
         }
     }
 
     override fun onPlayerStateChanged(playerState: Int) {
+        applyCutout()
+        if (PlayerUtils.isInPortrait(context) && hideInPortrait) {
+            if (isVisible) {
+                isVisible = false
+            }
+            return
+        }
         val isFullScreen = playerState == VideoView.PLAYER_FULL_SCREEN
         if (playerState != VideoView.PLAYER_FULL_SCREEN) {
             isVisible = false
@@ -109,24 +124,33 @@ class TitleView(context: Context) : FrameLayout(context), IControlComponent {
 
         ibTrack.isVisible = isFullScreen && (wrapper.tracks?.size ?: 0) > 1
         ibSubtitle.isVisible = isFullScreen && (wrapper.subtitles?.size ?: 0) > 0
-        applyCutout()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
         applyCutout()
+        if (PlayerUtils.isInPortrait(context) && hideInPortrait) {
+            if (isVisible) {
+                isVisible = false
+            }
+        } else {
+            if (wrapper.isShowing) {
+                isVisible = true
+            }
+        }
     }
 
     private fun applyCutout() {
-        val activity = PlayerUtils.scanForActivity(context)
-        if (activity != null && wrapper.hasCutout()) {
-            val orientation = activity.requestedOrientation
-            if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                container.setPadding(0, wrapper.cutoutHeight, 0, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
-                container.setPadding(0, 0, wrapper.cutoutHeight, 0)
-            } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                container.setPadding(wrapper.cutoutHeight, 0, 0, 0)
+        PlayerUtils.scanForActivity(context)?.let { activity ->
+            if (wrapper.hasCutout()) {
+                val orientation = activity.requestedOrientation
+                if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    container.setPadding(0, 0, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    container.setPadding(wrapper.cutoutHeight, 0, 0, 0)
+                } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                    container.setPadding(0, 0, wrapper.cutoutHeight, 0)
+                }
             }
         }
     }
@@ -136,6 +160,12 @@ class TitleView(context: Context) : FrameLayout(context), IControlComponent {
     }
 
     override fun onLockStateChanged(isLocked: Boolean) {
+        if (PlayerUtils.isInPortrait(context) && hideInPortrait) {
+            if (isVisible) {
+                isVisible = false
+            }
+            return
+        }
         isVisible = !isLocked
         bringToFront()
     }
@@ -175,10 +205,8 @@ class TitleView(context: Context) : FrameLayout(context), IControlComponent {
         }
     }
 
-    private class BatteryReceiver(
-        private val imageView: ImageView,
-        private val textView: TextView
-    ) : BroadcastReceiver() {
+    private class BatteryReceiver(val imageView: ImageView, val textView: TextView) :
+        BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         override fun onReceive(context: Context, intent: Intent) {
             val extras = intent.extras ?: return

@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import com.jason.cloud.buildsrc.Android
+import com.jason.cloud.buildsrc.Dependencies
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -8,10 +11,10 @@ plugins {
 
 android {
     namespace = "com.jason.videoview"
-    compileSdk = 33
+    compileSdk = Android.compileSdk
 
     defaultConfig {
-        minSdk = 21
+        minSdk = Android.minSdk
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -39,9 +42,9 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.10.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.8.0")
+    implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
+    implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")
+    implementation("com.google.android.material:material:${Dependencies.google_material}")
 
     implementation(project(mapOf("path" to ":theme")))
     implementation(project(mapOf("path" to ":extension")))
