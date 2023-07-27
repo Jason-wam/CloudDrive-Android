@@ -27,14 +27,14 @@ class FileMenuDialog :
 
     interface Callback {
         fun viewVideos(list: List<FileEntity>, position: Int)
+        fun viewAudios(list: List<FileEntity>, position: Int)
+        fun viewImages(list: List<FileEntity>, position: Int)
+
+        fun viewOthers(list: List<FileEntity>, position: Int)
 
         fun viewVideoDetail(list: List<FileEntity>, position: Int)
 
         fun viewAudioDetail(list: List<FileEntity>, position: Int)
-
-        fun viewImages(list: List<FileEntity>, position: Int)
-
-        fun viewOthers(list: List<FileEntity>, position: Int)
 
         fun downloadIt(file: FileEntity)
 
@@ -50,7 +50,7 @@ class FileMenuDialog :
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                binding.ivHandler.isSelected = slideOffset != 0f
+                binding.handler.isSelected = slideOffset != 0f
             }
         })
 
@@ -68,8 +68,12 @@ class FileMenuDialog :
                 } else if (FileType.isImage(current.name)) {
                     callback?.viewImages(list, position)
                     dismiss()
+                } else if (FileType.isAudio(current.name)) {
+                    callback?.viewAudios(list, position)
+                    dismiss()
                 } else {
                     callback?.viewOthers(list, position)
+                    dismiss()
                 }
             }
 

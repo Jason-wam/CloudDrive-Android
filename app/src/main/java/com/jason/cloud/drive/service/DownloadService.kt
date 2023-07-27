@@ -1,6 +1,5 @@
 package com.jason.cloud.drive.service
 
-import TaskQueue
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -20,6 +19,7 @@ import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.database.TaskDatabase
+import com.jason.cloud.drive.database.downloader.DownloadQueue
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.database.downloader.toTaskEntity
@@ -48,8 +48,6 @@ class DownloadService : Service() {
     private val scope = CoroutineScope(Dispatchers.Main)
     private var taskObserver: Job? = null
 
-    val downloadQueue = TaskQueue<DownloadTask>()
-
     class DownloadParam(val name: String, val url: String, val hash: String, val dir: File) :
         Serializable
 
@@ -77,10 +75,6 @@ class DownloadService : Service() {
                     }
                 }
         }
-    }
-
-    init {
-        downloadQueue
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -144,25 +138,24 @@ class DownloadService : Service() {
     }
 
     private fun startDownloads(params: List<DownloadParam>) {
-        downloadQueue.onTaskStart {
-            TaskDatabase.INSTANCE.getDownloadDao().put(it.toTaskEntity())
+        DownloadQueue.instance.onTaskStart {
+            TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
             startObserveTask(it)
         }
-        downloadQueue.onTaskDone {
-            TaskDatabase.INSTANCE.getDownloadDao().put(it.toTaskEntity())
+        DownloadQueue.instance.onTaskDone {
+            TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
         }
-        downloadQueue.onTaskListDone {
-            toast("全部取回任务完成！")
+        DownloadQueue.instance.onTaskListDone {
             taskObserver?.cancel()
-            downloadQueue.release()
+            toast("全部取回任务完成！")
             stopSelf()
         }
-        downloadQueue.addTask(ArrayList<DownloadTask>().apply {
+        DownloadQueue.instance.addTask(ArrayList<DownloadTask>().apply {
             params.forEach { param ->
                 add(DownloadTask(param.name, param.url, param.hash, param.dir))
             }
         })
-        downloadQueue.start()
+        DownloadQueue.instance.start()
     }
 
     private fun startObserveTask(task: DownloadTask) {
@@ -185,17 +178,17 @@ class DownloadService : Service() {
                         if (task.isRunning()) {
                             if (task.progress != progress) {
                                 progress = task.progress
-                                TaskDatabase.INSTANCE.getDownloadDao()
+                                TaskDatabase.instance.getDownloadDao()
                                     .updateProgress(task.hash, task.progress)
                             }
                             if (task.downloadBytes != downloadBytes) {
                                 downloadBytes = task.downloadBytes
-                                TaskDatabase.INSTANCE.getDownloadDao()
+                                TaskDatabase.instance.getDownloadDao()
                                     .updateDownloadedBytes(task.hash, task.downloadBytes)
                             }
                             if (task.status != status) {
                                 status = task.status
-                                TaskDatabase.INSTANCE.getDownloadDao()
+                                TaskDatabase.instance.getDownloadDao()
                                     .updateStatus(task.hash, task.status)
                             }
                         }
@@ -205,7 +198,7 @@ class DownloadService : Service() {
                     notificationBuilder.setContentText(task.getStatusText())
                     notificationBuilder.setProgress(100, task.progress, false)
 
-                    val taskList = downloadQueue.getTaskList()
+                    val taskList = DownloadQueue.instance.taskList
                     val doneSize = taskList.count { it.isDone() }
                     notificationBuilder.setSubText("$doneSize/${taskList.size}")
                     update()

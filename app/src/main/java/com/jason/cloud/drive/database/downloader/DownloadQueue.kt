@@ -1,55 +1,48 @@
 package com.jason.cloud.drive.database.downloader
 
-import TaskQueue
 import com.jason.cloud.drive.database.TaskDatabase
+import com.jason.cloud.drive.utils.TaskQueue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.concurrent.thread
 
-object DownloadQueue {
-    val instance by lazy {
-        TaskQueue<DownloadTask>().onTaskStart {
-            saveData(it) {
-                cancelObserver()
-                startTaskObserver(it)
-            }
-        }.onTaskDone {
-            cancelObserver()
-            saveData(it)
-        }
+class DownloadQueue : TaskQueue<DownloadTask>() {
+    companion object {
+        val instance by lazy { DownloadQueue() }
     }
 
     private val scope = CoroutineScope(Dispatchers.IO)
     private var taskObserver: Job? = null
 
+    init {
+        onTaskStart {
+            saveData(it) {
+                cancelObserver()
+                startTaskObserver(it)
+            }
+        }
+
+        onTaskDone {
+            cancelObserver()
+            saveData(it)
+        }
+    }
+
     private fun cancelObserver() {
         taskObserver?.cancel()
     }
 
-    fun startUnFinishedTasks() {
-        scope.launch {
-            val taskList = TaskDatabase.INSTANCE.getDownloadDao().list().first()
-                .filter {
-                    it.status != DownloadTask.Status.SUCCEED &&
-                            it.status != DownloadTask.Status.FAILED
-                }
-
-            if (taskList.isNotEmpty()) {
-                println("TaskList >> ${taskList.size}")
-                instance.addTask(ArrayList<DownloadTask>().apply {
-                    taskList.forEach { task ->
-                        add(DownloadTask(task.name, task.url, task.hash, File(task.dir)))
-                    }
-                })
-                instance.start()
+    override fun startAll() {
+        taskList.forEach {
+            if (it.isPaused()) {
+                it.status = DownloadTask.Status.QUEUE
             }
         }
+        start()
     }
 
     private fun startTaskObserver(task: DownloadTask) {
@@ -61,16 +54,16 @@ object DownloadQueue {
             while (isActive && task.isRunning()) {
                 if (task.progress != progress) {
                     progress = task.progress
-                    TaskDatabase.INSTANCE.getDownloadDao().updateProgress(task.hash, task.progress)
+                    TaskDatabase.instance.getDownloadDao().updateProgress(task.hash, task.progress)
                 }
                 if (task.downloadBytes != downloadBytes) {
                     downloadBytes = task.downloadBytes
-                    TaskDatabase.INSTANCE.getDownloadDao()
+                    TaskDatabase.instance.getDownloadDao()
                         .updateDownloadedBytes(task.hash, task.downloadBytes)
                 }
                 if (task.status != status) {
                     status = task.status
-                    TaskDatabase.INSTANCE.getDownloadDao().updateStatus(task.hash, task.status)
+                    TaskDatabase.instance.getDownloadDao().updateStatus(task.hash, task.status)
                 }
                 delay(2000)
             }
@@ -79,7 +72,7 @@ object DownloadQueue {
 
     private fun saveData(task: DownloadTask, block: (() -> Unit)? = null) {
         thread {
-            TaskDatabase.INSTANCE.getDownloadDao().put(task.toTaskEntity())
+            TaskDatabase.instance.getDownloadDao().put(task.toTaskEntity())
             block?.invoke()
         }
     }

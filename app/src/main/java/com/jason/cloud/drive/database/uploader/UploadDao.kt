@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,6 +17,9 @@ interface UploadDao {
 
     @Query("DELETE FROM uploader")
     fun clear()
+
+    @Query("DELETE FROM uploader WHERE status = :status")
+    fun clear(status: UploadTask.Status)
 
     @Delete
     fun delete(task: UploadTaskEntity)

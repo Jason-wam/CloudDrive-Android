@@ -23,6 +23,7 @@
         app:icon="@drawable/ic_round_chevron_right_16"
         app:iconGravity="end"
         android:gravity="center"
+        app:backgroundTint="@android:color/transparent"
         app:iconSize="16dp"
         app:iconTint="@color/colorOnSurfaceMedium"
         app:strokeWidth="0dp"

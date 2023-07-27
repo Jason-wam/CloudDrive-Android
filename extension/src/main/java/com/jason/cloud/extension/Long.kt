@@ -4,6 +4,11 @@ import android.annotation.SuppressLint
 import java.text.SimpleDateFormat
 import java.util.Date
 
+
+fun Long.toFileSizeString(suffix: String): String {
+    return toFileSizeString() + suffix
+}
+
 /**
  * 转换为文件单位
  */

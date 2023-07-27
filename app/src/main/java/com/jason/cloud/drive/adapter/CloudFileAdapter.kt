@@ -29,6 +29,7 @@ import com.jason.cloud.extension.toFileSizeString
 
 class CloudFileAdapter :
     BaseBindHeaderRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
+
     override fun onBindViewHolder(
         context: Context,
         holder: ViewHolder<ItemCloudFileBinding>,

@@ -20,8 +20,8 @@ class UploadTaskAdapter :
         position: Int,
         item: UploadTask
     ) {
-        holder.binding.ivIcon.setImageResource(getFileIcon(item.name))
-        holder.binding.tvName.text = item.name
+        holder.binding.ivIcon.setImageResource(getFileIcon(item.childName))
+        holder.binding.tvName.text = item.childName
         holder.binding.tvStatus.text = item.getStatusText()
         holder.binding.tvSize.text =
             item.uploadedBytes.toFileSizeString() + " / " + item.totalBytes.toFileSizeString()

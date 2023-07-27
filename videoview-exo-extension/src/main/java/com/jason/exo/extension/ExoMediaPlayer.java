@@ -292,7 +292,11 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
                         String id = group.getTrackFormat(i).id;
                         if (id != null) {
                             Format format = group.getTrackFormat(i);
-                            trackArrayList.add(new Track(Integer.parseInt(id), format.language + "," + format.label));
+                            if (format.label == null || format.label.isEmpty()) {
+                                trackArrayList.add(new Track(Integer.parseInt(id), format.language));
+                            } else {
+                                trackArrayList.add(new Track(Integer.parseInt(id), format.language + "," + format.label));
+                            }
                         }
                     }
                 }
@@ -349,19 +353,19 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
 
     @Override
     public int getSelectedSubtitleIndex() {
-        try {
-            for (Tracks.Group group : mInternalPlayer.getCurrentTracks().getGroups()) {
-                if (group.getType() == C.TRACK_TYPE_TEXT) {
-                    for (int i = 0; i < group.getMediaTrackGroup().length; i++) {
-                        if (group.isTrackSelected(i)) {
-                            return i;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            for (Tracks.Group group : mInternalPlayer.getCurrentTracks().getGroups()) {
+//                if (group.getType() == C.TRACK_TYPE_TEXT) {
+//                    for (int i = 0; i < group.getMediaTrackGroup().length; i++) {
+//                        if (group.isTrackSelected(i)) {
+//                            return i;
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         return selectedSubtitleIndex;
     }
 

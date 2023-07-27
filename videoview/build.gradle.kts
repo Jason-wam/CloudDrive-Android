@@ -28,11 +28,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     publishing {
         singleVariant("release") {
@@ -48,6 +48,7 @@ dependencies {
 
     implementation(project(mapOf("path" to ":theme")))
     implementation(project(mapOf("path" to ":extension")))
+//    implementation(project(mapOf("path" to ":videoview-exo-extension")))
 }
 
 // 创建一个task来发布源码

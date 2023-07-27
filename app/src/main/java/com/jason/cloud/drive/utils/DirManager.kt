@@ -17,4 +17,8 @@ object DirManager {
     fun getDownloadDir(context: Context): File {
         return context.externalFilesDir("downloads")
     }
+
+    fun getAttachCacheDir(context: Context): File {
+        return context.cacheDirectory("attach-files")
+    }
 }

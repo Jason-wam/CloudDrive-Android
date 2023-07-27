@@ -194,10 +194,8 @@ class MyTimedTextDanmakuView(context: Context) : DanmakuView(context), IControlC
         if (showTimedText.not()) {
             return
         }
+
         if (timedText.bitmap != null) {
-            mContext.setCacheStuffer(SpannedCacheStuffer(), null)
-            val danmaku =
-                mContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM) ?: return
             val drawable = BitmapDrawable(resources, timedText.bitmap)
             if (PlayerUtils.isInPortrait(context) && controlWrapper.isFullScreen) {
                 if (timedText.bitmapHeight != -Float.MAX_VALUE) {
@@ -219,34 +217,11 @@ class MyTimedTextDanmakuView(context: Context) : DanmakuView(context), IControlC
                 }
             }
 
-            danmaku.text = createSpannable(drawable)
-            danmaku.priority = 100 // 可能会被各种过滤器过滤并隐藏显示
-            danmaku.isLive = false
-            danmaku.time = currentTime
-            danmaku.textSize = PlayerUtils.sp2px(context, 14f).toFloat()
-            danmaku.textColor = Color.WHITE
-            danmaku.textShadowColor = Color.BLACK
-            //danmaku.underlineColor = Color.TRANSPARENT;
-            danmaku.borderColor = Color.TRANSPARENT
-            danmaku.padding = PlayerUtils.dp2px(context, 2f)
-            addDanmaku(danmaku)
+            addDanmaku(createTimedTextDanmaku(createSpannable(drawable)))
         }
 
         if (timedText.text?.isNotBlank() == true) {
-            mContext.setCacheStuffer(SpannedCacheStuffer(), null)
-            val danmaku =
-                mContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM) ?: return
-            danmaku.text = timedText.text.toString()
-            danmaku.priority = 100 // 可能会被各种过滤器过滤并隐藏显示
-            danmaku.isLive = false
-            danmaku.time = currentTime
-            danmaku.textSize = PlayerUtils.sp2px(context, 14f).toFloat()
-            danmaku.textColor = Color.WHITE
-            danmaku.textShadowColor = Color.BLACK
-            //danmaku.underlineColor = Color.TRANSPARENT;
-            danmaku.borderColor = Color.TRANSPARENT
-            danmaku.padding = PlayerUtils.dp2px(context, 2f)
-            addDanmaku(danmaku)
+            addDanmaku(createTimedTextDanmaku(timedText.text.toString()))
             removeAllLiveDanmakus()
         }
     }
@@ -259,6 +234,20 @@ class MyTimedTextDanmakuView(context: Context) : DanmakuView(context), IControlC
         return spannableStringBuilder
     }
 
+    private fun createTimedTextDanmaku(text: CharSequence): BaseDanmaku {
+//        clearDanmaku()
+        mContext.setCacheStuffer(SpannedCacheStuffer(), null)
+        val danmaku = mContext.mDanmakuFactory.createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM)
+        danmaku.text = text
+        danmaku.priority = 100 // 可能会被各种过滤器过滤并隐藏显示
+        danmaku.isLive = false
+        danmaku.time = currentTime
+        danmaku.textSize = PlayerUtils.sp2px(context, 15f).toFloat()
+        danmaku.textColor = Color.WHITE
+        danmaku.textShadowColor = Color.BLACK
+        danmaku.borderColor = Color.TRANSPARENT
+        return danmaku
+    }
 
     fun setTimedTextEnabled(showTimedText: Boolean) {
         this.showTimedText = showTimedText

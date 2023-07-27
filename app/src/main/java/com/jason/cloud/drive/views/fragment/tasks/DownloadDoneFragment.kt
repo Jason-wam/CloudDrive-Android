@@ -29,7 +29,7 @@ class DownloadDoneFragment :
 
         scopeNetLife {
             binding.stateLayout.showLoading()
-            TaskDatabase.INSTANCE.getDownloadDao().list()
+            TaskDatabase.instance.getDownloadDao().list()
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
                     val list = it.filter { task ->
                         task.status == DownloadTask.Status.SUCCEED ||

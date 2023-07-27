@@ -98,6 +98,7 @@ class SubtitleView(context: Context, attrs: AttributeSet? = null) : LinearLayout
                 rvData.scrollToPosition(index)
             }
         }
+        adapter.trackIndex = controlWrapper.selectedSubtitleIndex
         adapter.notifyDataSetChanged()
     }
 

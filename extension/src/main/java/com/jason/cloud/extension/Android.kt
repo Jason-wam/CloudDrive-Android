@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
 import java.io.File
 
 @Suppress("DEPRECATION")
@@ -54,16 +55,6 @@ inline val Context.windowSize: Pair<Int, Int>
         return Pair(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
     }
 
-fun Context.browser(url: String) {
-    kotlin.runCatching {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        val chooser = Intent.createChooser(intent, "选择浏览器打开")
-        startActivity(chooser)
-    }.onFailure {
-        toast(it.toString())
-    }
-}
-
 fun Context.getVersionCode(): Long {
     return packageManager.getPackageInfoCompat(this.packageName, PackageManager.GET_ACTIVITIES)
         .let {
@@ -80,6 +71,60 @@ fun Context.getVersionName(): String {
         this.packageName,
         PackageManager.GET_ACTIVITIES
     ).versionName
+}
+
+
+fun Context.browser(url: String) {
+    kotlin.runCatching {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val chooser = Intent.createChooser(intent, "选择浏览器打开")
+        startActivity(chooser)
+    }.onFailure {
+        toast(it.toString())
+    }
+}
+
+fun Fragment.openURL(url: String) {
+    context?.openURL(url)
+}
+
+fun Context.openURL(url: String) {
+    try {
+        val intent = Intent()
+        intent.action = Intent.ACTION_VIEW
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.data = Uri.parse(url)
+        startActivity(intent)
+    } catch (e: Exception) {
+        toast(e.toMessage())
+    }
+}
+
+fun Context.openURL(url: String, mimeType: String) {
+    try {
+        val intent = Intent()
+        intent.action = Intent.ACTION_VIEW
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.setDataAndType(Uri.parse(url), mimeType)
+        startActivity(intent)
+    } catch (e: Exception) {
+        toast(e.toMessage())
+    }
+}
+
+fun Context.openFile(file: File) {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        val uri = FileProvider.getUriForFile(this, this.packageName + ".provider", file)
+        intent.setDataAndType(uri, file.mimeType)
+    } else {
+        val uri = Uri.fromFile(file)
+        intent.setDataAndType(uri, file.mimeType)
+    }
+    val chooser = Intent.createChooser(intent, "选择应用程序打开")
+    startActivity(chooser)
 }
 
 /**

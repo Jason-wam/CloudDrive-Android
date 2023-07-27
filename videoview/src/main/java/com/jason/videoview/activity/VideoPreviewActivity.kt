@@ -1,4 +1,4 @@
-package com.jason.cloud.drive.views.activity
+package com.jason.videoview.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,7 +15,6 @@ import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.putSerializableListExtra
 import com.jason.cloud.extension.startActivity
 import com.jason.cloud.extension.toast
-import com.jason.exo.extension.ExoMediaPlayerFactory
 import com.jason.videoview.StandardVideoController
 import com.jason.videoview.controller.MediaDataController
 import com.jason.videoview.extension.bindLifecycle
@@ -73,7 +72,7 @@ class VideoPreviewActivity : AppCompatActivity(), MediaDataController.OnPlayList
         videoView.bindLifecycle(this)
         videoView.startFullScreen()
         videoView.setProgressManager(VideoProgressManager())
-        videoView.setPlayerFactory(ExoMediaPlayerFactory.create(false))
+//        videoView.setPlayerFactory(ExoMediaPlayerFactory.create(false))
         videoView.setVideoController(controller)
         videoView.clearOnStateChangeListeners()
 

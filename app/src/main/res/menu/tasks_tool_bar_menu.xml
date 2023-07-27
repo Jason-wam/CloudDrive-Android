@@ -31,6 +31,20 @@
         tools:ignore="UnusedAttribute">
         <menu>
             <item
+                android:id="@+id/start_all"
+                android:title="@string/start_all_tasks">
+                <menu>
+                    <item
+                        android:id="@+id/start_all_uploads"
+                        android:title="@string/start_all_uploads" />
+                    <item
+                        android:id="@+id/start_all_downloads"
+                        android:title="@string/start_all_downloads" />
+                    <item android:title="@string/cancel" />
+                </menu>
+            </item>
+
+            <item
                 android:id="@+id/pause_all"
                 android:title="@string/pause_all_tasks">
                 <menu>

@@ -1,5 +1,6 @@
 package com.jason.cloud.drive.views.activity
 
+import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -11,7 +12,8 @@ import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import com.jason.cloud.drive.databinding.ActivityMainBinding
-import com.jason.cloud.drive.interfaces.FragmentCallback
+import com.jason.cloud.drive.interfaces.CallFragment
+import com.jason.cloud.drive.interfaces.CallMainActivity
 import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.extension.view.bindBottomNavigationView
 import com.jason.cloud.drive.views.dialog.TextDialog
@@ -20,11 +22,14 @@ import com.jason.cloud.drive.views.fragment.HomeFragment
 import com.jason.cloud.drive.views.fragment.MineFragment
 import com.jason.cloud.drive.views.fragment.TasksFragment
 import com.jason.cloud.extension.toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.system.exitProcess
 
-class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_main) {
+class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_main),
+    CallMainActivity {
     private val viewPager2Adapter by lazy {
         BaseViewPager2Adapter(this).apply {
             addFragment("0", HomeFragment.newInstance())
@@ -56,10 +61,10 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
             override fun handleOnBackPressed() {
                 val fragment: Fragment? =
                     viewPager2Adapter.getFragment(binding.viewPager2.currentItem)
-                if (fragment !is FragmentCallback) {
+                if (fragment !is CallFragment) {
                     callBackPressed()
                 } else {
-                    if (fragment.callBackPressed()) {
+                    if (fragment.isVisible && fragment.callBackPressed()) {
                         callBackPressed()
                     }
                 }
@@ -72,13 +77,16 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
      */
     private fun showHistoriesDownloadDialog() {
         scopeNetLife {
-            val taskList = TaskDatabase.INSTANCE.getDownloadDao().list().first().filter {
-                it.status != DownloadTask.Status.SUCCEED && it.status != DownloadTask.Status.FAILED
+            val taskList = withContext(Dispatchers.IO) {
+                TaskDatabase.instance.getDownloadDao().list().first().filter {
+                    it.status != DownloadTask.Status.SUCCEED && it.status != DownloadTask.Status.FAILED
+                }
             }
 
             if (taskList.isNotEmpty()) {
-                TextDialog(this@MainActivity)
-                    .setTitle("历史任务")
+                TextDialog(this@MainActivity).apply {
+                    setCancelable(false)
+                }.setTitle("历史任务")
                     .setText("检测到${taskList.size}个取回未完成的任务，是否继续取回任务？")
                     .onPositive("继续取回") {
                         resumeTasks(taskList)
@@ -91,8 +99,8 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
 
     private fun dropTasks(list: List<DownloadTaskEntity>) {
         toast("丢弃 ${list.size} 个取回任务！")
-        scopeNetLife {
-            TaskDatabase.INSTANCE.getDownloadDao().delete(list)
+        scopeNetLife(dispatcher = Dispatchers.IO) {
+            TaskDatabase.instance.getDownloadDao().delete(list)
             list.forEach {
                 val file = File(it.path)
                 if (file.exists()) {
@@ -119,6 +127,20 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
                 }
             }
         )
+    }
+
+    override fun locateFileLocation(hash: String, fileHash: String) {
+        super.locateFileLocation(hash, fileHash)
+        binding.viewPager2.setCurrentItem(1, false)
+        viewPager2Adapter.findFragment(FilesFragment::class.java)?.let {
+            it.arguments = Bundle().apply {
+                putString("hash", hash)
+                putString("fileHash", fileHash)
+            }
+            if (it.isCreated) {
+                it.refresh()
+            }
+        }
     }
 
     private var exitTime: Long = 0

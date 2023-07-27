@@ -76,5 +76,4 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
             isLoading = false
         }
     }
-
 }

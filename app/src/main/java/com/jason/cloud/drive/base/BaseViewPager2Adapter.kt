@@ -51,10 +51,18 @@ open class BaseViewPager2Adapter : FragmentStateAdapter {
     }
 
     fun getFragment(position: Int): Fragment? {
-        if (position <= fragmentList.size - 1) {
+        if (position in fragmentList.indices) {
             return fragmentList[position]
         }
         return null
+    }
+
+    fun <F : Fragment> findFragment(clazz: Class<F>): F? {
+        return fragmentList.find {
+            it.javaClass == clazz
+        }?.let {
+            it as F
+        }
     }
 
     fun addFragment(id: Long, title: String, fragment: Fragment) {

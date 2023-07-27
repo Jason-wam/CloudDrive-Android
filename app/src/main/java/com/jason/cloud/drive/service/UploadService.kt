@@ -1,6 +1,5 @@
 package com.jason.cloud.drive.service
 
-import TaskQueue
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -20,9 +19,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.database.TaskDatabase
+import com.jason.cloud.drive.database.uploader.UploadQueue
 import com.jason.cloud.drive.database.uploader.UploadTask
-import com.jason.cloud.drive.database.uploader.UploadTaskEntity
 import com.jason.cloud.drive.database.uploader.getStatusText
 import com.jason.cloud.extension.getParcelableArrayListEx
 import com.jason.cloud.extension.toast
@@ -45,30 +43,18 @@ class UploadService : Service() {
     private val scope = CoroutineScope(Dispatchers.Main)
     private var taskObserver: Job? = null
 
-    val uploadQueue = TaskQueue<UploadTask>().onTaskDone {
-        TaskDatabase.INSTANCE.getUploadDao().put(UploadTaskEntity().apply {
-            this.id = it.id
-            this.uri = it.uri.toString()
-            this.hash = it.hash
-            this.name = it.name
-            this.fileHash = it.fileHash
-            this.progress = it.progress
-            this.totalBytes = it.totalBytes
-            this.uploadedBytes = it.uploadedBytes
-            this.succeed =
-                it.status == UploadTask.Status.SUCCEED || it.status == UploadTask.Status.FLASH_UPLOADED
-            this.timestamp = System.currentTimeMillis()
-            this.progress = if (succeed) 100 else it.progress
-        })
-    }
-
     companion object {
         /**
          * 上传文件到指定文件夹
          * @param hash 要上传到的目标文件夹
          * @param list 本地文件URI列表
          */
-        fun launchWith(context: Context, hash: String, list: List<Uri>) {
+        fun launchWith(
+            context: Context,
+            hash: String,
+            list: List<Uri>,
+            block: (() -> Unit)? = null
+        ) {
             val service = Intent(context, UploadService::class.java).apply {
                 putExtra("hash", hash)
                 putParcelableArrayListExtra("uriList", ArrayList(list))
@@ -78,6 +64,7 @@ class UploadService : Service() {
                     if (allGranted.not()) {
                         context.toast("请赋予软件通知权限")
                     } else {
+                        block?.invoke()
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             context.startForegroundService(service)
                         } else {
@@ -150,25 +137,24 @@ class UploadService : Service() {
     }
 
     private fun startUploads(uriList: List<Uri>, hash: String) {
-        uploadQueue.onTaskStart {
+        UploadQueue.instance.onTaskStart {
             startObserveTask(it)
         }
-        uploadQueue.onTaskListDone {
-            toast("全部上传任务完成！")
+        UploadQueue.instance.onTaskListDone {
             taskObserver?.cancel()
-            uploadQueue.release()
+            toast("全部上传任务完成！")
             stopSelf()
         }
-        uploadQueue.addTask(ArrayList<UploadTask>().apply {
+        UploadQueue.instance.addTask(ArrayList<UploadTask>().apply {
             uriList.forEach { uri ->
                 add(UploadTask(uri, hash))
             }
         })
-        uploadQueue.start()
+        UploadQueue.instance.start()
     }
 
     private fun startObserveTask(task: UploadTask) {
-        notificationBuilder.setContentTitle(task.name)
+        notificationBuilder.setContentTitle(task.childName)
         notificationBuilder.setContentText(task.getStatusText())
         notificationBuilder.setProgress(100, task.progress, false)
         update()
@@ -178,12 +164,12 @@ class UploadService : Service() {
             while (isActive) {
                 delay(1000)
                 if (isActive) {
-                    notificationBuilder.setContentTitle(task.name)
+                    notificationBuilder.setContentTitle(task.childName)
                     notificationBuilder.setContentText(task.getStatusText())
                     notificationBuilder.setProgress(100, task.progress, false)
                     notificationBuilder.setOngoing(task.isDone().not())
 
-                    val taskList = uploadQueue.getTaskList()
+                    val taskList = UploadQueue.instance.taskList
                     val doneSize = taskList.count { it.isDone() }
                     notificationBuilder.setSubText("${doneSize}/${taskList.size}")
                     update()

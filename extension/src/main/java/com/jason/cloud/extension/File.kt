@@ -1,6 +1,7 @@
 package com.jason.cloud.extension
 
 import android.content.Context
+import android.webkit.MimeTypeMap
 import java.io.File
 import java.io.InputStream
 import java.math.BigInteger
@@ -23,6 +24,12 @@ fun File.allFiles(): List<File> {
         }
     }
 }
+
+inline val File.mimeType: String
+    get() {
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
+    }
+
 
 inline val Context.cacheDirectory: File
     get() {

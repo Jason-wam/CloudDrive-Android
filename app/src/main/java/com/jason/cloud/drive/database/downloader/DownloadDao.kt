@@ -18,6 +18,9 @@ interface DownloadDao {
     @Query("DELETE FROM downloader")
     fun clear()
 
+    @Query("DELETE FROM downloader WHERE status = :status")
+    fun clear(status: DownloadTask.Status)
+
     @Delete
     fun delete(task: DownloadTaskEntity)
 

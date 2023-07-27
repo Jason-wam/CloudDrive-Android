@@ -5,14 +5,20 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.view.MenuCompat
+import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.drake.net.Get
 import com.drake.net.utils.scopeDialog
+import com.drake.net.utils.scopeNetLife
 import com.drake.spannable.replaceSpan
 import com.drake.spannable.span.ColorSpan
 import com.flyjingfish.openimagelib.OpenImage
@@ -23,7 +29,7 @@ import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.contract.SelectFilesContract
 import com.jason.cloud.drive.contract.SelectFolderContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
-import com.jason.cloud.drive.interfaces.FragmentCallback
+import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.toOpenImageUrl
 import com.jason.cloud.drive.service.DownloadService
@@ -33,7 +39,8 @@ import com.jason.cloud.drive.utils.DirManager
 import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.viewmodel.FileViewModel
-import com.jason.cloud.drive.views.activity.VideoPreviewActivity
+import com.jason.cloud.drive.views.dialog.AttachFileDialog
+import com.jason.cloud.drive.views.dialog.AudioPlayDialog
 import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
 import com.jason.cloud.drive.views.dialog.TextDialog
@@ -45,18 +52,18 @@ import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.toast
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
+import com.jason.videoview.activity.VideoPreviewActivity
 import com.jason.videoview.model.VideoData
+import kotlinx.coroutines.delay
 
 class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files),
-    FileMenuDialog.Callback, FragmentCallback {
+    FileMenuDialog.Callback, CallFragment {
     companion object {
         @JvmStatic
         fun newInstance() = FilesFragment()
     }
 
-    /**
-     * 记录RecyclerView当前位置
-     */
+    var isCreated = false
     private val lastPosition: HashMap<String, Pair<Int, Int>> = HashMap()
     private lateinit var fileSelectLauncher: ActivityResultLauncher<String>
     private lateinit var selectFolderLauncher: ActivityResultLauncher<Any?>
@@ -89,6 +96,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     override fun callBackPressed(): Boolean {
+        if (isVisible.not()) return true
         return if (viewModel.isLoading) false else {
             if (viewModel.canGoBack().not()) {
                 true
@@ -100,12 +108,23 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
+    fun refresh() {
+        val hash = arguments?.getString("hash").orEmpty()
+        arguments?.remove("hash")
+        if (hash.isNotBlank()) {
+            binding.stateLayout.showLoading()
+            viewModel.refresh(hash, isGoBack = false)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isCreated = true
         fileSelectLauncher = registerForActivityResult(SelectFilesContract()) { uriList ->
             if (uriList.isNotEmpty()) {
-                toast("开始上传 ${uriList.size} 个文件")
-                UploadService.launchWith(requireContext(), viewModel.current(), uriList)
+                UploadService.launchWith(requireContext(), viewModel.current(), uriList) {
+                    toast("开始上传 ${uriList.size} 个文件")
+                }
             }
         }
 
@@ -127,8 +146,9 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                     if (uriList.isEmpty()) {
                         toast("此目录下没有查找到文件")
                     } else {
-                        toast("开始上传 ${uriList.size} 个文件")
-                        UploadService.launchWith(requireContext(), viewModel.current(), uriList)
+                        UploadService.launchWith(requireContext(), viewModel.current(), uriList) {
+                            toast("开始上传 ${uriList.size} 个文件")
+                        }
                     }
                 }
             }
@@ -145,8 +165,10 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             fileSelectLauncher.launch("*/*")
         }
 
+        val hash = arguments?.getString("hash").orEmpty()
+        arguments?.remove("hash")
         binding.stateLayout.showLoading()
-        viewModel.refresh(isGoBack = false)
+        viewModel.refresh(hash, isGoBack = false)
     }
 
     private fun initToolBar() {
@@ -281,15 +303,47 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 binding.stateLayout.showEmpty(R.string.state_view_nothing_here)
             }
 
-            if (it.isGoBack.not()) {
-                binding.rvData.scrollToPosition(0)
-            } else {
+            if (it.isGoBack) {
                 lastPosition[viewModel.current()]?.run {
                     binding.rvData.layoutManager?.let { manager ->
                         manager as LinearLayoutManager
                         manager.scrollToPositionWithOffset(second, first)
                         lastPosition[viewModel.current()] = Pair(0, 0)
                     }
+                }
+            } else {
+                val fileHash = arguments?.getString("fileHash").orEmpty()
+                arguments?.remove("fileHash")
+                val location = adapter.itemData.indexOfFirst { file -> file.hash == fileHash }
+                if (location == -1) {
+                    binding.rvData.scrollToPosition(0)
+                } else {
+                    binding.rvData.scrollToPosition(location)
+                    animateView(location)
+                }
+            }
+        }
+    }
+
+    /**
+     * 闪烁指定的ItemView
+     */
+    private fun animateView(location: Int) {
+        scopeNetLife {
+            delay(300)
+            binding.rvData.findViewHolderForLayoutPosition(location)?.let { holder ->
+                val animationView = holder.itemView.findViewById<View>(R.id.animation_view)
+                if (animationView != null) {
+                    animationView.isVisible = true
+                    animationView.startAnimation(AlphaAnimation(0f, 0.2f).apply {
+                        duration = 900
+                        fillBefore = true
+                        repeatCount = 3
+                        interpolator = LinearInterpolator()
+                        repeatMode = Animation.REVERSE
+                    })
+                    delay(1000)
+                    animationView.isVisible = false
                 }
             }
         }
@@ -341,6 +395,13 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         })
     }
 
+    override fun viewAudios(list: List<FileEntity>, position: Int) {
+        val hash = list[position].hash
+        val audioList = list.filter { FileType.isAudio(it.name) }
+        val audioIndex = audioList.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+        AudioPlayDialog().setData(audioList, audioIndex).showNow(childFragmentManager, "audio")
+    }
+
     override fun viewImages(list: List<FileEntity>, position: Int) {
         val hash = list[position].hash
         val images = list.filter { FileType.isImage(it.name) }
@@ -362,11 +423,10 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     override fun viewAudioDetail(list: List<FileEntity>, position: Int) {
-
     }
 
     override fun viewOthers(list: List<FileEntity>, position: Int) {
-
+        AttachFileDialog().setFile(list[position]).showNow(childFragmentManager, "attach")
     }
 
     override fun downloadIt(file: FileEntity) {
@@ -388,7 +448,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 scopeDialog(dialog, cancelable = true) {
                     Get<String>("${Configure.hostURL}/delete") {
                         param("hash", viewModel.current())
-                        param("fileHash", file.hash)
+                        param("childHash", file.hash)
                     }.await().asJSONObject().also {
                         if (it.optInt("code") == 200) {
                             toast("文件删除成功！")

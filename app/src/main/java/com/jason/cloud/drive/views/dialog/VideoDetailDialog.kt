@@ -9,11 +9,11 @@ import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutVideoDetailDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.UrlBuilder
-import com.jason.cloud.drive.views.activity.VideoPreviewActivity
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
+import com.jason.videoview.activity.VideoPreviewActivity
 import com.jason.videoview.model.VideoData
 import java.io.Serializable
 
@@ -29,7 +29,7 @@ class VideoDetailDialog :
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                binding.ivHandler.isSelected = slideOffset != 0f
+                binding.handler.isSelected = slideOffset != 0f
             }
         })
 

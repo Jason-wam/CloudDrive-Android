@@ -48,7 +48,6 @@ class StandardVideoController(context: Context) : GestureVideoController(context
     private lateinit var tvDownloadSpeed: TextView
 
     private lateinit var danmakuView: MyDanmakuView
-    private lateinit var timedTextDanmakuView: MyTimedTextDanmakuView
 
     private lateinit var dataController: MediaDataController
 
@@ -435,10 +434,9 @@ class StandardVideoController(context: Context) : GestureVideoController(context
         })
 
         danmakuView = MyDanmakuView(context)
-        timedTextDanmakuView = MyTimedTextDanmakuView(context)
 
         addControlComponent(danmakuView)
-        addControlComponent(timedTextDanmakuView)
+        addControlComponent(TimedTextView(context))
         addControlComponent(ControlView(context))
         addControlComponent(createLandscapeControlView())
         updateDataController()
@@ -593,7 +591,7 @@ class StandardVideoController(context: Context) : GestureVideoController(context
 
     fun setDanmakuTimedTextEnabled(enabled: Boolean) {
         this.danmakuView.setTimedTextEnabled(enabled)
-        this.timedTextDanmakuView.setTimedTextEnabled(enabled)
+//        this.timedTextDanmakuView.setTimedTextEnabled(enabled)
     }
 
     fun addDanmaku(danmaku: List<DanmakuEntity>) {

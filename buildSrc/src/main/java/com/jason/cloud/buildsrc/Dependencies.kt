@@ -18,7 +18,7 @@ object Dependencies {
     const val soft_input_event = "1.0.9"
 
     const val glide = "4.15.0"
-    const val open_image = "2.1.1"
+    const val open_image = "2.1.3"
 
     const val immersionbar = "3.2.2"
     const val smart_refresh = "2.0.5"

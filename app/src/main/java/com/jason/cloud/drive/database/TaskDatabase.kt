@@ -9,20 +9,19 @@ import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import com.jason.cloud.drive.database.uploader.UploadDao
 import com.jason.cloud.drive.database.uploader.UploadTaskEntity
 
-@Database(entities = [UploadTaskEntity::class, DownloadTaskEntity::class], version = 8)
+@Database(entities = [UploadTaskEntity::class, DownloadTaskEntity::class], version = 10)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun getUploadDao(): UploadDao
 
     abstract fun getDownloadDao(): DownloadDao
 
     companion object {
-        lateinit var INSTANCE: TaskDatabase
+        lateinit var instance: TaskDatabase
 
         fun init(context: Context) {
-            INSTANCE = Room.databaseBuilder(
-                context,
-                TaskDatabase::class.java, "task_data"
-            ).fallbackToDestructiveMigration().build()
+            instance = Room.databaseBuilder(context, TaskDatabase::class.java, "task_data")
+                .fallbackToDestructiveMigration()
+                .build()
         }
     }
 }
