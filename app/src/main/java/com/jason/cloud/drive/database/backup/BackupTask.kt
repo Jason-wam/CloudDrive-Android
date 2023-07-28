@@ -13,8 +13,10 @@ import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.toMd5String
+import com.jason.cloud.utils.MMKVStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
@@ -32,9 +34,19 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
 
     init {
         this.id = uri.toString().toMd5String()
-        val file = DocumentFile.fromSingleUri(NetConfig.app, uri)
-        this.fileName = file?.name ?: ""
-        this.totalBytes = file?.length() ?: 0
+        if (MMKVStore.with("BackupTask").isExists(id)) {
+            val obj = MMKVStore.with("BackupTask").getString(id).asJSONObject()
+            this.fileName = obj.getString("name")
+            this.totalBytes = obj.getLong("size")
+        } else {
+            val file = DocumentFile.fromSingleUri(NetConfig.app, uri)
+            this.fileName = file?.name ?: ""
+            this.totalBytes = file?.length() ?: 0
+            MMKVStore.with("BackupTask").put(id, JSONObject().apply {
+                put("name", fileName)
+                put("size", totalBytes)
+            })
+        }
     }
 
     override fun isDone(): Boolean {

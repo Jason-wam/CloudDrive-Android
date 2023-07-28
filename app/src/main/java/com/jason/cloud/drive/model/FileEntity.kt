@@ -4,6 +4,7 @@ import android.webkit.MimeTypeMap
 import com.flyjingfish.openimagelib.beans.OpenImageUrl
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.UrlBuilder
 import org.json.JSONObject
 import java.io.Serializable
 
@@ -39,10 +40,25 @@ data class FileEntity(
                 obj.getString("firstFileHash"),
                 obj.getString("firstFileType").let { type -> FileType.Media.valueOf(type) },
                 obj.getBoolean("isVirtual"),
-                rawURL = "${Configure.hostURL}/file?hash=$hash",
-                gifURL = "${Configure.hostURL}/thumbnail?hash=$hash&isGif=true",
-                thumbnailURL = "${Configure.hostURL}/thumbnail?hash=$hash&size=200"
+                rawURL = createRawUrl(hash),
+                gifURL = createThumbnailUrl(hash, true),
+                thumbnailURL = createThumbnailUrl(hash, false, 200)
             )
+        }
+
+        private fun createRawUrl(hash: String): String {
+            return UrlBuilder(Configure.hostURL).path("/file").param("hash", hash).build()
+        }
+
+        private fun createThumbnailUrl(hash: String, isGif: Boolean, size: Int = -1): String {
+            val builder = UrlBuilder(Configure.hostURL)
+            builder.path("/thumbnail")
+            builder.param("hash", hash)
+            builder.param("isGif", isGif)
+            if (size > 0) {
+                builder.param("size", size)
+            }
+            return builder.build()
         }
     }
 }

@@ -27,10 +27,14 @@ class FileMenuDialog :
 
     interface Callback {
         fun viewVideos(list: List<FileEntity>, position: Int)
+
         fun viewAudios(list: List<FileEntity>, position: Int)
+
         fun viewImages(list: List<FileEntity>, position: Int)
 
         fun viewOthers(list: List<FileEntity>, position: Int)
+
+        fun openWithOtherApplication(list: List<FileEntity>, position: Int)
 
         fun viewVideoDetail(list: List<FileEntity>, position: Int)
 
@@ -75,6 +79,11 @@ class FileMenuDialog :
                     callback?.viewOthers(list, position)
                     dismiss()
                 }
+            }
+
+            binding.btnOtherApp.setOnClickListener {
+                callback?.openWithOtherApplication(list, position)
+                dismiss()
             }
 
             binding.btnDownload.setOnClickListener {

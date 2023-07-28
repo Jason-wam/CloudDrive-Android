@@ -9,6 +9,7 @@ import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.FileListRespondEntity
 import com.jason.cloud.drive.model.FileNavigationEntity
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.UrlBuilder
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.asJSONObject
 
@@ -51,7 +52,8 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
     fun refresh(hash: String? = null, isGoBack: Boolean) {
         isLoading = true
         scopeNetLife {
-            Get<String>("${Configure.hostURL}/list") {
+            val url = UrlBuilder(Configure.hostURL).path("/list").build()
+            Get<String>(url) {
                 param("hash", hash ?: current())
                 param("sort", Configure.sortModel.name)
                 param("showHidden", Configure.showHidden)

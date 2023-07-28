@@ -23,6 +23,7 @@ import com.jason.cloud.drive.database.downloader.DownloadQueue
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.database.downloader.toTaskEntity
+import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.putSerializableListExtra
 import com.jason.cloud.extension.toast
@@ -58,22 +59,41 @@ class DownloadService : Service() {
          * @param list 本地文件URI列表
          */
         fun launchWith(context: Context, params: List<DownloadParam>, block: (() -> Unit)? = null) {
-            val service = Intent(context, DownloadService::class.java).apply {
-                putSerializableListExtra("params", params)
+            fun start() {
+                val service = Intent(context, DownloadService::class.java).apply {
+                    putSerializableListExtra("params", params)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(service)
+                    block?.invoke()
+                } else {
+                    context.startService(service)
+                    block?.invoke()
+                }
             }
-            XXPermissions.with(context).permission(Permission.POST_NOTIFICATIONS)
-                .request { _, allGranted ->
-                    if (allGranted.not()) {
-                        context.toast("请赋予软件通知权限")
-                    } else {
-                        block?.invoke()
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            context.startForegroundService(service)
+
+            fun continueRun() {
+                XXPermissions.with(context).permission(Permission.POST_NOTIFICATIONS)
+                    .request { _, allGranted ->
+                        if (allGranted) {
+                            start()
                         } else {
-                            context.startService(service)
+                            context.toast("请赋予软件通知权限！")
                         }
                     }
-                }
+            }
+
+            val isGranted = XXPermissions.isGranted(context, Permission.POST_NOTIFICATIONS)
+            if (isGranted) {
+                start()
+            } else {
+                TextDialog(context)
+                    .setTitle("权限提醒")
+                    .setText("后台取回文件需要获取通知权限，请赋予相关权限后继续执行取回！")
+                    .onNegative("取消")
+                    .onPositive("继续执行", ::continueRun)
+                    .show()
+            }
         }
     }
 
@@ -109,10 +129,7 @@ class DownloadService : Service() {
         notificationBuilder.setChannelId(channelId)
         notificationBuilder.setSmallIcon(R.drawable.ic_cloud_six_24)
         notificationBuilder.setLargeIcon(
-            BitmapFactory.decodeResource(
-                resources,
-                R.drawable.ic_cloud_six_24
-            )
+            BitmapFactory.decodeResource(resources, R.drawable.ic_cloud_six_24)
         )
 
         notificationBuilder.setContentTitle(name)
@@ -139,11 +156,15 @@ class DownloadService : Service() {
 
     private fun startDownloads(params: List<DownloadParam>) {
         DownloadQueue.instance.onTaskStart {
-            TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
-            startObserveTask(it)
+            scope.launch(Dispatchers.IO) {
+                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
+                startObserveTask(it)
+            }
         }
         DownloadQueue.instance.onTaskDone {
-            TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
+            scope.launch(Dispatchers.IO) {
+                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
+            }
         }
         DownloadQueue.instance.onTaskListDone {
             taskObserver?.cancel()

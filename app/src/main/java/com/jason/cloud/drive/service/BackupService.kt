@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
@@ -18,13 +19,15 @@ import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.database.backup.BackupTask
-import com.jason.cloud.drive.utils.MediaEntity
 import com.jason.cloud.drive.utils.TaskQueue
-import com.jason.cloud.drive.utils.scanAudios
-import com.jason.cloud.drive.utils.scanImages
-import com.jason.cloud.drive.utils.scanVideos
+import com.jason.cloud.drive.utils.extension.MediaEntity
+import com.jason.cloud.drive.utils.extension.scanAudios
+import com.jason.cloud.drive.utils.extension.scanImages
+import com.jason.cloud.drive.utils.extension.scanVideos
+import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.createSketchedMD5String
 import com.jason.cloud.extension.toast
+import com.jason.cloud.utils.MMKVStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -37,7 +40,7 @@ class BackupService : Service() {
     private lateinit var notificationManager: NotificationManagerCompat
 
     private val channelId = "backup_service"
-    private val notificationId: Int = 20003
+    private val notificationId: Int = 20002
     private val channel by lazy {
         NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_MIN)
             .setName(name).build()
@@ -47,22 +50,47 @@ class BackupService : Service() {
 
     companion object {
         fun launchWith(context: Context, block: (() -> Unit)? = null) {
-            XXPermissions.with(context).permission(
+            fun start() {
+                val service = Intent(context, BackupService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(service)
+                    block?.invoke()
+                } else {
+                    context.startService(service)
+                    block?.invoke()
+                }
+            }
+
+            fun continueRun() {
+                XXPermissions.with(context).permission(
+                    Permission.POST_NOTIFICATIONS,
+                    Permission.READ_MEDIA_IMAGES,
+                    Permission.READ_MEDIA_AUDIO,
+                    Permission.READ_MEDIA_VIDEO
+                ).request { _, allGranted ->
+                    if (allGranted) {
+                        start()
+                    } else {
+                        context.toast("请赋予软件读取媒体文件权限")
+                    }
+                }
+            }
+
+            val isGranted = XXPermissions.isGranted(
+                context,
                 Permission.READ_MEDIA_IMAGES,
                 Permission.READ_MEDIA_AUDIO,
                 Permission.READ_MEDIA_VIDEO
-            ).request { _, allGranted ->
-                if (allGranted.not()) {
-                    context.toast("请赋予软件读取媒体文件权限")
-                } else {
-                    block?.invoke()
-                    val service = Intent(context, BackupService::class.java)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(service)
-                    } else {
-                        context.startService(service)
-                    }
-                }
+            )
+            if (isGranted) {
+                start()
+            } else {
+                TextDialog(context)
+                    .setTitle("权限提醒")
+                    .setText("后台备份本地文件到云端需要读取媒体文件和通知权限，请赋予相关权限后继续执行备份！")
+                    .onNegative("取消")
+                    .onPositive("继续执行", ::continueRun)
+                    .show()
             }
         }
     }
@@ -78,6 +106,10 @@ class BackupService : Service() {
         notificationManager.createNotificationChannel(channel)
         notificationBuilder.setChannelId(channelId)
         notificationBuilder.setSmallIcon(R.drawable.ic_cloud_six_24)
+        notificationBuilder.setLargeIcon(
+            BitmapFactory.decodeResource(resources, R.drawable.ic_cloud_six_24)
+        )
+
         notificationBuilder.setContentTitle(name)
         notificationBuilder.setContentText("文件备份服务启动..")
         notificationBuilder.setOngoing(true) //不能被清除
@@ -86,7 +118,11 @@ class BackupService : Service() {
                 Notification.FOREGROUND_SERVICE_IMMEDIATE
         }
         startForeground(notificationId, notificationBuilder.build())
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startBackup()
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun startBackup() {
@@ -138,18 +174,25 @@ class BackupService : Service() {
         queue.start()
     }
 
-    private suspend fun <T> T.listFiles(block: suspend T.(Int) -> Unit): List<Pair<MediaEntity, String>> =
+    private suspend fun <T> T.listFiles(block: suspend T.(Int) -> Unit) =
         withContext(Dispatchers.IO) {
-            var count = 0
             ArrayList<Pair<MediaEntity, String>>().apply {
+                var count = 0
                 val files = ArrayList<MediaEntity>().apply {
-                    addAll(scanImages())
-                    addAll(scanAudios())
-                    addAll(scanVideos())
+                    addAll(scanImages().sortedByDescending { it.date })
+                    addAll(scanAudios().sortedByDescending { it.date })
+                    addAll(scanVideos().sortedByDescending { it.date })
                 }
-                for (file in files) {
+                for (file in files.sortedByDescending { it.date }) {
                     ensureActive()
-                    val hash = file.uri.hash()
+                    val key = file.uri.toString()
+                    val hash = MMKVStore.with("BackupHash").getString(key).ifBlank {
+                        file.uri.hash().also {
+                            if (it.isNotBlank()) {
+                                MMKVStore.with("BackupHash").put(key, it)
+                            }
+                        }
+                    }
                     if (hash.isNotBlank()) {
                         add(Pair(file, hash))
                         count += 1

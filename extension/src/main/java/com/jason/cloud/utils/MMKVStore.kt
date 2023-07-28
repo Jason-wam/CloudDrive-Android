@@ -3,6 +3,7 @@ package com.jason.cloud.utils
 import android.content.Context
 import com.jason.cloud.extension.toMd5String
 import com.tencent.mmkv.MMKV
+import org.json.JSONObject
 
 class MMKVStore private constructor(group: String) {
     private val mmkv = MMKV.mmkvWithID(group.toMd5String())
@@ -52,6 +53,10 @@ class MMKVStore private constructor(group: String) {
 
     fun put(key: String, value: Set<String>): Boolean {
         return mmkv.encode(key, value)
+    }
+
+    fun put(key: String, value: JSONObject): Boolean {
+        return mmkv.encode(key, value.toString())
     }
 
     fun getInt(key: String, defValue: Int = 0): Int {

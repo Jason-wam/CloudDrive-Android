@@ -47,6 +47,20 @@
             app:iconTint="@color/colorSecondary" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_other_app"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/other_app"
+            app:icon="@drawable/ic_round_open_in_new_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="#F4511E" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cast"
             style="@style/MaterialButtonStyle"
             android:layout_width="match_parent"

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/shape_sheet_dialog"
+        android:elevation="5dp"
+        android:minHeight="300dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/handler"
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/selector_sheet_handler" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/file_name"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:textColor="@color/colorOnSurface"
+                    android:textSize="14sp"
+                    tools:text="Men.In.Black.II.黑衣人2.2002.中英字幕.BDrip.720P-人人影视.mp4" />
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/file_path"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvURL"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:textColor="@color/colorOnSurface"
+                    android:textSize="14sp"
+                    tools:text="magnet:?xt=urn:btih:15A2ABD00B10E46EADFF0665F39809094E3CC40A" />
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/file_info"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:textColor="@color/colorOnSurface"
+                    android:textSize="14sp"
+                    tools:text="945.8 MB / 2022-03-10" />
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="16dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    app:cardBackgroundColor="@color/colorCardViewBackground"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/colorItemDecoration"
+                    app:strokeWidth="@dimen/itemDecorationSize">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <com.jason.videoview.view.RoundCornerImageView
+                            android:id="@+id/iv_audio_cover"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/ic_default_audio_cover"
+                            app:radius="8dp" />
+
+                        <android.widget.Space
+                            android:layout_width="8dp"
+                            android:layout_height="0dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_audio_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorOnSurface"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                tools:text="G.E.M. 邓紫棋 - 多远都要在一起.flac" />
+
+                            <TextView
+                                android:id="@+id/tv_audio_artist"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorOnSurfaceMedium"
+                                android:textSize="12sp"
+                                tools:text="邓紫棋 - 新的心跳" />
+                        </LinearLayout>
+
+                        <android.widget.Space
+                            android:layout_width="8dp"
+                            android:layout_height="0dp" />
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp">
+
+                            <ImageButton
+                                android:id="@+id/ib_pause"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/selector_audio_control_dark_background"
+                                android:src="@drawable/ic_round_play_arrow_24"
+                                app:tint="@color/colorOnSurface"
+                                tools:ignore="TouchTargetSizeCheck" />
+
+                            <ProgressBar
+                                android:id="@+id/progress_bar"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/selector_audio_control_dark_background"
+                                android:indeterminateTint="@color/colorOnSurface"
+                                android:padding="13dp"
+                                android:visibility="gone" />
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_play"
+                    style="@style/MaterialButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/play_now"
+                    android:textColor="@color/colorSecondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel"
+                    style="@style/MaterialButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/confirm" />
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="20dp" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+</layout>

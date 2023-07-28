@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.jason.videoview.view.ExVideoView
 import xyz.doikki.videoplayer.player.BaseVideoView
+import xyz.doikki.videoplayer.player.BaseVideoView.SimpleOnStateChangeListener
 import xyz.doikki.videoplayer.player.VideoView
 
 /**
@@ -128,6 +129,15 @@ fun ExVideoView.enableAutoSize(videoLayout: View, enabled: Boolean) {
                     }
                 }
             }
+        }
+    })
+}
+
+fun BaseVideoView<*>.onPlayStateChanged(block: (Int) -> Unit) {
+    addOnStateChangeListener(object : SimpleOnStateChangeListener() {
+        override fun onPlayStateChanged(playState: Int) {
+            super.onPlayStateChanged(playState)
+            block.invoke(playState)
         }
     })
 }

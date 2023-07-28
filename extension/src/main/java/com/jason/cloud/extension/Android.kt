@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import androidx.core.content.FileProvider
-import androidx.fragment.app.Fragment
 import java.io.File
 
 @Suppress("DEPRECATION")
@@ -77,15 +76,11 @@ fun Context.getVersionName(): String {
 fun Context.browser(url: String) {
     kotlin.runCatching {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        val chooser = Intent.createChooser(intent, "选择浏览器打开")
+        val chooser = Intent.createChooser(intent, "选择应用程序打开")
         startActivity(chooser)
     }.onFailure {
         toast(it.toString())
     }
-}
-
-fun Fragment.openURL(url: String) {
-    context?.openURL(url)
 }
 
 fun Context.openURL(url: String) {
@@ -94,7 +89,8 @@ fun Context.openURL(url: String) {
         intent.action = Intent.ACTION_VIEW
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.data = Uri.parse(url)
-        startActivity(intent)
+        val chooser = Intent.createChooser(intent, "选择应用程序打开")
+        startActivity(chooser)
     } catch (e: Exception) {
         toast(e.toMessage())
     }
@@ -106,7 +102,8 @@ fun Context.openURL(url: String, mimeType: String) {
         intent.action = Intent.ACTION_VIEW
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.setDataAndType(Uri.parse(url), mimeType)
-        startActivity(intent)
+        val chooser = Intent.createChooser(intent, "选择应用程序打开")
+        startActivity(chooser)
     } catch (e: Exception) {
         toast(e.toMessage())
     }
@@ -153,8 +150,9 @@ fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): Pa
 fun Context?.openVideoPlayer(url: String) {
     try {
         val intent = Intent(Intent.ACTION_VIEW)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.setDataAndType(Uri.parse(url), "video/*")
-        this?.startActivity(Intent.createChooser(intent, "选择播放器"))
+        this?.startActivity(Intent.createChooser(intent, "选择应用程序打开"))
     } catch (e: Exception) {
         toast(e.toMessage())
     }
@@ -226,10 +224,7 @@ fun Context?.copy2Clipboard(text: String?): Boolean {
 fun Context?.readClipboardText(): String {
     this?.getSystemService(Context.CLIPBOARD_SERVICE)?.let {
         it as ClipboardManager
-        val addedText = it.primaryClip?.getItemAt(0)?.text
-        if (addedText.isNullOrBlank()) {
-            return ""
-        }
+        val addedText = it.primaryClip?.getItemAt(0)?.text ?: ""
         val addedTextString = addedText.toString()
         if (addedTextString.isNotBlank()) {
             return addedTextString

@@ -18,15 +18,14 @@ open class TaskQueue<T : TaskQueue.Task> {
             return ArrayList(taskList)
         }
 
-    private val taskLock = ReentrantLock()
     private var threadSize = 1
+    private val taskLock = ReentrantLock()
     private var onTaskDoneListener: ((T) -> Unit)? = null
     private var onTaskStartListener: ((T) -> Unit)? = null
     private var onTaskListDoneListener: (() -> Unit)? = null
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private var queueMonitor: Job? = null
-    private var isActive = true
 
     abstract class Task {
         abstract fun start(): Task
@@ -41,11 +40,9 @@ open class TaskQueue<T : TaskQueue.Task> {
 
     val taskFlow: Flow<List<T>> by lazy {
         flow {
-            while (isActive) {
-                if (taskLock.isLocked.not()) {
-                    emit(ArrayList(taskList))
-                    delay(1000)
-                }
+            while (true) {
+                emit(taskList)
+                delay(500)
             }
         }
     }
@@ -150,11 +147,13 @@ open class TaskQueue<T : TaskQueue.Task> {
     private fun launchQueueMonitor() {
         if (queueMonitor?.isActive != true) {
             println("启动轮循器...")
-            queueMonitor = scope.launch {
+            queueMonitor = scope.launch(Dispatchers.IO) {
                 while (taskList.isNotEmpty()) {
-                    delay(1000)
+                    delay(100)
                     if (taskList.isEmpty()) {
-                        onTaskListDoneListener?.invoke()
+                        withContext(Dispatchers.Main) {
+                            onTaskListDoneListener?.invoke()
+                        }
                         break
                     } else {
                         taskList.filter { it.isDone() }.forEach {
@@ -171,27 +170,26 @@ open class TaskQueue<T : TaskQueue.Task> {
         }
     }
 
-    private fun removeDoneTask(task: T) { //移除已完成任务
+    private suspend fun removeDoneTask(task: T) = withContext(Dispatchers.IO) { //移除已完成任务
         taskLock.lock()
         taskList.remove(task)
         taskLock.unlock()
         println("完成任务：${task.getTaskId()}")
-        onTaskDoneListener?.invoke(task)
+        withContext(Dispatchers.Main) {
+            onTaskDoneListener?.invoke(task)
+        }
     }
 
     private suspend fun startNextTask() = withContext(Dispatchers.IO) {
-        if (taskList.isEmpty()) {
-            queueMonitor?.cancel()
-            onTaskListDoneListener?.invoke()
-        } else {
-            taskList.filter {
-                it.isPaused().not() && it.isDone().not() && it.isRunning().not()
-            }.forEachIndexed { index, t ->
-                if (index < threadSize) {
-                    println("启动任务：${t.getTaskId()}")
+        taskList.filter {
+            !it.isPaused() && !it.isDone() && !it.isRunning()
+        }.forEachIndexed { index, t ->
+            if (index < threadSize) {
+                println("启动任务：${t.getTaskId()}")
+                withContext(Dispatchers.Main) {
                     onTaskStartListener?.invoke(t)
-                    t.start()
                 }
+                t.start()
             }
         }
     }
@@ -208,6 +206,5 @@ open class TaskQueue<T : TaskQueue.Task> {
         onTaskDoneListener = null
         onTaskListDoneListener = null
         onTaskStartListener = null
-        isActive = false
     }
 }

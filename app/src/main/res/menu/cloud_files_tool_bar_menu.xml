@@ -83,6 +83,9 @@
                 android:id="@+id/folder"
                 android:title="@string/create_new_folder" />
             <item
+                android:id="@+id/backup"
+                android:title="@string/backup_files" />
+            <item
                 android:id="@+id/cancel"
                 android:title="@string/cancel" />
         </menu>

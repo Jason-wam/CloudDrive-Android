@@ -3,10 +3,10 @@ package com.jason.cloud.buildsrc
 object Dependencies {
     const val androidx_core_ktx = "1.10.1"
     const val androidx_appcompat = "1.6.1"
-    const val androidx_room = "2.4.2"
+    const val androidx_room = "2.5.2"
     const val androidx_lifecycle = "2.6.1"
     const val androidx_legacy_support_v4 = "1.0.0"
-    const val androidx_constraintlayout = "1.6.1"
+    const val androidx_constraintlayout = "2.1.4"
 
     const val google_material = "1.9.0"
 

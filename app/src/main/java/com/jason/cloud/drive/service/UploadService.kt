@@ -22,6 +22,7 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.database.uploader.UploadQueue
 import com.jason.cloud.drive.database.uploader.UploadTask
 import com.jason.cloud.drive.database.uploader.getStatusText
+import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.getParcelableArrayListEx
 import com.jason.cloud.extension.toast
 import kotlinx.coroutines.CoroutineScope
@@ -55,23 +56,42 @@ class UploadService : Service() {
             list: List<Uri>,
             block: (() -> Unit)? = null
         ) {
-            val service = Intent(context, UploadService::class.java).apply {
-                putExtra("hash", hash)
-                putParcelableArrayListExtra("uriList", ArrayList(list))
+            fun start() {
+                val service = Intent(context, UploadService::class.java).apply {
+                    putExtra("hash", hash)
+                    putParcelableArrayListExtra("uriList", ArrayList(list))
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(service)
+                    block?.invoke()
+                } else {
+                    context.startService(service)
+                    block?.invoke()
+                }
             }
-            XXPermissions.with(context).permission(Permission.POST_NOTIFICATIONS)
-                .request { _, allGranted ->
-                    if (allGranted.not()) {
-                        context.toast("请赋予软件通知权限")
-                    } else {
-                        block?.invoke()
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            context.startForegroundService(service)
+
+            fun continueRun() {
+                XXPermissions.with(context).permission(Permission.POST_NOTIFICATIONS)
+                    .request { _, allGranted ->
+                        if (allGranted) {
+                            start()
                         } else {
-                            context.startService(service)
+                            context.toast("请赋予软件通知权限！")
                         }
                     }
-                }
+            }
+
+            val isGranted = XXPermissions.isGranted(context, Permission.POST_NOTIFICATIONS)
+            if (isGranted) {
+                start()
+            } else {
+                TextDialog(context)
+                    .setTitle("权限提醒")
+                    .setText("后台上传文件需要获取通知权限，请赋予相关权限后继续执行取回！")
+                    .onNegative("取消")
+                    .onPositive("继续执行", ::continueRun)
+                    .show()
+            }
         }
     }
 
@@ -108,10 +128,7 @@ class UploadService : Service() {
         notificationBuilder.setChannelId(channelId)
         notificationBuilder.setSmallIcon(R.drawable.ic_cloud_six_24)
         notificationBuilder.setLargeIcon(
-            BitmapFactory.decodeResource(
-                resources,
-                R.drawable.ic_cloud_six_24
-            )
+            BitmapFactory.decodeResource(resources, R.drawable.ic_cloud_six_24)
         )
 
         notificationBuilder.setContentTitle(name)

@@ -56,4 +56,9 @@
     <string name="start_all_uploads">启动全部上传任务</string>
     <string name="start_all_downloads">启动全部取回任务</string>
     <string name="attach_progress">加载进度</string>
+    <string name="backup_files">备份本设备文件到云端</string>
+    <string name="other_app">其他应用</string>
+    <string name="close">关闭</string>
+    <string name="close_player">关闭播放器</string>
+    <string name="play_in_background">后台播放</string>
 </resources>

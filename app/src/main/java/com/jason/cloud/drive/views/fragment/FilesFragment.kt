@@ -31,7 +31,9 @@ import com.jason.cloud.drive.contract.SelectFolderContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
 import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.model.FileEntity
+import com.jason.cloud.drive.model.mimeType
 import com.jason.cloud.drive.model.toOpenImageUrl
+import com.jason.cloud.drive.service.BackupService
 import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.service.UploadService
 import com.jason.cloud.drive.utils.Configure
@@ -40,6 +42,7 @@ import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.viewmodel.FileViewModel
 import com.jason.cloud.drive.views.dialog.AttachFileDialog
+import com.jason.cloud.drive.views.dialog.AudioDetailDialog
 import com.jason.cloud.drive.views.dialog.AudioPlayDialog
 import com.jason.cloud.drive.views.dialog.FileMenuDialog
 import com.jason.cloud.drive.views.dialog.LoadDialog
@@ -49,6 +52,7 @@ import com.jason.cloud.drive.views.dialog.VideoDetailDialog
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
 import com.jason.cloud.extension.asJSONObject
+import com.jason.cloud.extension.openURL
 import com.jason.cloud.extension.toast
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
@@ -181,6 +185,11 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
         binding.toolbar.onMenuItemClickListener(R.id.folder) {
             createNewFolder()
+        }
+        binding.toolbar.onMenuItemClickListener(R.id.backup) {
+            BackupService.launchWith(requireContext()) {
+                toast("正在后台备份文件..")
+            }
         }
 
         binding.toolbar.onMenuItemClickListener(R.id.name) {
@@ -415,6 +424,15 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
+    override fun viewOthers(list: List<FileEntity>, position: Int) {
+        AttachFileDialog().setFile(list[position]).showNow(childFragmentManager, "attach")
+    }
+
+    override fun openWithOtherApplication(list: List<FileEntity>, position: Int) {
+        val current = list[position]
+        context?.openURL(current.rawURL, current.mimeType())
+    }
+
     override fun viewVideoDetail(list: List<FileEntity>, position: Int) {
         val hash = list[position].hash
         val videos = list.filter { FileType.isVideo(it.name) }
@@ -423,10 +441,10 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     override fun viewAudioDetail(list: List<FileEntity>, position: Int) {
-    }
-
-    override fun viewOthers(list: List<FileEntity>, position: Int) {
-        AttachFileDialog().setFile(list[position]).showNow(childFragmentManager, "attach")
+        val hash = list[position].hash
+        val videos = list.filter { FileType.isAudio(it.name) }
+        val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+        AudioDetailDialog().setFileList(videos, videoIndex).showNow(childFragmentManager, "detail")
     }
 
     override fun downloadIt(file: FileEntity) {

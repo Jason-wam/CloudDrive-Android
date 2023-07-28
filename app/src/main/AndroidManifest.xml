@@ -39,6 +39,7 @@
             android:name="ScopedStorage"
             android:value="true" />
 
+        <service android:name=".service.AudioService" />
         <service android:name=".service.BackupService" />
         <service android:name=".service.UploadService" />
         <service android:name=".service.DownloadService" />
