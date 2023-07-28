@@ -408,4 +408,10 @@ class AudioService : Service() {
     private fun isInteractive(): Boolean {
         return getSystemService<PowerManager>()?.isInteractive ?: true
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        videoView.release()
+        MediaDataController.with("AudioService").release()
+    }
 }

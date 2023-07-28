@@ -73,8 +73,10 @@ class AudioPlayDialog :
         }
 
         MediaDataController.with("AudioService").addOnPlayListener(this)
+        MediaDataController.with("AudioService").addOnCompleteListener(this)
         addOnDismissListener {
             MediaDataController.with("AudioService").removeOnPlayListener(this)
+            MediaDataController.with("AudioService").removeOnCompleteListener(this)
         }
 
         val position = arguments?.getInt("position", 0) ?: 0
@@ -121,6 +123,24 @@ class AudioPlayDialog :
 
     override fun onCompletion() {
         dismiss()
+    }
+
+    override fun onPlay(position: Int, videoData: VideoData) {
+        if (videoData is AudioEntity) {
+            loadMediaInfo(videoData.url)
+            binding.tvTitle.text = videoData.name
+            binding.tvArtist.text = "未知艺术家"
+            binding.ivCover.loadIMG(videoData.image) {
+                placeholder(R.drawable.ic_default_audio_cover)
+                centerCrop()
+            }
+
+            binding.btnBackground.alpha = 1f
+            binding.btnBackground.isEnabled = true
+            binding.btnBackground.setOnClickListener {
+                dismiss()
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -192,24 +212,24 @@ class AudioPlayDialog :
 
                         VideoView.STATE_ERROR, VideoView.STATE_START_ABORT -> {
                             toast("媒体播放错误：STATE_ERROR")
+                            binding.tvPosition.text = "媒体播放错误：STATE_ERROR"
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
                             binding.ibPause.setOnClickListener {
                                 binder.videoView.start()
                             }
-                            binding.tvPosition.text = "媒体播放错误：STATE_ERROR"
                             progressJob?.cancel()
                         }
 
                         VideoView.STATE_IDLE, VideoView.STATE_PLAYBACK_COMPLETED -> {
+                            binding.tvPosition.text = "00:00 / 00:00"
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
                             binding.ibPause.setOnClickListener {
                                 binder.videoView.start()
                             }
-                            binding.tvPosition.text = "00:00 / 00:00"
                             progressJob?.cancel()
                         }
 
@@ -237,9 +257,9 @@ class AudioPlayDialog :
                 }
             }
 
-
             binder.videoView.addOnStateChangeListener(onStateChangeListener)
             addOnDismissListener {
+                progressJob?.cancel()
                 binder.videoView.removeOnStateChangeListener(onStateChangeListener)
             }
 
@@ -267,26 +287,6 @@ class AudioPlayDialog :
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
-        toast("播放停止")
         dismiss()
-    }
-
-    override fun onPlay(position: Int, videoData: VideoData) {
-        if (videoData is AudioEntity) {
-            binding.tvTitle.text = videoData.name
-            binding.tvArtist.text = "未知艺术家"
-            binding.ivCover.loadIMG(videoData.image) {
-                placeholder(R.drawable.ic_default_audio_cover)
-                centerCrop()
-            }
-
-            binding.btnBackground.alpha = 1f
-            binding.btnBackground.isEnabled = true
-            binding.btnBackground.setOnClickListener {
-                dismiss()
-            }
-
-            loadMediaInfo(videoData.url)
-        }
     }
 }
