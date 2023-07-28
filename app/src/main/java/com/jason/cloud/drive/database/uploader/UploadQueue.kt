@@ -14,8 +14,8 @@ class UploadQueue : TaskQueue<UploadTask>() {
                 this.id = it.id
                 this.uri = it.uri.toString()
                 this.hash = it.hash
-                this.childName = it.childName
-                this.childHash = it.childHash
+                this.fileName = it.fileName
+                this.fileHash = it.fileHash
                 this.progress = it.progress
                 this.totalBytes = it.totalBytes
                 this.uploadedBytes = it.uploadedBytes

@@ -24,8 +24,8 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
     var speedBytes: Long = 0
     var progress: Int = 0
     var status = Status.QUEUE
-    var childName: String = ""
-    var childHash: String = ""
+    var fileName: String = ""
+    var fileHash: String = ""
 
     enum class Status {
         QUEUE, CHECKING, UPLOADING, FAILED, SUCCEED, FLASH_UPLOADED, CONNECTING
@@ -34,7 +34,7 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
     init {
         this.id = uri.toString().toMd5String()
         val file = DocumentFile.fromSingleUri(NetConfig.app, uri)
-        this.childName = file?.name ?: ""
+        this.fileName = file?.name ?: ""
         this.totalBytes = file?.length() ?: 0
     }
 
@@ -58,27 +58,27 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
         status = Status.CONNECTING
         scopeNet {
             status = Status.CHECKING
-            Log.e("Uploader", "$childName >> 校验文件...")
+            Log.e("Uploader", "$fileName >> 校验文件...")
             //开始校验文件...
-            childHash = createFileHash(uri)
-            if (childHash.isBlank()) { //校验文件失败.
+            fileHash = createFileHash(uri)
+            if (fileHash.isBlank()) { //校验文件失败.
                 status = Status.FAILED
-                Log.e("Uploader", "$childName >> 校验文件失败...")
+                Log.e("Uploader", "$fileName >> 校验文件失败...")
             } else {
                 //校验文件完成，开始上传文件
                 status = Status.UPLOADING
                 //尝试闪传文件
-                if (flashTransfer(childHash)) {
+                if (flashTransfer(fileHash)) {
                     status = Status.FLASH_UPLOADED
-                    Log.e("Uploader", "$childName >> 闪传成功！")
+                    Log.e("Uploader", "$fileName >> 闪传成功！")
                 } else {
                     //闪传失败，开始上传文件
-                    Log.e("Uploader", "$childName >> 正在上传文件...")
-                    status = if (upload(uri, childHash)) {
-                        Log.e("Uploader", "$childName >> 上传成功！")
+                    Log.e("Uploader", "$fileName >> 正在上传文件...")
+                    status = if (upload(uri, fileHash)) {
+                        Log.e("Uploader", "$fileName >> 上传成功！")
                         Status.SUCCEED
                     } else {
-                        Log.e("Uploader", "$childName >> 上传失败！")
+                        Log.e("Uploader", "$fileName >> 上传失败！")
                         Status.FAILED
                     }
                 }
@@ -86,7 +86,7 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
         }.catch {
             it.printStackTrace()
             status = Status.FAILED
-            Log.e("Uploader", "$childName >> 上传失败！")
+            Log.e("Uploader", "$fileName >> 上传失败！")
         }
         return this
     }
@@ -111,13 +111,19 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
     /**
      * 尝试闪传
      */
-    private suspend fun flashTransfer(childHash: String): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun flashTransfer(fileHash: String): Boolean = withContext(Dispatchers.IO) {
         try {
             Net.get("${Configure.hostURL}/flashTransfer") {
                 setId(id)
                 addQuery("hash", hash)
-                addQuery("childName", childName)
-                addQuery("childHash", childHash)
+                addQuery("fileName", fileName)
+                addQuery("fileHash", fileHash)
+                setClient {
+                    callTimeout(1800, TimeUnit.SECONDS)
+                    readTimeout(1800, TimeUnit.SECONDS)
+                    writeTimeout(1800, TimeUnit.SECONDS)
+                    connectTimeout(1800, TimeUnit.SECONDS)
+                }
             }.execute<String>().asJSONObject().optInt("code") == 200
         } catch (e: Exception) {
             e.printStackTrace()
@@ -125,15 +131,17 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
         }
     }
 
-    private suspend fun upload(uri: Uri, childHash: String): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun upload(uri: Uri, fileHash: String): Boolean = withContext(Dispatchers.IO) {
         Net.post("${Configure.hostURL}/upload") {
             setId(id)
             param("file", uri)
             addQuery("hash", hash)
-            addQuery("childHash", childHash)
+            addQuery("fileHash", fileHash)
             setClient {
-                readTimeout(1, TimeUnit.HOURS)
-                writeTimeout(1, TimeUnit.HOURS)
+                callTimeout(1800, TimeUnit.SECONDS)
+                readTimeout(1800, TimeUnit.SECONDS)
+                writeTimeout(1800, TimeUnit.SECONDS)
+                connectTimeout(1800, TimeUnit.SECONDS)
             }
             addUploadListener(object : ProgressListener() {
                 override fun onProgress(p: Progress) {

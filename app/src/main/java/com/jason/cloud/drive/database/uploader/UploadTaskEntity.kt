@@ -11,8 +11,8 @@ class UploadTaskEntity {
     var id: String = ""
     var uri: String = ""
     var hash: String = ""
-    var childName: String = ""
-    var childHash: String = ""
+    var fileName: String = ""
+    var fileHash: String = ""
     var progress: Int = 0
     var totalBytes: Long = 0
     var uploadedBytes: Long = 0

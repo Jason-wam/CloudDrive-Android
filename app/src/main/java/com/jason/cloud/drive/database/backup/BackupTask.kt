@@ -115,6 +115,12 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
                 addQuery("fileName", fileName)
                 addQuery("fileHash", fileHash)
                 addQuery("deviceName", getDeviceName())
+                setClient {
+                    callTimeout(1800, TimeUnit.SECONDS)
+                    readTimeout(1800, TimeUnit.SECONDS)
+                    writeTimeout(1800, TimeUnit.SECONDS)
+                    connectTimeout(1800, TimeUnit.SECONDS)
+                }
             }.execute<String>().asJSONObject().optInt("code") == 200
         } catch (e: Exception) {
             e.printStackTrace()
@@ -130,8 +136,10 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
             addQuery("fileHash", fileHash)
             addQuery("deviceName", getDeviceName())
             setClient {
-                readTimeout(1, TimeUnit.HOURS)
-                writeTimeout(1, TimeUnit.HOURS)
+                callTimeout(1800, TimeUnit.SECONDS)
+                readTimeout(1800, TimeUnit.SECONDS)
+                writeTimeout(1800, TimeUnit.SECONDS)
+                connectTimeout(1800, TimeUnit.SECONDS)
             }
             addUploadListener(object : ProgressListener() {
                 override fun onProgress(p: Progress) {

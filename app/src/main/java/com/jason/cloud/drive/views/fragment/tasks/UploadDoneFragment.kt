@@ -25,7 +25,7 @@ class UploadDoneFragment :
         addOnClickObserver { _, item, _ ->
             if (activity is CallMainActivity) {
                 val mainActivity = activity as CallMainActivity
-                mainActivity.locateFileLocation(item.hash, item.childHash)
+                mainActivity.locateFileLocation(item.hash, item.fileHash)
             }
         }
     }

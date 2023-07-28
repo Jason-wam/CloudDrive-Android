@@ -34,10 +34,15 @@ import kotlinx.coroutines.launch
 
 class UploadService : Service() {
     private val name = "文件上传服务"
-    private val channelId = "file_upload_service"
-    private val notificationId: Int = 20000
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notificationManager: NotificationManagerCompat
+
+    private val channelId = "file_upload_service"
+    private val notificationId: Int = 20000
+    private val channel by lazy {
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName(name).build()
+    }
 
     private val binder = UploadBinder(this)
 
@@ -119,12 +124,7 @@ class UploadService : Service() {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun showNotification() {
-        val notificationChannel = NotificationChannelCompat.Builder(
-            channelId,
-            NotificationManagerCompat.IMPORTANCE_DEFAULT
-        ).setName(name).build()
-
-        notificationManager.createNotificationChannel(notificationChannel)
+        notificationManager.createNotificationChannel(channel)
         notificationBuilder.setChannelId(channelId)
         notificationBuilder.setSmallIcon(R.drawable.ic_cloud_six_24)
         notificationBuilder.setLargeIcon(
@@ -143,12 +143,13 @@ class UploadService : Service() {
 
 
     private fun update() {
-        val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
+        val hasPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
+            PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
         }
-        if (hasPermission == PackageManager.PERMISSION_GRANTED) {
+        if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
     }
@@ -171,7 +172,7 @@ class UploadService : Service() {
     }
 
     private fun startObserveTask(task: UploadTask) {
-        notificationBuilder.setContentTitle(task.childName)
+        notificationBuilder.setContentTitle(task.fileName)
         notificationBuilder.setContentText(task.getStatusText())
         notificationBuilder.setProgress(100, task.progress, false)
         update()
@@ -181,7 +182,7 @@ class UploadService : Service() {
             while (isActive) {
                 delay(1000)
                 if (isActive) {
-                    notificationBuilder.setContentTitle(task.childName)
+                    notificationBuilder.setContentTitle(task.fileName)
                     notificationBuilder.setContentText(task.getStatusText())
                     notificationBuilder.setProgress(100, task.progress, false)
                     notificationBuilder.setOngoing(task.isDone().not())

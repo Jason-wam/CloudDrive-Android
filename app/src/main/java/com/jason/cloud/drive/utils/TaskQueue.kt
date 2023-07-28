@@ -7,6 +7,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.locks.ReentrantLock
@@ -148,9 +149,10 @@ open class TaskQueue<T : TaskQueue.Task> {
         if (queueMonitor?.isActive != true) {
             println("启动轮循器...")
             queueMonitor = scope.launch(Dispatchers.IO) {
-                while (taskList.isNotEmpty()) {
+                while (isActive) {
                     delay(100)
                     if (taskList.isEmpty()) {
+                        println("结束轮循器...")
                         withContext(Dispatchers.Main) {
                             onTaskListDoneListener?.invoke()
                         }

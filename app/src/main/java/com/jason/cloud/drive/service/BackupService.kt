@@ -42,7 +42,7 @@ class BackupService : Service() {
     private val channelId = "backup_service"
     private val notificationId: Int = 20002
     private val channel by lazy {
-        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_MIN)
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(name).build()
     }
 
@@ -146,7 +146,7 @@ class BackupService : Service() {
     private fun startBackupQueue(list: List<Pair<MediaEntity, String>>) {
         var count = 0
         val queue = TaskQueue<BackupTask>().apply {
-            threadSize(20)
+            threadSize(5)
             list.distinctBy {
                 it.second
             }.also {
@@ -166,10 +166,7 @@ class BackupService : Service() {
         }
         queue.onTaskListDone {
             toast("文件备份完毕！")
-            notificationBuilder.setContentText("文件备份完毕！")
-            notificationBuilder.setProgress(100, 100, false)
-            notificationBuilder.setOngoing(false)
-            update()
+            stopSelf()
         }
         queue.start()
     }
@@ -213,13 +210,16 @@ class BackupService : Service() {
         }.orEmpty()
     }
 
-    private fun update() {
-        val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
-        }
-        if (hasPermission == PackageManager.PERMISSION_GRANTED) {
+    private var lastUpdate = 0L
+    private fun update(important: Boolean = false) {
+        val hasPermission =
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
+                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
+        if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
     }

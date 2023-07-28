@@ -39,10 +39,15 @@ import java.io.Serializable
 
 class DownloadService : Service() {
     private val name = "文件取回服务"
-    private val channelId = "file_download_service"
-    private val notificationId: Int = 20001
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notificationManager: NotificationManagerCompat
+
+    private val notificationId: Int = 20001
+    private val channelId = "file_download_service"
+    private val channel by lazy {
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName(name).build()
+    }
 
     private val binder = DownloadBinder(this)
 
@@ -120,12 +125,7 @@ class DownloadService : Service() {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun showNotification() {
-        val notificationChannel = NotificationChannelCompat.Builder(
-            channelId,
-            NotificationManagerCompat.IMPORTANCE_DEFAULT
-        ).setName(name).build()
-
-        notificationManager.createNotificationChannel(notificationChannel)
+        notificationManager.createNotificationChannel(channel)
         notificationBuilder.setChannelId(channelId)
         notificationBuilder.setSmallIcon(R.drawable.ic_cloud_six_24)
         notificationBuilder.setLargeIcon(
@@ -144,12 +144,13 @@ class DownloadService : Service() {
 
 
     private fun update() {
-        val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
+        val hasPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
+            PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
         }
-        if (hasPermission == PackageManager.PERMISSION_GRANTED) {
+        if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
     }

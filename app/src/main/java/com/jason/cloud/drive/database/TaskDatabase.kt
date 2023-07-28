@@ -9,7 +9,7 @@ import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import com.jason.cloud.drive.database.uploader.UploadDao
 import com.jason.cloud.drive.database.uploader.UploadTaskEntity
 
-@Database(entities = [UploadTaskEntity::class, DownloadTaskEntity::class], version = 10)
+@Database(entities = [UploadTaskEntity::class, DownloadTaskEntity::class], version = 11)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun getUploadDao(): UploadDao
 

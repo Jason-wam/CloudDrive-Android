@@ -21,8 +21,8 @@ class UploadTaskDoneAdapter :
         position: Int,
         item: UploadTaskEntity
     ) {
-        holder.binding.ivIcon.setImageResource(getFileIcon(item.childName))
-        holder.binding.tvName.text = item.childName
+        holder.binding.ivIcon.setImageResource(getFileIcon(item.fileName))
+        holder.binding.tvName.text = item.fileName
         holder.binding.indicator.progress = item.progress
         holder.binding.tvStatus.text = if (item.status == UploadTask.Status.FAILED) "上传失败！" else
             item.timestamp.toDateSecondsString()

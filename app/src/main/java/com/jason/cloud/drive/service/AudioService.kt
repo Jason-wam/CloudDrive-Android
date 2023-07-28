@@ -50,7 +50,7 @@ class AudioService : Service() {
     private val channelId = "audio_service"
     private val notificationId: Int = 20003
     private val channel by lazy {
-        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_MIN)
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName(name).build()
     }
 
@@ -394,13 +394,13 @@ class AudioService : Service() {
     }
 
     private fun updateNow() {
-        val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
+        val hasPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
+            PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
         }
-
-        if (hasPermission == PackageManager.PERMISSION_GRANTED) {
+        if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
     }
