@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".views.activity.SearchFilesActivity">
+
+        <View
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/status_view"
+            android:background="@color/colorPrimary"
+            android:stateListAnimator="@animator/appbar_layout_elevation">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:contentInsetStartWithNavigation="0dp"
+                app:navigationIconTint="@color/colorOnPrimary"
+                app:navigationIcon="@drawable/ic_round_keyboard_backspace_24"
+                app:subtitleTextAppearance="@style/SubtitleTextAppearance"
+                app:subtitleTextColor="@color/colorOnPrimaryMedium"
+                app:title="@string/search_file_from_cloud_drive"
+                app:menu="@menu/menu_search_files_activity_tool_bar"
+                app:titleTextAppearance="@style/TitleTextBoldAppearance"
+                app:titleTextColor="@color/colorOnPrimary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/app_bar_layout"
+            android:orientation="vertical">
+
+            <com.jason.cloud.drive.views.widgets.StateLayout
+                android:id="@+id/state_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/app_bar_layout"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+                app:state_empty_view="@layout/layout_default_state_empty"
+                app:state_error_view="@layout/layout_default_state_error"
+                app:state_load_view="@layout/layout_default_state_loading">
+
+                <com.scwang.smart.refresh.layout.SmartRefreshLayout
+                    android:id="@+id/refresh_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:srlEnableAutoLoadMore="false">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_data"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/colorWindowBackground"
+                        android:orientation="vertical"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:listitem="@layout/item_cloud_file" />
+                </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+            </com.jason.cloud.drive.views.widgets.StateLayout>
+
+            <View
+                android:id="@+id/dim_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#41000000"
+                android:foreground="?selectableItemBackgroundBorderless"
+                android:visibility="gone"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+                tools:ignore="UnusedAttribute"
+                tools:targetApi="m"
+                tools:visibility="gone" />
+
+            <com.google.android.material.bottomappbar.BottomAppBar
+                android:id="@+id/search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:backgroundTint="@color/colorPrimary"
+                android:minHeight="80dp"
+                app:buttonGravity="center_vertical"
+                app:contentInsetEnd="0dp"
+                app:contentInsetEndWithActions="0dp"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:hideOnScroll="true"
+                app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+                app:menu="@menu/menu_search_files_activity_bottom_bar"
+                app:menuAlignmentMode="auto"
+                app:navigationContentDescription="@string/close"
+                app:navigationIcon="@drawable/ic_round_keyboard_24"
+                app:navigationIconTint="@color/colorOnPrimary"
+                tools:visibility="visible">
+
+                <com.jason.cloud.drive.views.widgets.DeletableEditText
+                    android:id="@+id/search_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_gravity="top"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/please_input_search_keywords"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true"
+                    tools:text="疾速追杀"
+                    android:textColor="@color/colorOnPrimary"
+                    android:textColorHint="@color/colorOnPrimaryMedium"
+                    android:textSize="15sp"
+                    app:clearButtonTint="@color/colorOnSurface" />
+
+            </com.google.android.material.bottomappbar.BottomAppBar>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </RelativeLayout>
+</layout>

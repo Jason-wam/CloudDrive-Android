@@ -19,9 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.drake.net.Get
 import com.drake.net.utils.scopeDialog
 import com.drake.net.utils.scopeNetLife
-import com.drake.spannable.replaceSpan
-import com.drake.spannable.span.ColorSpan
-import com.flyjingfish.openimagelib.OpenImage
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.adapter.CloudFileAdapter
 import com.jason.cloud.drive.adapter.CloudFilePathIndicatorAdapter
@@ -31,37 +28,25 @@ import com.jason.cloud.drive.contract.SelectFolderContract
 import com.jason.cloud.drive.databinding.FragmentFilesBinding
 import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.model.mimeType
-import com.jason.cloud.drive.model.toOpenImageUrl
 import com.jason.cloud.drive.service.BackupService
-import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.service.UploadService
 import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.DirManager
-import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.extension.toMessage
-import com.jason.cloud.drive.viewmodel.FileViewModel
-import com.jason.cloud.drive.views.dialog.AttachFileDialog
-import com.jason.cloud.drive.views.dialog.AudioDetailDialog
-import com.jason.cloud.drive.views.dialog.AudioPlayDialog
-import com.jason.cloud.drive.views.dialog.FileMenuDialog
+import com.jason.cloud.drive.views.activity.SearchFilesActivity
 import com.jason.cloud.drive.views.dialog.LoadDialog
-import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
-import com.jason.cloud.drive.views.dialog.VideoDetailDialog
+import com.jason.cloud.drive.views.dialog.showFileMenu
 import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.CloudFilePathIndicatorDecoration
 import com.jason.cloud.extension.asJSONObject
-import com.jason.cloud.extension.openURL
+import com.jason.cloud.extension.startActivity
 import com.jason.cloud.extension.toast
 import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 import com.jason.videocat.utils.extension.view.setTitleFont
-import com.jason.videoview.activity.VideoPreviewActivity
-import com.jason.videoview.model.VideoData
 import kotlinx.coroutines.delay
 
 class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files),
-    FileMenuDialog.Callback, CallFragment {
+    CallFragment {
     companion object {
         @JvmStatic
         fun newInstance() = FilesFragment()
@@ -73,7 +58,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     private lateinit var selectFolderLauncher: ActivityResultLauncher<Any?>
 
     private val viewModel by lazy {
-        ViewModelProvider(this)[FileViewModel::class.java]
+        ViewModelProvider(this)[FilesFragmentViewModel::class.java]
     }
 
     private val adapter = CloudFileAdapter().apply {
@@ -82,9 +67,21 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 binding.stateLayout.showLoading()
                 viewModel.getList(item)
             } else {
-                FileMenuDialog().setFile(itemData, position).setCallback(this@FilesFragment)
-                    .showNow(childFragmentManager, "menu")
+                activity?.showFileMenu(itemData, position) {
+                    removeFileIndex(item)
+                }
             }
+        }
+    }
+
+    private fun removeFileIndex(item: FileEntity) {
+        val index = adapter.itemData.indexOfFirst {
+            item.path == it.path && item.hash == it.hash
+        }
+        if (index != -1) {
+            adapter.removeData(index)
+            adapter.notifyItemRemoved(index)
+            adapter.notifyItemRangeChanged(index, adapter.itemCount)
         }
     }
 
@@ -179,6 +176,9 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
 
         binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
+        binding.toolbar.onMenuItemClickListener(R.id.search) {
+            startActivity(SearchFilesActivity::class)
+        }
         binding.toolbar.onMenuItemClickListener(R.id.refresh) {
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
@@ -193,43 +193,43 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
 
         binding.toolbar.onMenuItemClickListener(R.id.name) {
-            Configure.sortModel = FileViewModel.ListSort.NAME
+            Configure.CloudFileConfigure.sortModel = FilesFragmentViewModel.ListSort.NAME
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.name_desc) {
-            Configure.sortModel = FileViewModel.ListSort.NAME_DESC
+            Configure.CloudFileConfigure.sortModel = FilesFragmentViewModel.ListSort.NAME_DESC
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.date) {
-            Configure.sortModel = FileViewModel.ListSort.DATE
+            Configure.CloudFileConfigure.sortModel = FilesFragmentViewModel.ListSort.DATE
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.date_desc) {
-            Configure.sortModel = FileViewModel.ListSort.DATE_DESC
+            Configure.CloudFileConfigure.sortModel = FilesFragmentViewModel.ListSort.DATE_DESC
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.size) {
-            Configure.sortModel = FileViewModel.ListSort.SIZE
+            Configure.CloudFileConfigure.sortModel = FilesFragmentViewModel.ListSort.SIZE
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.size_desc) {
-            Configure.sortModel = FileViewModel.ListSort.SIZE_DESC
+            Configure.CloudFileConfigure.sortModel = FilesFragmentViewModel.ListSort.SIZE_DESC
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
         }
         binding.toolbar.onMenuItemClickListener(R.id.show_hidden) {
-            Configure.showHidden = !Configure.showHidden
+            Configure.CloudFileConfigure.showHidden = !Configure.CloudFileConfigure.showHidden
             binding.stateLayout.showLoading()
             viewModel.refresh(isGoBack = false)
             updateSortMenu()
@@ -249,18 +249,22 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     private fun updateSortMenu() {
-        val sort = Configure.sortModel
-        binding.toolbar.menu.findItem(R.id.name).isChecked = sort == FileViewModel.ListSort.NAME
-        binding.toolbar.menu.findItem(R.id.date).isChecked = sort == FileViewModel.ListSort.DATE
-        binding.toolbar.menu.findItem(R.id.size).isChecked = sort == FileViewModel.ListSort.SIZE
+        val sort = Configure.CloudFileConfigure.sortModel
+        binding.toolbar.menu.findItem(R.id.name).isChecked =
+            sort == FilesFragmentViewModel.ListSort.NAME
+        binding.toolbar.menu.findItem(R.id.date).isChecked =
+            sort == FilesFragmentViewModel.ListSort.DATE
+        binding.toolbar.menu.findItem(R.id.size).isChecked =
+            sort == FilesFragmentViewModel.ListSort.SIZE
         binding.toolbar.menu.findItem(R.id.name_desc).isChecked =
-            sort == FileViewModel.ListSort.NAME_DESC
+            sort == FilesFragmentViewModel.ListSort.NAME_DESC
         binding.toolbar.menu.findItem(R.id.date_desc).isChecked =
-            sort == FileViewModel.ListSort.DATE_DESC
+            sort == FilesFragmentViewModel.ListSort.DATE_DESC
         binding.toolbar.menu.findItem(R.id.size_desc).isChecked =
-            sort == FileViewModel.ListSort.SIZE_DESC
+            sort == FilesFragmentViewModel.ListSort.SIZE_DESC
 
-        binding.toolbar.menu.findItem(R.id.show_hidden).isChecked = Configure.showHidden
+        binding.toolbar.menu.findItem(R.id.show_hidden).isChecked =
+            Configure.CloudFileConfigure.showHidden
     }
 
     private fun initRecyclerView() {
@@ -393,92 +397,6 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             }
             show()
         }
-    }
-
-    override fun viewVideos(list: List<FileEntity>, position: Int) {
-        val hash = list[position].hash
-        val videos = list.filter { FileType.isVideo(it.name) }
-        val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-        VideoPreviewActivity.open(requireContext(), videoIndex, videos.map {
-            VideoData(it.hash, it.name, it.rawURL)
-        })
-    }
-
-    override fun viewAudios(list: List<FileEntity>, position: Int) {
-        val hash = list[position].hash
-        val audioList = list.filter { FileType.isAudio(it.name) }
-        val audioIndex = audioList.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-        AudioPlayDialog().setData(audioList, audioIndex).showNow(childFragmentManager, "audio")
-    }
-
-    override fun viewImages(list: List<FileEntity>, position: Int) {
-        val hash = list[position].hash
-        val images = list.filter { FileType.isImage(it.name) }
-        val imageIndex = images.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-
-        images.map { item ->
-            item.toOpenImageUrl()
-        }.also {
-            OpenImage.with(requireActivity()).setNoneClickView().setImageUrlList(it)
-                .setClickPosition(imageIndex).show()
-        }
-    }
-
-    override fun viewOthers(list: List<FileEntity>, position: Int) {
-        AttachFileDialog().setFile(list[position]).showNow(childFragmentManager, "attach")
-    }
-
-    override fun openWithOtherApplication(list: List<FileEntity>, position: Int) {
-        val current = list[position]
-        context?.openURL(current.rawURL, current.mimeType())
-    }
-
-    override fun viewVideoDetail(list: List<FileEntity>, position: Int) {
-        val hash = list[position].hash
-        val videos = list.filter { FileType.isVideo(it.name) }
-        val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-        VideoDetailDialog().setFileList(videos, videoIndex).showNow(childFragmentManager, "detail")
-    }
-
-    override fun viewAudioDetail(list: List<FileEntity>, position: Int) {
-        val hash = list[position].hash
-        val videos = list.filter { FileType.isAudio(it.name) }
-        val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-        AudioDetailDialog().setFileList(videos, videoIndex).showNow(childFragmentManager, "detail")
-    }
-
-    override fun downloadIt(file: FileEntity) {
-        val dir = DirManager.getDownloadDir(requireContext())
-        val taskParam = DownloadService.DownloadParam(file.name, file.rawURL, file.hash, dir)
-        DownloadService.launchWith(requireContext(), listOf(taskParam)) {
-            toast("正在取回文件：${file.name}")
-        }
-    }
-
-    override fun deleteIt(file: FileEntity) {
-        TextDialog(requireContext()).setTitle("删除提醒")
-            .setText("是否确认删除文件：${file.name}? 删除后无法恢复！".replaceSpan(file.name) {
-                ColorSpan(requireContext(), com.jason.theme.R.color.colorSecondary)
-            }).onPositive("取消") {
-                //啥也不做
-            }.onNegative("确认删除") {
-                val dialog = LoadDialog(requireContext()).setMessage("正在删除文件...")
-                scopeDialog(dialog, cancelable = true) {
-                    Get<String>("${Configure.hostURL}/delete") {
-                        param("hash", viewModel.current())
-                        param("childHash", file.hash)
-                    }.await().asJSONObject().also {
-                        if (it.optInt("code") == 200) {
-                            toast("文件删除成功！")
-                            viewModel.refresh(isGoBack = false)
-                        } else {
-                            toast(it.getString("message"))
-                        }
-                    }
-                }.catch {
-                    toast(it.toMessage())
-                }
-            }.show()
     }
 
 }

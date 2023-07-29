@@ -59,39 +59,20 @@ inline fun <reified T : Parcelable> Intent.getParcelableArrayListEx(
     }
 }
 
-fun Activity?.startActivity(
-    cls: KClass<*>,
-    newTask: Boolean = false,
-    block: (Intent.() -> Unit)? = null
-) {
-    this?.startActivityEx(cls, newTask, block)
+fun Activity?.startActivity(cls: KClass<*>, config: (Intent.() -> Unit)? = null) {
+    this?.startActivityEx(cls, config)
 }
 
-fun Fragment?.startActivity(
-    cls: KClass<*>,
-    newTask: Boolean = false,
-    block: (Intent.() -> Unit)? = null
-) {
-    this?.context?.startActivityEx(cls, newTask, block)
+fun Fragment?.startActivity(cls: KClass<*>, config: (Intent.() -> Unit)? = null) {
+    this?.context?.startActivityEx(cls, config)
 }
 
-fun Context?.startActivity(
-    cls: KClass<*>,
-    newTask: Boolean = false,
-    block: (Intent.() -> Unit)? = null
-) {
-    this?.startActivityEx(cls, newTask, block)
+fun Context?.startActivity(cls: KClass<*>, config: (Intent.() -> Unit)? = null) {
+    this?.startActivityEx(cls, config)
 }
 
-private fun Context.startActivityEx(
-    cls: KClass<*>,
-    newTask: Boolean = false,
-    block: (Intent.() -> Unit)? = null
-) {
+private fun Context.startActivityEx(cls: KClass<*>, config: (Intent.() -> Unit)? = null) {
     val intent = Intent(this, cls.java)
-    if (newTask) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    block?.invoke(intent)
+    config?.invoke(intent)
     this.startActivity(intent)
 }

@@ -1,4 +1,4 @@
-package com.jason.cloud.drive.viewmodel
+package com.jason.cloud.drive.views.fragment
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -13,7 +13,7 @@ import com.jason.cloud.drive.utils.UrlBuilder
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.asJSONObject
 
-class FileViewModel(application: Application) : AndroidViewModel(application) {
+class FilesFragmentViewModel(application: Application) : AndroidViewModel(application) {
     val histories = arrayListOf(FileNavigationEntity("Drive", "%root"))
     val onError = MutableLiveData<String>()
     val onSucceed = MutableLiveData<FileListRespond>()
@@ -55,8 +55,8 @@ class FileViewModel(application: Application) : AndroidViewModel(application) {
             val url = UrlBuilder(Configure.hostURL).path("/list").build()
             Get<String>(url) {
                 param("hash", hash ?: current())
-                param("sort", Configure.sortModel.name)
-                param("showHidden", Configure.showHidden)
+                param("sort", Configure.CloudFileConfigure.sortModel.name)
+                param("showHidden", Configure.CloudFileConfigure.showHidden)
             }.await().asJSONObject().also {
                 if (it.has("code")) {
                     onError.postValue(it.getString("message"))

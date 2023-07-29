@@ -1,48 +1,46 @@
 package com.jason.cloud.drive.views.dialog
 
 import android.view.View
+import androidx.fragment.app.FragmentActivity
+import com.drake.net.Get
+import com.drake.net.utils.scopeDialog
+import com.drake.spannable.replaceSpan
+import com.drake.spannable.span.ColorSpan
+import com.flyjingfish.openimagelib.OpenImage
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutFileMenuDialogBinding
 import com.jason.cloud.drive.model.FileEntity
+import com.jason.cloud.drive.model.mimeType
+import com.jason.cloud.drive.model.toOpenImageUrl
+import com.jason.cloud.drive.service.DownloadService
+import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.DirManager
 import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.extension.toMessage
+import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.getSerializableListExtraEx
+import com.jason.cloud.extension.openURL
+import com.jason.cloud.extension.toast
+import com.jason.videoview.activity.VideoPreviewActivity
+import com.jason.videoview.model.VideoData
 import java.io.Serializable
 
-class FileMenuDialog :
+class FileMenuDialog(val parent: FragmentActivity) :
     BaseBindBottomSheetDialogFragment<LayoutFileMenuDialogBinding>(R.layout.layout_file_menu_dialog) {
-    private var callback: Callback? = null
+
+    private var onFileDeleteListener: (() -> Unit)? = null
+
+    fun setOnFileDeleteListener(listener: () -> Unit): FileMenuDialog {
+        this.onFileDeleteListener = listener
+        return this
+    }
 
     fun setFile(list: List<FileEntity>, position: Int): FileMenuDialog {
         arguments?.putSerializable("list", list as Serializable)
         arguments?.putInt("position", position)
         return this
-    }
-
-    fun setCallback(callback: Callback): FileMenuDialog {
-        this.callback = callback
-        return this
-    }
-
-    interface Callback {
-        fun viewVideos(list: List<FileEntity>, position: Int)
-
-        fun viewAudios(list: List<FileEntity>, position: Int)
-
-        fun viewImages(list: List<FileEntity>, position: Int)
-
-        fun viewOthers(list: List<FileEntity>, position: Int)
-
-        fun openWithOtherApplication(list: List<FileEntity>, position: Int)
-
-        fun viewVideoDetail(list: List<FileEntity>, position: Int)
-
-        fun viewAudioDetail(list: List<FileEntity>, position: Int)
-
-        fun downloadIt(file: FileEntity)
-
-        fun deleteIt(file: FileEntity)
     }
 
     override fun initView(view: View) {
@@ -58,7 +56,6 @@ class FileMenuDialog :
             }
         })
 
-
         val position = arguments?.getInt("position") ?: 0
         val list = arguments?.getSerializableListExtraEx<FileEntity>("list") ?: emptyList()
         if (list.isNotEmpty()) {
@@ -67,36 +64,36 @@ class FileMenuDialog :
 
             binding.btnOpen.setOnClickListener {
                 if (FileType.isVideo(current.name)) {
-                    callback?.viewVideos(list, position)
+                    parent.viewVideos(list, position)
                     dismiss()
                 } else if (FileType.isImage(current.name)) {
-                    callback?.viewImages(list, position)
+                    parent.viewImages(list, position)
                     dismiss()
                 } else if (FileType.isAudio(current.name)) {
-                    callback?.viewAudios(list, position)
+                    parent.viewAudios(list, position)
                     dismiss()
                 } else {
-                    callback?.viewOthers(list, position)
+                    parent.viewOthers(list, position)
                     dismiss()
                 }
             }
 
             binding.btnOtherApp.setOnClickListener {
-                callback?.openWithOtherApplication(list, position)
+                parent.openWithOtherApplication(list, position)
                 dismiss()
             }
 
             binding.btnDownload.setOnClickListener {
-                callback?.downloadIt(current)
+                parent.downloadFile(current)
                 dismiss()
             }
 
             binding.btnDetail.setOnClickListener {
                 if (FileType.isVideo(current.name)) {
-                    callback?.viewVideoDetail(list, position)
+                    parent.viewVideoDetail(list, position)
                     dismiss()
                 } else if (FileType.isAudio(current.name)) {
-                    callback?.viewAudioDetail(list, position)
+                    parent.viewAudioDetail(list, position)
                     dismiss()
                 } else {
 
@@ -104,7 +101,9 @@ class FileMenuDialog :
             }
 
             binding.btnDelete.setOnClickListener {
-                callback?.deleteIt(current)
+                parent.deleteFile(current) {
+                    onFileDeleteListener?.invoke()
+                }
                 dismiss()
             }
 
@@ -113,4 +112,99 @@ class FileMenuDialog :
             }
         }
     }
+}
+
+fun FragmentActivity.showFileMenu(list: List<FileEntity>, position: Int, onDelete: () -> Unit) {
+    FileMenuDialog(this).setFile(list, position).setOnFileDeleteListener {
+        onDelete.invoke()
+    }.showNow(supportFragmentManager, "menu")
+}
+
+fun FragmentActivity.viewVideos(list: List<FileEntity>, position: Int) {
+    val hash = list[position].hash
+    val videos = list.filter { FileType.isVideo(it.name) }
+    val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+    VideoPreviewActivity.open(this, videoIndex, videos.map {
+        VideoData(it.hash, it.name, it.rawURL)
+    })
+}
+
+fun FragmentActivity.viewAudios(list: List<FileEntity>, position: Int) {
+    val hash = list[position].hash
+    val audioList = list.filter { FileType.isAudio(it.name) }
+    val audioIndex = audioList.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+    AudioPlayDialog().setData(audioList, audioIndex)
+        .showNow(supportFragmentManager, "audio")
+}
+
+fun FragmentActivity.viewImages(list: List<FileEntity>, position: Int) {
+    val hash = list[position].hash
+    val images = list.filter { FileType.isImage(it.name) }
+    val imageIndex = images.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+
+    images.map { item ->
+        item.toOpenImageUrl()
+    }.also {
+        OpenImage.with(this).setNoneClickView().setImageUrlList(it)
+            .setClickPosition(imageIndex).show()
+    }
+}
+
+fun FragmentActivity.viewOthers(list: List<FileEntity>, position: Int) {
+    AttachFileDialog().setFile(list[position])
+        .showNow(supportFragmentManager, "attach")
+}
+
+fun FragmentActivity.openWithOtherApplication(list: List<FileEntity>, position: Int) {
+    val current = list[position]
+    openURL(current.rawURL, current.mimeType())
+}
+
+fun FragmentActivity.viewVideoDetail(list: List<FileEntity>, position: Int) {
+    val hash = list[position].hash
+    val videos = list.filter { FileType.isVideo(it.name) }
+    val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+    VideoDetailDialog().setFileList(videos, videoIndex)
+        .showNow(supportFragmentManager, "detail")
+}
+
+fun FragmentActivity.viewAudioDetail(list: List<FileEntity>, position: Int) {
+    val hash = list[position].hash
+    val videos = list.filter { FileType.isAudio(it.name) }
+    val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+    AudioDetailDialog().setFileList(videos, videoIndex)
+        .showNow(supportFragmentManager, "detail")
+}
+
+fun FragmentActivity.downloadFile(file: FileEntity) {
+    val dir = DirManager.getDownloadDir(this)
+    val taskParam = DownloadService.DownloadParam(file.name, file.rawURL, file.hash, dir)
+    DownloadService.launchWith(this, listOf(taskParam)) {
+        toast("正在取回文件：${file.name}")
+    }
+}
+
+fun FragmentActivity.deleteFile(file: FileEntity, deleted: (() -> Unit)? = null) {
+    TextDialog(parent).setTitle("删除提醒")
+        .setText("是否确认删除文件：${file.name}? 删除后无法恢复！".replaceSpan(file.name) {
+            ColorSpan(this, com.jason.theme.R.color.colorSecondary)
+        }).onPositive("取消") {
+            //啥也不做
+        }.onNegative("确认删除") {
+            val dialog = LoadDialog(this).setMessage("正在删除文件...")
+            scopeDialog(dialog, cancelable = true) {
+                Get<String>("${Configure.hostURL}/delete") {
+                    param("path", file.path)
+                }.await().asJSONObject().also {
+                    if (it.optInt("code") == 200) {
+                        toast("文件删除成功！")
+                        deleted?.invoke()
+                    } else {
+                        toast(it.getString("message"))
+                    }
+                }
+            }.catch {
+                toast(it.toMessage())
+            }
+        }.show()
 }

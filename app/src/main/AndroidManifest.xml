@@ -4,10 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -18,7 +16,6 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -34,6 +31,9 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:theme"
         tools:targetApi="31">
+        <activity
+            android:name=".views.activity.SearchFilesActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="ScopedStorage"

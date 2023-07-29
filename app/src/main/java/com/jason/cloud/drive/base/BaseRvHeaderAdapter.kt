@@ -19,15 +19,18 @@ abstract class BaseRvHeaderAdapter<ITEM, VH : RecyclerView.ViewHolder> : BaseRvA
         if (view != null) {
             this.headerView = view
             notifyItemInserted(0)
+            notifyItemRangeChanged(0, itemCount)
         } else {
             this.headerView = null
             notifyItemRemoved(0)
+            notifyItemRangeChanged(0, itemCount)
         }
     }
 
     open fun removeHeader() {
         this.headerView = null
         notifyItemRemoved(0)
+        notifyItemRangeChanged(0, itemCount)
     }
 
     open fun updateHeader(block: (view: View) -> Unit) {

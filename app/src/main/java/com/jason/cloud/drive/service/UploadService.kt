@@ -155,6 +155,7 @@ class UploadService : Service() {
     }
 
     private fun startUploads(uriList: List<Uri>, hash: String) {
+        UploadQueue.instance.threadSize(3)
         UploadQueue.instance.onTaskStart {
             startObserveTask(it)
         }

@@ -3,7 +3,7 @@ package com.jason.cloud.drive.adapter
 import android.content.Context
 import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.base.BaseBindHeaderRvAdapter
+import com.jason.cloud.drive.base.BaseBindRvAdapter
 import com.jason.cloud.drive.databinding.ItemCloudFileBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.FileType
@@ -28,7 +28,7 @@ import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
 
 class CloudFileAdapter :
-    BaseBindHeaderRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
+    BaseBindRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
 
     override fun onBindViewHolder(
         context: Context,

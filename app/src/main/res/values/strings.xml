@@ -3,6 +3,7 @@
     <string name="state_view_nothing_here">这里什么也没有喔_(:3」∠❀)_</string>
     <string name="state_view_retry">\u3000重\u2000试\u3000</string>
     <string name="state_view_something_went_wrong">出现了一些问题，请稍候重试_(:3」∠❀)_</string>
+    <string name="state_view_nothing_searched">啥也没搜到捏_(:3」∠❀)_</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="file_info">文件信息</string>
@@ -61,4 +62,6 @@
     <string name="close">关闭</string>
     <string name="close_player">关闭播放器</string>
     <string name="play_in_background">后台播放</string>
+    <string name="please_input_search_keywords">请输入搜索关键词..</string>
+    <string name="search_file_from_cloud_drive">搜索云盘文件</string>
 </resources>

@@ -1,6 +1,6 @@
 package com.jason.cloud.drive.utils
 
-import com.jason.cloud.drive.viewmodel.FileViewModel
+import com.jason.cloud.drive.views.fragment.FilesFragmentViewModel
 import com.jason.cloud.utils.MMKVStore
 
 object Configure {
@@ -27,25 +27,51 @@ object Configure {
             return "http://$host:$port"
         }
 
-    var sortModel: FileViewModel.ListSort = FileViewModel.ListSort.DATE_DESC
-        set(value) {
-            field = value
-            MMKVStore.with("Configure").put("sort", value.name)
-        }
-        get() {
-            return MMKVStore.with("Configure")
-                .getString("sort", FileViewModel.ListSort.DATE_DESC.name).let {
-                    FileViewModel.ListSort.valueOf(it)
-                }
-        }
+    object CloudFileConfigure {
+        var sortModel: FilesFragmentViewModel.ListSort = FilesFragmentViewModel.ListSort.DATE_DESC
+            set(value) {
+                field = value
+                MMKVStore.with("CloudFilesConfigure").put("sort", value.name)
+            }
+            get() {
+                return MMKVStore.with("CloudFilesConfigure")
+                    .getString("sort", FilesFragmentViewModel.ListSort.DATE_DESC.name).let {
+                        FilesFragmentViewModel.ListSort.valueOf(it)
+                    }
+            }
 
-    var showHidden: Boolean = true
-        set(value) {
-            field = value
-            MMKVStore.with("Configure").put("showHidden", value)
-        }
-        get() {
-            return MMKVStore.with("Configure")
-                .getBool("showHidden", true)
-        }
+        var showHidden: Boolean = true
+            set(value) {
+                field = value
+                MMKVStore.with("CloudFilesConfigure").put("showHidden", value)
+            }
+            get() {
+                return MMKVStore.with("CloudFilesConfigure")
+                    .getBool("showHidden", true)
+            }
+    }
+
+    object SearchConfigure {
+        var sortModel: FilesFragmentViewModel.ListSort = FilesFragmentViewModel.ListSort.DATE_DESC
+            set(value) {
+                field = value
+                MMKVStore.with("SearchFilesConfigure").put("sort", value.name)
+            }
+            get() {
+                return MMKVStore.with("SearchFilesConfigure")
+                    .getString("sort", FilesFragmentViewModel.ListSort.DATE_DESC.name).let {
+                        FilesFragmentViewModel.ListSort.valueOf(it)
+                    }
+            }
+
+        var showHidden: Boolean = true
+            set(value) {
+                field = value
+                MMKVStore.with("SearchFilesConfigure").put("showHidden", value)
+            }
+            get() {
+                return MMKVStore.with("SearchFilesConfigure")
+                    .getBool("showHidden", true)
+            }
+    }
 }

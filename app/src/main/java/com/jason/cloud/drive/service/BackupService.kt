@@ -146,7 +146,7 @@ class BackupService : Service() {
     private fun startBackupQueue(list: List<Pair<MediaEntity, String>>) {
         var count = 0
         val queue = TaskQueue<BackupTask>().apply {
-            threadSize(5)
+            threadSize(3)
             list.distinctBy {
                 it.second
             }.also {
