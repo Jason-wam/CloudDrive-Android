@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -155,6 +159,7 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
         a.recycle();
 
         initView();
+        Log.i("VideoView", "BaseVideoView: mCurrentScreenScaleType = " + mCurrentScreenScaleType);
     }
 
     /**
@@ -912,14 +917,14 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
         if (mMediaPlayer == null) {
             return new ArrayList<>();
         }
-        return mMediaPlayer.getTracks();
+        return mMediaPlayer.getAudioTracks();
     }
 
     @Override
     public void selectTrack(Track track) {
         try {
             if (mMediaPlayer != null) {
-                mMediaPlayer.selectTrack(track);
+                mMediaPlayer.selectAudioTrack(track);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -931,7 +936,7 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
         if (mMediaPlayer == null) {
             return -1;
         }
-        return mMediaPlayer.getSelectedTrackIndex();
+        return mMediaPlayer.getSelectedAudioTrackIndex();
     }
 
     @Override
@@ -948,9 +953,21 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
         mVideoSize[1] = videoHeight;
 
         if (mRenderView != null) {
-            mRenderView.setScaleType(mCurrentScreenScaleType);
             mRenderView.setVideoSize(videoWidth, videoHeight);
         }
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setScreenScale(mCurrentScreenScaleType);
+        }
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (mMediaPlayer != null) {
+                mMediaPlayer.setScreenScale(mCurrentScreenScaleType);
+            }
+        }, 200);
     }
 
     @Override
@@ -996,6 +1013,9 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
         mCurrentScreenScaleType = screenScaleType;
         if (mRenderView != null) {
             mRenderView.setScaleType(screenScaleType);
+        }
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setScreenScale(screenScaleType);
         }
     }
 

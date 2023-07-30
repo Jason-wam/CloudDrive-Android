@@ -20,6 +20,8 @@ android {
         versionCode = Android.versionCode
         versionName = Android.versionName
 
+        ndk.abiFilters.add("armeabi-v7a")
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -71,9 +73,10 @@ android {
 
 dependencies {
     implementation(project(mapOf("path" to ":theme")))
+    implementation(project(mapOf("path" to ":extension")))
     implementation(project(mapOf("path" to ":videoview")))
     implementation(project(mapOf("path" to ":videoview-exo-extension")))
-    implementation(project(mapOf("path" to ":extension")))
+    implementation(project(mapOf("path" to ":videoview-aplayer-extension")))
 
     implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
     implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")

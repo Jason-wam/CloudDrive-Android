@@ -163,13 +163,17 @@ public abstract class AbstractPlayer {
 
     public abstract int getSelectedSubtitleIndex();
 
-    public abstract List<Track> getTracks();
+    public abstract List<Track> getAudioTracks();
 
-    public abstract void selectTrack(Track track);
+    public abstract void selectAudioTrack(Track track);
 
-    public abstract int getSelectedTrackIndex();
+    public abstract int getSelectedAudioTrackIndex();
 
     public abstract boolean isVideo();
+
+    public void setScreenScale(int scale) {
+
+    }
 
     /**
      * 绑定VideoView

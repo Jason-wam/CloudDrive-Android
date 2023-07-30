@@ -370,7 +370,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
     }
 
     @Override
-    public List<Track> getTracks() {
+    public List<Track> getAudioTracks() {
         ArrayList<Track> trackArrayList = new ArrayList<>();
         try {
             for (Tracks.Group group : mInternalPlayer.getCurrentTracks().getGroups()) {
@@ -396,7 +396,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
     }
 
     @Override
-    public void selectTrack(Track track) {
+    public void selectAudioTrack(Track track) {
         try {
             selectedTrackerIndex = track.index;
             for (Tracks.Group group : mInternalPlayer.getCurrentTracks().getGroups()) {
@@ -436,7 +436,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
     private int selectedTrackerIndex = -1;
 
     @Override
-    public int getSelectedTrackIndex() {
+    public int getSelectedAudioTrackIndex() {
         try {
             for (Tracks.Group group : mInternalPlayer.getCurrentTracks().getGroups()) {
                 if (group.getType() == C.TRACK_TYPE_AUDIO) {

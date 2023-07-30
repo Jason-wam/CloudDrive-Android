@@ -7,6 +7,7 @@ import com.drake.net.interfaces.NetErrorHandler
 import com.drake.net.okhttp.setDebug
 import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
+import com.jason.aplaye.extension.APlayerFactory
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.DirManager
@@ -16,7 +17,6 @@ import com.jason.cloud.drive.views.widgets.SrlRefreshHeader
 import com.jason.cloud.extension.GB
 import com.jason.cloud.extension.toast
 import com.jason.cloud.utils.MMKVStore
-import com.jason.exo.extension.ExoMediaPlayerFactory
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import okhttp3.Cache
 import xyz.doikki.videoplayer.player.VideoViewConfig
@@ -42,7 +42,8 @@ class App : Application() {
         }
 
         VideoViewManager.setConfig(VideoViewConfig.Builder().let {
-            it.setPlayerFactory(ExoMediaPlayerFactory.create(false))
+            it.setLogEnabled(true)
+            it.setPlayerFactory(APlayerFactory.create(true))
             it.setPlayOnMobileNetwork(false)
             it.build()
         })

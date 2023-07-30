@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/extension" />
             <option value="$PROJECT_DIR$/theme" />
             <option value="$PROJECT_DIR$/videoview" />
+            <option value="$PROJECT_DIR$/videoview-aplayer-extension" />
             <option value="$PROJECT_DIR$/videoview-exo-extension" />
           </set>
         </option>

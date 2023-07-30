@@ -274,20 +274,20 @@ public class AndroidMediaPlayer extends AbstractPlayer implements MediaPlayer.On
     }
 
     @Override
-    public List<Track> getTracks() {
+    public List<Track> getAudioTracks() {
         return null;
     }
 
     private int selectedTrackerIndex = -1;
 
     @Override
-    public void selectTrack(Track track) {
+    public void selectAudioTrack(Track track) {
         mMediaPlayer.selectTrack(track.index);
         selectedTrackerIndex = track.index;
     }
 
     @Override
-    public int getSelectedTrackIndex() {
+    public int getSelectedAudioTrackIndex() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return mMediaPlayer.getSelectedTrack(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
         } else {
