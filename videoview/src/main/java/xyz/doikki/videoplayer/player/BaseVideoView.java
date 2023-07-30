@@ -168,10 +168,10 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
     protected void initView() {
         mPlayerContainer = new FrameLayout(getContext());
         mPlayerContainer.setBackgroundColor(mPlayerBackgroundColor);
-        LayoutParams params = new LayoutParams(
+
+        this.addView(mPlayerContainer, new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        this.addView(mPlayerContainer, params);
+                ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     /**
@@ -277,13 +277,13 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
             mPlayerContainer.removeView(mRenderView.getView());
             mRenderView.release();
         }
+
         mRenderView = mRenderViewFactory.createRenderView(getContext());
         mRenderView.attachToPlayer(mMediaPlayer);
-        LayoutParams params = new LayoutParams(
+        mPlayerContainer.addView(mRenderView.getView(), 0, new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                Gravity.CENTER);
-        mPlayerContainer.addView(mRenderView.getView(), 0, params);
+                Gravity.CENTER));
     }
 
     /**
@@ -335,8 +335,7 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
      */
     @Override
     public void pause() {
-        if (isInPlaybackState()
-                && mMediaPlayer.isPlaying()) {
+        if (isInPlaybackState() && mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
             setPlayState(STATE_PAUSED);
             if (mAudioFocusHelper != null && !isMute()) {

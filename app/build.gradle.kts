@@ -20,6 +20,7 @@ android {
         versionCode = Android.versionCode
         versionName = Android.versionName
 
+        ndk.abiFilters.add("arm64-v8a")
         ndk.abiFilters.add("armeabi-v7a")
 
         vectorDrawables {
@@ -35,30 +36,6 @@ android {
 
     buildFeatures { //DataBinding必须依赖KAPT
         dataBinding = true
-    }
-
-    signingConfigs {
-        getByName("debug") {
-            keyAlias = "key0"
-            keyPassword = "mmmm2521"
-            storeFile = file("$projectDir/CoolApk.jks")
-            storePassword = "mmmm2521"
-        }
-    }
-
-    buildTypes {
-        debug {
-            signingConfig = signingConfigs.getByName("debug")
-        }
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            signingConfig = signingConfigs.getByName("debug")
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
     }
 
     compileOptions {

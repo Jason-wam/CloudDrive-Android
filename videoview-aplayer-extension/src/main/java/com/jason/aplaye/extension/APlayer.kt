@@ -50,8 +50,9 @@ class APlayer(val context: Context, private val enableToast: Boolean) : Abstract
                 mPlayerEventListener.onInfo(MEDIA_INFO_RENDERING_START, 0)
                 //获取当前的视频和播放器是否可以支持hdr原彩显示
                 L.d("HDR_HAVE = ${aPlayer.getConfig(APlayerAndroid.CONFIGID.HDR_HAVE)}")
-                L.d("HW_DECODER_USE = ${aPlayer.getConfig(APlayerAndroid.CONFIGID.HW_DECODER_USE)}")
-
+                L.d("mIsHdrEnable = ${aPlayer.mIsHdrEnable}")
+                L.d("should Use Surface view = ${aPlayer.shouldUseSurfaceview}")
+                L.d("subtitleRenderType = ${aPlayer.statisticsInfo.subtitleRenderType}")
             } else {
                 mPlayerEventListener.onError()
             }
@@ -120,7 +121,7 @@ class APlayer(val context: Context, private val enableToast: Boolean) : Abstract
         //是否开启硬件解码侦测
         aPlayer.setConfig(APlayerAndroid.CONFIGID.HW_DECODER_DETEC, "1")
         //获取/设置硬件解码状态，默认关闭。
-        aPlayer.setConfig(APlayerAndroid.CONFIGID.HW_DECODER_USE, "1")
+        aPlayer.setConfig(APlayerAndroid.CONFIGID.HW_DECODER_USE, "0")
         //准备完后自动播放
         aPlayer.setConfig(APlayerAndroid.CONFIGID.AUTO_PLAY, "1")
 
@@ -135,16 +136,19 @@ class APlayer(val context: Context, private val enableToast: Boolean) : Abstract
 
 
         //APlayerAndroid.CONFIGID.HDR_HAVE
-        //获取当前的视频和播放器是否可以支持hdr原彩显示,“1”表示当前的状态是可以支持hdr原彩显示或者SDR显示的并且播放的视频也为HDR视频。
+        //获取当前的视频和播放器是否可以支持hdr原彩显示,
+        //“1”表示当前的状态是可以支持hdr原彩显示或者SDR显示的并且播放的视频也为HDR视频。
 
+        aPlayer.setConfig(APlayerAndroid.CONFIGID.IS_DOLBY_VISION, "1")
+        aPlayer.setConfig(313, "1")
         //支持hdr视频的显示，可能显示为SDR或者HDR原彩显示。
-        aPlayer.setConfig(APlayerAndroid.CONFIGID.HDR_ALLOW, "1")
-        //HDR_ALLOW，HDR_HAVE皆为1时即选择渲染器。为1时为hdr播放 为0时为sdr播放
-        aPlayer.setConfig(APlayerAndroid.CONFIGID.HDR_ENABLE, "1")
-        //对于某些视频其为HDR视频但是播放器无法检测起为HDR，故用服务端返回的hdr信息来启用hdrforce强制开启HDR模式，每次要在open之前设置。
-        aPlayer.setConfig(APlayerAndroid.CONFIGID.HDR_FORCE, "1")
-        //该值为TV 迅雷专属，强制开启HDR，SurfaceView 的渲染模式，提高帧率。
-        aPlayer.setConfig(APlayerAndroid.CONFIGID.TV_MODE, "1")
+//        aPlayer.setConfig(APlayerAndroid.CONFIGID.HDR_ALLOW, "1")
+//        //HDR_ALLOW，HDR_HAVE皆为1时即选择渲染器。为1时为hdr播放 为0时为sdr播放
+//        aPlayer.setConfig(APlayerAndroid.CONFIGID.HDR_ENABLE, "1")
+//        //对于某些视频其为HDR视频但是播放器无法检测起为HDR，故用服务端返回的hdr信息来启用hdrforce强制开启HDR模式，每次要在open之前设置。
+//        aPlayer.setConfig(APlayerAndroid.CONFIGID.HDR_FORCE, "1")
+//        //该值为TV 迅雷专属，强制开启HDR，SurfaceView 的渲染模式，提高帧率。
+//        aPlayer.setConfig(APlayerAndroid.CONFIGID.TV_MODE, "1")
     }
 
     override fun setDataSource(path: String, headers: MutableMap<String, String>?) {
