@@ -38,15 +38,17 @@ class TrackSelectAdapter : RecyclerView.Adapter<TrackSelectAdapter.ViewHolder>()
         holder.checkbox.setOnCheckedChangeListener { buttonView, _ ->
             if (buttonView.isPressed) {
                 selectedPosition = holder.bindingAdapterPosition
+                notifyPositionSelected(holder.bindingAdapterPosition)
             }
         }
         holder.itemView.setOnClickListener {
             selectedPosition = holder.bindingAdapterPosition
-            onSelectionChangedListener?.invoke(
-                holder.bindingAdapterPosition,
-                items[holder.bindingAdapterPosition]
-            )
+            notifyPositionSelected(holder.bindingAdapterPosition)
         }
+    }
+
+    private fun notifyPositionSelected(position: Int) {
+        onSelectionChangedListener?.invoke(position, items[position])
     }
 
     fun setSelectedPosition(position: Int) {

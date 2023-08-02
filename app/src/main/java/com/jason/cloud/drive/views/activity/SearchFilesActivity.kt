@@ -1,6 +1,7 @@
 package com.jason.cloud.drive.views.activity
 
 import android.annotation.SuppressLint
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
@@ -109,7 +110,7 @@ class SearchFilesActivity :
 
     private fun updateSortMenu() {
         val sort = Configure.SearchConfigure.sortModel
-        binding.toolbar.menu.forEach {
+        binding.toolbar.menu.children().forEach {
             when (it.itemId) {
                 R.id.name -> it.isChecked = sort == ListSort.NAME
                 R.id.date -> it.isChecked = sort == ListSort.DATE
@@ -118,6 +119,17 @@ class SearchFilesActivity :
                 R.id.date_desc -> it.isChecked = sort == ListSort.DATE_DESC
                 R.id.size_desc -> it.isChecked = sort == ListSort.SIZE_DESC
                 R.id.show_hidden -> it.isChecked = Configure.SearchConfigure.showHidden
+            }
+        }
+    }
+
+    private fun Menu.children(): List<MenuItem> {
+        return ArrayList<MenuItem>().apply {
+            this@children.forEach { child ->
+                add(child)
+                if (child.hasSubMenu()) {
+                    addAll(child.subMenu?.children().orEmpty())
+                }
             }
         }
     }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.ext.ffmpeg;
+package androidx.media3.decoder.ffmpeg;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -23,7 +23,6 @@ import androidx.media3.common.util.LibraryLoader;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 
-
 /**
  * Configures and queries the underlying native library.
  */
@@ -31,17 +30,18 @@ import androidx.media3.common.util.UnstableApi;
 public final class FfmpegLibrary {
 
     static {
-        MediaLibraryInfo.registerModule("goog.exo.ffmpeg");
+        MediaLibraryInfo.registerModule("media3.decoder.ffmpeg");
     }
 
     private static final String TAG = "FfmpegLibrary";
 
-    private static final LibraryLoader LOADER = new LibraryLoader("ffmpegJNI") {
-        @Override
-        protected void loadLibrary(String name) {
-            System.loadLibrary(name);
-        }
-    };
+    private static final LibraryLoader LOADER =
+            new LibraryLoader("ffmpegJNI") {
+                @Override
+                protected void loadLibrary(String name) {
+                    System.loadLibrary(name);
+                }
+            };
 
     private static String version;
     private static int inputBufferPaddingSize = C.LENGTH_UNSET;
@@ -52,7 +52,7 @@ public final class FfmpegLibrary {
     /**
      * Override the names of the FFmpeg native libraries. If an application wishes to call this
      * method, it must do so before calling any other method defined by this class, and before
-     * instantiating a {@link FfmpegAudioRenderer} or {@link FfmpegVideoRenderer} instance.
+     * instantiating a {@link FfmpegAudioRenderer} instance.
      *
      * @param libraries The names of the FFmpeg native libraries.
      */
@@ -105,7 +105,6 @@ public final class FfmpegLibrary {
             return false;
         }
         @Nullable String codecName = getCodecName(mimeType);
-        Log.i(TAG, "getCodecName: mimeType = " + mimeType + " >>> " + codecName);
         if (codecName == null) {
             return false;
         }
@@ -113,7 +112,6 @@ public final class FfmpegLibrary {
             Log.w(TAG, "No " + codecName + " decoder available. Check the FFmpeg build configuration.");
             return false;
         }
-        Log.w(TAG, "Found " + codecName + " decoder available.");
         return true;
     }
 
@@ -156,12 +154,6 @@ public final class FfmpegLibrary {
                 return "pcm_mulaw";
             case MimeTypes.AUDIO_ALAW:
                 return "pcm_alaw";
-            case MimeTypes.VIDEO_H264:
-                return "h264";
-            case MimeTypes.VIDEO_H265:
-                return "hevc";
-            case "video/mp4v-es":
-                return "als";
             default:
                 return null;
         }

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @NonNullApi
-package com.google.android.exoplayer2.ext.ffmpeg;
+package androidx.media3.decoder.ffmpeg;
 
 import androidx.media3.common.util.NonNullApi;

@@ -30,11 +30,11 @@ object Configure {
         var sortModel: ListSort = ListSort.DATE_DESC
             set(value) {
                 field = value
-                MMKVStore.with("CloudFilesConfigure").put("sort", value.name)
+                MMKVStore.with("CloudFilesConfigure").put("sortModel", value.name)
             }
             get() {
                 return MMKVStore.with("CloudFilesConfigure")
-                    .getString("sort", ListSort.DATE_DESC.name).let {
+                    .getString("sortModel", ListSort.DATE_DESC.name).let {
                         ListSort.valueOf(it)
                     }
             }
@@ -54,11 +54,11 @@ object Configure {
         var sortModel: ListSort = ListSort.DATE_DESC
             set(value) {
                 field = value
-                MMKVStore.with("SearchFilesConfigure").put("sort", value.name)
+                MMKVStore.with("SearchFilesConfigure").put("sortModel", value.name)
             }
             get() {
                 return MMKVStore.with("SearchFilesConfigure")
-                    .getString("sort", ListSort.DATE_DESC.name).let {
+                    .getString("sortModel", ListSort.DATE_DESC.name).let {
                         ListSort.valueOf(it)
                     }
             }

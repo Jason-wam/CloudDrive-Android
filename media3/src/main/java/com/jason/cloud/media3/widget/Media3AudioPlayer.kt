@@ -7,10 +7,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.google.android.exoplayer2.decoder.FfmpegRenderersFactory
 import com.jason.cloud.media3.interfaces.OnMediaItemTransitionListener
 import com.jason.cloud.media3.interfaces.OnStateChangeListener
 import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.utils.FfmpegRenderersFactory
 import com.jason.cloud.media3.utils.Media3PlayState
 import com.jason.cloud.media3.utils.Media3SourceHelper
 
@@ -35,6 +35,16 @@ class Media3AudioPlayer(context: Context) {
             //相当于暂停继续
             if (isPlaying) {
                 currentPlayState = Media3PlayState.STATE_PLAYING
+                onPlayStateListeners.forEach {
+                    it.onStateChanged(currentPlayState)
+                }
+            }
+        }
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+            super.onPlayWhenReadyChanged(playWhenReady, reason)
+            if (playWhenReady.not()) {
+                currentPlayState = Media3PlayState.STATE_PAUSED
                 onPlayStateListeners.forEach {
                     it.onStateChanged(currentPlayState)
                 }

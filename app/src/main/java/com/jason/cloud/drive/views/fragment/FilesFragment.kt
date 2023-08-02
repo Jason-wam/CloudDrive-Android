@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -162,10 +163,9 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     @SuppressLint("NotifyDataSetChanged")
     override fun initView(context: Context) {
         MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
-        updateSortMenu()
-
         binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
         binding.toolbar.setOnMenuItemClickListener(this)
+        updateSortMenu()
 
         binding.rvPathIndicator.adapter = indicatorAdapter
         binding.rvPathIndicator.addItemDecoration(FilePathIndicatorDecoration())
@@ -255,7 +255,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
 
     private fun updateSortMenu() {
         val sort = Configure.CloudFileConfigure.sortModel
-        binding.toolbar.menu.forEach {
+        binding.toolbar.menu.children().forEach {
             when (it.itemId) {
                 R.id.name -> it.isChecked = sort == ListSort.NAME
                 R.id.date -> it.isChecked = sort == ListSort.DATE
@@ -264,6 +264,17 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
                 R.id.date_desc -> it.isChecked = sort == ListSort.DATE_DESC
                 R.id.size_desc -> it.isChecked = sort == ListSort.SIZE_DESC
                 R.id.show_hidden -> it.isChecked = Configure.CloudFileConfigure.showHidden
+            }
+        }
+    }
+
+    private fun Menu.children(): List<MenuItem> {
+        return ArrayList<MenuItem>().apply {
+            this@children.forEach { child ->
+                add(child)
+                if (child.hasSubMenu()) {
+                    addAll(child.subMenu?.children().orEmpty())
+                }
             }
         }
     }

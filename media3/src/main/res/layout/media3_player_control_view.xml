@@ -146,8 +146,11 @@
         android:layout_gravity="bottom"
         android:background="@drawable/shape_media3_player_controller_bottom"
         android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingTop="20dp">
+        android:orientation="vertical">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="20dp" />
 
         <LinearLayout
             android:id="@+id/media3_bottom_title"

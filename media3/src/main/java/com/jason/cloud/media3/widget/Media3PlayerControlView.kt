@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -81,6 +82,27 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
     private val scope = CoroutineScope(Dispatchers.Main)
     private var videoPositionJob: Job? = null
 
+    private var isBatteryReceiverRegister = false
+    private var onBackPressedListener: (() -> Unit)? = null
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (isInEditMode) return
+        if (isBatteryReceiverRegister) {
+            context.unregisterReceiver(batteryReceiver)
+            isBatteryReceiverRegister = false
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (isInEditMode) return
+        if (!isBatteryReceiverRegister) {
+            context.registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            isBatteryReceiverRegister = true
+        }
+    }
+
     private class BatteryReceiver(val imageView: ImageView, val textView: TextView) :
         BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
@@ -100,6 +122,9 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 false
             }
             batteryReceiver = BatteryReceiver(ivBattery, tvBattery)
+            ibBackspace.setOnClickListener {
+                onBackPressedListener?.invoke()
+            }
             ibList.setOnClickListener {
                 showEpisodeSelector()
             }
@@ -166,7 +191,8 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 statusView.layoutParams.height =
                     Media3PlayerUtils.getStatusBarHeight(context).toInt()
                 tvVideoSize.isVisible = false
-                setPadding(0, 0, 0, 0)
+                titleBar.setPadding(0, 0, 0, 0)
+                bottomBar.setPadding(0, 0, 0, 0)
             }
         } else {
             ibRotation.isEnabled = false
@@ -180,7 +206,12 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                     tvVideoSize.text = "${size.width} × ${size.height}"
                     tvVideoSize.isVisible = true
                 }
-                setPadding(Media3PlayerUtils.getStatusBarHeight(context).toInt(), 0, 0, 0)
+                titleBar.setPadding(
+                    Media3PlayerUtils.getStatusBarHeight(context).toInt(), 0, 0, 0
+                )
+                bottomBar.setPadding(
+                    Media3PlayerUtils.getStatusBarHeight(context).toInt(), 0, 0, 0
+                )
             }
         }
     }
@@ -264,6 +295,10 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 isVisible = false
             }
         }
+    }
+
+    fun onBackPressed(listener: () -> Unit) {
+        this.onBackPressedListener = listener
     }
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -357,6 +392,8 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 ibNext.isEnabled = true
                 ibNext.setOnClickListener {
                     player.seekToNextMediaItem()
+                    player.prepare()
+                    player.playWhenReady = true
                 }
             }
 
@@ -605,6 +642,8 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 onNegative("取消")
                 onPositive("确定") {
                     player.seekTo(it.tag as Int, 0)
+                    player.prepare()
+                    player.playWhenReady = true
                 }
                 show()
             }

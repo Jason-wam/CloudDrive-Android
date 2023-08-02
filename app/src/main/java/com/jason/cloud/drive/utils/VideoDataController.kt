@@ -23,9 +23,9 @@ open class VideoDataController : OnMediaItemTransitionListener, OnStateChangeLis
     override fun onStateChanged(state: Int) {
         if (state == Media3PlayState.STATE_ENDED) {
             if (hasNext().not()) {
-//                onCompleteListeners.forEach {
-//                    it.onCompletion()
-//                }
+                onCompleteListeners.forEach {
+                    it.onCompletion()
+                }
             }
         }
     }
@@ -163,7 +163,7 @@ open class VideoDataController : OnMediaItemTransitionListener, OnStateChangeLis
 
     fun previous() {
         if (player?.hasPreviousMediaItem() == true) {
-            player?.seekToNext()
+            player?.seekToPrevious()
             player?.prepare()
             player?.start()
         }

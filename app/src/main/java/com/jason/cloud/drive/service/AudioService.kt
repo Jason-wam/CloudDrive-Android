@@ -26,7 +26,6 @@ import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.utils.VideoDataController
 import com.jason.cloud.extension.dp
-import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.squared
 import com.jason.cloud.extension.toast
 import com.jason.cloud.media3.interfaces.OnStateChangeListener
@@ -41,7 +40,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.Serializable
 
 class AudioService : Service(), OnStateChangeListener {
     private val name = "媒体播放器"
@@ -55,7 +53,6 @@ class AudioService : Service(), OnStateChangeListener {
             .setName(name).build()
     }
 
-
     private lateinit var audioPlayer: Media3AudioPlayer
     private val scope = CoroutineScope(Dispatchers.Main)
     private var progressJob: Job? = null
@@ -66,6 +63,7 @@ class AudioService : Service(), OnStateChangeListener {
         private const val MEDIA_STYLE_ACTION_PREVIOUS = "MEDIA_STYLE_ACTION_PREVIOUS"
         private const val MEDIA_STYLE_ACTION_NEXT = "MEDIA_STYLE_ACTION_NEXT"
         private const val MEDIA_STYLE_ACTION_STOP = "MEDIA_STYLE_ACTION_STOP"
+        private val tempList = ArrayList<Media3VideoItem>()
 
         fun launchWith(
             context: Context,
@@ -74,8 +72,9 @@ class AudioService : Service(), OnStateChangeListener {
             block: Intent.() -> Unit
         ) {
             fun start() {
+                tempList.clear()
+                tempList.addAll(list)
                 val service = Intent(context, AudioService::class.java).apply {
-                    putExtra("list", list as Serializable)
                     putExtra("position", position)
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -106,9 +105,7 @@ class AudioService : Service(), OnStateChangeListener {
         }
     }
 
-    class AudioBinder(val videoView: Media3AudioPlayer) : Binder() {
-
-    }
+    class AudioBinder(val player: Media3AudioPlayer) : Binder()
 
     override fun onBind(intent: Intent?): IBinder {
         return AudioBinder(audioPlayer)
@@ -212,9 +209,9 @@ class AudioService : Service(), OnStateChangeListener {
             }
 
             else -> {
-                VideoDataController.with("AudioService").setData(
-                    intent.getSerializableListExtraEx("list")
-                )
+                val list = ArrayList(tempList)
+                tempList.clear()
+                VideoDataController.with("AudioService").setData(list)
                 VideoDataController.with("AudioService").start(
                     intent.getIntExtra(
                         "position", 0

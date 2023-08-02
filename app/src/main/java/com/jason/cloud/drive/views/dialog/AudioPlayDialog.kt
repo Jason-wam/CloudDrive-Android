@@ -179,7 +179,7 @@ class AudioPlayDialog :
     override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
         if (binder is AudioService.AudioBinder) {
             binding.btnCancel.setOnClickListener {
-                binder.videoView.release()
+                binder.player.release()
                 AudioService.stopService(context)
                 dismiss()
             }
@@ -199,7 +199,7 @@ class AudioPlayDialog :
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
-                            binding.seekBar.max = binder.videoView.getDuration().toInt()
+                            binding.seekBar.max = binder.player.getDuration().toInt()
                             binding.seekBar.progress = 0
                         }
 
@@ -208,7 +208,7 @@ class AudioPlayDialog :
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
                             binding.ibPause.setOnClickListener {
-                                binder.videoView.start()
+                                binder.player.start()
                             }
                         }
 
@@ -219,7 +219,7 @@ class AudioPlayDialog :
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
                             binding.ibPause.setOnClickListener {
-                                binder.videoView.start()
+                                binder.player.start()
                             }
                             progressJob?.cancel()
                         }
@@ -230,7 +230,7 @@ class AudioPlayDialog :
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
                             binding.ibPause.setOnClickListener {
-                                binder.videoView.start()
+                                binder.player.start()
                             }
                             progressJob?.cancel()
                         }
@@ -240,17 +240,17 @@ class AudioPlayDialog :
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_pause_24)
                             binding.ibPause.setOnClickListener {
-                                binder.videoView.pause()
+                                binder.player.pause()
                             }
 
                             progressJob?.cancel()
                             progressJob = scope.launch {
-                                while (isActive && binder.videoView.isPlaying()) {
+                                while (isActive && binder.player.isPlaying()) {
                                     binding.seekBar.progress =
-                                        binder.videoView.getCurrentPosition().toInt()
+                                        binder.player.getCurrentPosition().toInt()
                                     binding.tvPosition.text =
-                                        Media3PlayerUtils.stringForTime(binder.videoView.getCurrentPosition()) + " / " +
-                                                Media3PlayerUtils.stringForTime(binder.videoView.getDuration())
+                                        Media3PlayerUtils.stringForTime(binder.player.getCurrentPosition()) + " / " +
+                                                Media3PlayerUtils.stringForTime(binder.player.getDuration())
                                     delay(1000)
                                 }
                             }
@@ -261,10 +261,10 @@ class AudioPlayDialog :
                 }
             }
 
-            binder.videoView.addOnStateChangeListener(onStateChangeListener)
+            binder.player.addOnStateChangeListener(onStateChangeListener)
             addOnDismissListener {
                 progressJob?.cancel()
-                binder.videoView.removeOnStateChangeListener(onStateChangeListener)
+                binder.player.removeOnStateChangeListener(onStateChangeListener)
             }
 
             binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -285,7 +285,7 @@ class AudioPlayDialog :
 
                 override fun onStopTrackingTouch(seekBar: SeekBar) {
                     isTracking = false
-                    binder.videoView.seekTo(seekBar.progress.toLong())
+                    binder.player.seekTo(seekBar.progress.toLong())
                 }
             })
         }
