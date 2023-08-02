@@ -12,8 +12,6 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutFileMenuDialogBinding
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.model.mimeType
-import com.jason.cloud.drive.model.toOpenImageUrl
 import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.DirManager
@@ -23,8 +21,8 @@ import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.openURL
 import com.jason.cloud.extension.toast
-import com.jason.videoview.activity.VideoPreviewActivity
-import com.jason.videoview.model.VideoData
+import com.jason.cloud.media3.activity.VideoPlayActivity
+import com.jason.cloud.media3.model.Media3VideoItem
 import java.io.Serializable
 
 class FileMenuDialog(val parent: FragmentActivity) :
@@ -124,9 +122,9 @@ fun FragmentActivity.viewVideos(list: List<FileEntity>, position: Int) {
     val hash = list[position].hash
     val videos = list.filter { FileType.isVideo(it.name) }
     val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-    VideoPreviewActivity.open(this, videoIndex, videos.map {
-        VideoData(it.hash, it.name, it.rawURL)
-    })
+    VideoPlayActivity.open(this, videos.map {
+        Media3VideoItem.create(it.name, it.rawURL, true)
+    }, videoIndex)
 }
 
 fun FragmentActivity.viewAudios(list: List<FileEntity>, position: Int) {

@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/media3_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/shape_media3_player_controller_title"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        tools:visibility="visible">
+
+        <View
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/media3_ib_backspace"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="?selectableItemBackgroundBorderless"
+                android:scaleType="centerInside"
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_media3_round_keyboard_backspace_24"
+                app:tint="@color/color_media3_player_button_tint"
+                tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <com.jason.cloud.media3.widget.MarqueeTextView
+                android:id="@+id/media3_tv_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:shadowColor="#000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                tools:text="蝙蝠侠大战超人.正义黎明.Batman.v.Superman.Dawn.of.Justice.2016.EXTENDED.BD1080P.X264.AC3.Mandarin.English.CHS-ENG.Adans" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingLeft="16dp"
+                android:paddingEnd="16dp"
+                android:paddingRight="16dp">
+
+                <ImageView
+                    android:id="@+id/media3_iv_battery"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginStart="5dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_media3_player_battery_level"
+                    app:tint="@android:color/white" />
+
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/media3_tv_battery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:shadowColor="#000000"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    tools:text="20%" />
+
+                <Space
+                    android:layout_width="8dp"
+                    android:layout_height="wrap_content" />
+
+                <TextClock
+                    android:id="@+id/media3_tv_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="hh:mm"
+                    android:format24Hour="HH:mm"
+                    android:shadowColor="#000000"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    tools:text="20:47" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/media3_ib_lock"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_above="@id/media3_bottom_bar"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/shape_media3_button_shadow_background"
+        android:contentDescription="@string/media3_lock_and_unlock"
+        android:scaleType="centerInside"
+        android:visibility="visible"
+        app:srcCompat="@drawable/selector_media3_player_lock_button"
+        app:tint="@color/color_media3_player_button_press_tint"
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+
+    <LinearLayout
+        android:id="@+id/media3_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@drawable/shape_media3_player_controller_bottom"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingTop="20dp">
+
+        <LinearLayout
+            android:id="@+id/media3_bottom_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/media3_tv_bottom_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:shadowColor="#000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                tools:text="蝙蝠侠大战超人.正义黎明.Batman.v.Superman.Dawn.of.Justice.2016.EXTENDED.BD1080P.X264.AC3.Mandarin.English.CHS-ENG.Adans"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/media3_tv_bottom_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:shadowColor="#000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="X264.AC3.Mandarin.English.CHS-ENG.Adans"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/media3_bottom_seek_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="25dp"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/media3_tv_video_position"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
+                android:paddingEnd="5dp"
+                android:shadowColor="#000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:text="@string/media3_00_00"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/media3_video_seek_bar"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:max="1000"
+                android:maxHeight="2dp"
+                android:minHeight="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:progressDrawable="@drawable/layer_media3_player_video_seekbar"
+                android:thumb="@drawable/shape_media3_player_video_seek_thumb"
+                android:thumbOffset="0dp" />
+
+            <TextView
+                android:id="@+id/media3_tv_video_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end|center_vertical"
+                android:minWidth="48dp"
+                android:paddingStart="5dp"
+                android:shadowColor="#000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:text="@string/media3_00_00"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/media3_ib_play"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_play_or_pause"
+                app:srcCompat="@drawable/selector_media3_play_button"
+                app:tint="@color/color_media3_player_button_press_tint" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_next"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_next_episode"
+                app:srcCompat="@drawable/ic_media3_contra_button_skip_next_24"
+                app:tint="@color/color_media3_player_button_tint" />
+
+            <TextView
+                android:id="@+id/media3_tv_video_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.5"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="#FFFFFF"
+                android:visibility="gone"
+                tools:text="1920 × 1080" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_list"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_select_episode"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_media3_contra_button_list_24"
+                app:tint="@color/color_media3_player_button_tint" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_subtitle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_select_subtitles"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_media3_contra_button_subtitle"
+                app:tint="@color/color_media3_player_button_tint" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_audio_track"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_select_audio_track"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_media3_contra_button_audio_track_24"
+                app:tint="@color/color_media3_player_button_tint" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_ratio"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_select_scale_mode"
+                android:rotation="-45"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_media3_contra_button_ratio_24"
+                app:tint="@color/color_media3_player_button_tint" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_rotation"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/media3_screen_rotation"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_media3_contra_button_rotation_24"
+                app:tint="@color/color_media3_player_button_tint" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/media3_ib_larger_lock"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/shape_media3_button_shadow_background_100"
+        android:contentDescription="@string/media3_lock_and_unlock"
+        android:padding="20dp"
+        android:scaleType="fitXY"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_media3_player_lock_24"
+        app:tint="@color/color_media3_player_button_press_tint"
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+</RelativeLayout>

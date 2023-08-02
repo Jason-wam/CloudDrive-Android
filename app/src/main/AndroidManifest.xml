@@ -31,9 +31,6 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:theme"
         tools:targetApi="31">
-        <activity
-            android:name=".views.activity.SearchFilesActivity"
-            android:exported="false" />
 
         <meta-data
             android:name="ScopedStorage"
@@ -43,6 +40,16 @@
         <service android:name=".service.BackupService" />
         <service android:name=".service.UploadService" />
         <service android:name=".service.DownloadService" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
 
         <activity
             android:name=".views.activity.MainActivity"
@@ -56,15 +63,9 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
-        </provider>
+        <activity
+            android:name=".views.activity.SearchFilesActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

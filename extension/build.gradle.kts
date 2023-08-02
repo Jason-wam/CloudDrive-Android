@@ -15,8 +15,6 @@ android {
 
     defaultConfig {
         minSdk = Android.minSdk
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -42,10 +40,7 @@ dependencies {
     implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
     implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")
     implementation("com.google.android.material:material:${Dependencies.google_material}")
-    testImplementation("junit:junit:${Dependencies.junit}")
-    androidTestImplementation("androidx.test.ext:${Dependencies.androidx_test_junit}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Dependencies.androidx_espresso_core}")
-    api("com.github.bumptech.glide:glide:${Dependencies.glide}")
+    implementation("com.github.bumptech.glide:glide:${Dependencies.glide}")
     ksp("com.github.bumptech.glide:ksp:${Dependencies.glide}")
-    api("com.tencent:mmkv:${Dependencies.mmkv}")
+    implementation("com.tencent:mmkv:${Dependencies.mmkv}")
 }

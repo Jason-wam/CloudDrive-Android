@@ -13,8 +13,8 @@ import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
-import com.jason.videoview.activity.VideoPreviewActivity
-import com.jason.videoview.model.VideoData
+import com.jason.cloud.media3.activity.VideoPlayActivity
+import com.jason.cloud.media3.model.Media3VideoItem
 import java.io.Serializable
 
 class VideoDetailDialog :
@@ -55,9 +55,9 @@ class VideoDetailDialog :
             }
 
             binding.btnPlay.setOnClickListener {
-                VideoPreviewActivity.open(requireContext(), position, fileList.map {
-                    VideoData(it.hash, it.name, it.rawURL)
-                })
+                VideoPlayActivity.open(requireContext(), fileList.map {
+                    Media3VideoItem.create(it.name, it.rawURL, true)
+                }, position)
                 dismiss()
             }
         }

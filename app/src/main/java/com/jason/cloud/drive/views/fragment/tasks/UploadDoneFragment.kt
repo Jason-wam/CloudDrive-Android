@@ -11,7 +11,7 @@ import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.databinding.FragmentUploadDoneBinding
 import com.jason.cloud.drive.interfaces.CallMainActivity
-import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 
 class UploadDoneFragment :
     BaseBindFragment<FragmentUploadDoneBinding>(R.layout.fragment_upload_done) {
@@ -33,7 +33,7 @@ class UploadDoneFragment :
     @SuppressLint("NotifyDataSetChanged")
     override fun initView(context: Context) {
         binding.rvData.adapter = adapter
-        binding.rvData.addItemDecoration(CloudFileListDecoration(requireContext()))
+        binding.rvData.addItemDecoration(FileListDecoration(requireContext()))
         scopeNetLife {
             binding.stateLayout.showLoading()
             TaskDatabase.instance.getUploadDao().list()

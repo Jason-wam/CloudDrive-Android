@@ -2,6 +2,7 @@ package com.jason.cloud.drive.views.dialog
 
 import android.annotation.SuppressLint
 import android.media.MediaMetadataRetriever
+import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import com.drake.net.utils.scopeNetLife
@@ -15,15 +16,18 @@ import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
 import com.jason.cloud.extension.toast
-import com.jason.videoview.extension.onPlayStateChanged
+import com.jason.cloud.media3.interfaces.OnStateChangeListener
+import com.jason.cloud.media3.utils.Media3PlayState
+import com.jason.cloud.media3.widget.Media3AudioPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import xyz.doikki.videoplayer.player.BaseVideoView
-import xyz.doikki.videoplayer.player.VideoView
 import java.io.Serializable
 
 class AudioDetailDialog :
-    BaseBindBottomSheetDialogFragment<LayoutAudioDetailDialogBinding>(R.layout.layout_audio_detail_dialog) {
+    BaseBindBottomSheetDialogFragment<LayoutAudioDetailDialogBinding>(R.layout.layout_audio_detail_dialog),
+    OnStateChangeListener {
+    private val videoView by lazy { Media3AudioPlayer(requireContext()) }
+
     fun setFileList(list: List<FileEntity>, position: Int): AudioDetailDialog {
         arguments?.putSerializable("list", list as Serializable)
         arguments?.putInt("position", position)
@@ -48,7 +52,13 @@ class AudioDetailDialog :
         val fileList = arguments?.getSerializableListExtraEx<FileEntity>("list").orEmpty()
         if (position in fileList.indices) {
             val file = fileList[position]
-            val videoView = initVideoView(file)
+            videoView.addOnStateChangeListener(this)
+            videoView.setDataSource(file.rawURL)
+
+            loadMediaInfo(file)
+            addOnDismissListener {
+                videoView.release()
+            }
 
             binding.tvName.text = file.name
             binding.tvURL.text = file.path
@@ -63,99 +73,18 @@ class AudioDetailDialog :
                 }
             }
 
-            loadMediaInfo(file)
             binding.ibPause.setOnClickListener {
-                videoView.setUrl(file.rawURL)
+                videoView.prepare()
                 videoView.start()
             }
             binding.btnPlay.setOnClickListener {
-                videoView.setUrl(file.rawURL)
+                videoView.prepare()
                 videoView.start()
             }
         }
 
         binding.btnCancel.setOnClickListener {
             dismiss()
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun initVideoView(file: FileEntity): BaseVideoView<*> {
-        return VideoView(requireContext()).apply {
-            addOnDismissListener {
-                release()
-            }
-            onPlayStateChanged { playState ->
-                if (playState == VideoView.STATE_BUFFERING || playState == VideoView.STATE_PREPARING) {
-                    binding.ibPause.isVisible = false
-                    binding.progressBar.isVisible = true
-                } else {
-                    binding.ibPause.isVisible = true
-                    binding.progressBar.isVisible = false
-                    binding.btnPlay.alpha = 1f
-                    binding.btnPlay.isEnabled = true
-                }
-
-                if (playState != VideoView.STATE_PLAYING && playState != VideoView.STATE_BUFFERED) {
-                    binding.ibPause.isVisible = true
-                    binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
-                } else {
-                    binding.ibPause.isVisible = true
-                    binding.ibPause.setImageResource(R.drawable.ic_round_pause_24)
-                }
-
-                when (playState) {
-                    VideoView.STATE_BUFFERING, VideoView.STATE_PREPARING -> {
-                        binding.btnPlay.text = "正在连接媒体..."
-                        binding.btnPlay.alpha = 0.5f
-                        binding.btnPlay.isEnabled = false
-                    }
-
-                    VideoView.STATE_PAUSED -> {
-                        binding.btnPlay.text = "继续播放"
-                        binding.btnPlay.setOnClickListener {
-                            resume()
-                        }
-                        binding.ibPause.setOnClickListener {
-                            resume()
-                        }
-                    }
-
-                    VideoView.STATE_ERROR -> {
-                        toast("媒体播放错误：STATE_ERROR")
-                        binding.btnPlay.text = "媒体播放错误：STATE_ERROR"
-                    }
-
-                    VideoView.STATE_START_ABORT -> {
-                        binding.btnPlay.text = "媒体播放错误：STATE_ERROR"
-                        toast("媒体播放错误：STATE_START_ABORT")
-                    }
-
-                    VideoView.STATE_IDLE, VideoView.STATE_PLAYBACK_COMPLETED -> {
-                        binding.btnPlay.text = "立即播放"
-                        binding.btnPlay.setOnClickListener {
-                            release()
-                            setUrl(file.rawURL)
-                            start()
-                        }
-                        binding.ibPause.setOnClickListener {
-                            release()
-                            setUrl(file.rawURL)
-                            start()
-                        }
-                    }
-
-                    VideoView.STATE_PLAYING -> {
-                        binding.btnPlay.text = "暂停播放"
-                        binding.btnPlay.setOnClickListener {
-                            pause()
-                        }
-                        binding.ibPause.setOnClickListener {
-                            pause()
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -184,6 +113,68 @@ class AudioDetailDialog :
                     } else {
                         binding.tvAudioArtist.text = "$artist - $album"
                     }
+                }
+            }
+        }
+    }
+
+    override fun onStateChanged(state: Int) {
+        Log.e("AudioDetailDialog", "onNewPlayState = $state")
+        if (state == Media3PlayState.STATE_BUFFERING) {
+            binding.ibPause.isVisible = false
+            binding.progressBar.isVisible = true
+        } else {
+            binding.ibPause.isVisible = true
+            binding.progressBar.isVisible = false
+            binding.btnPlay.alpha = 1f
+            binding.btnPlay.isEnabled = true
+        }
+
+        binding.ibPause.isVisible = true
+        binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
+
+        when (state) {
+            Media3PlayState.STATE_BUFFERING -> {
+                binding.btnPlay.text = "正在连接媒体..."
+                binding.btnPlay.alpha = 0.5f
+                binding.btnPlay.isEnabled = false
+            }
+
+            Media3PlayState.STATE_PAUSED -> {
+                binding.btnPlay.text = "继续播放"
+                binding.btnPlay.setOnClickListener {
+                    videoView.start()
+                }
+                binding.ibPause.setOnClickListener {
+                    videoView.start()
+                }
+            }
+
+            Media3PlayState.STATE_ERROR -> {
+                toast("媒体播放错误：STATE_ERROR")
+                binding.btnPlay.text = "媒体播放错误：STATE_ERROR"
+            }
+
+            Media3PlayState.STATE_IDLE, Media3PlayState.STATE_ENDED -> {
+                binding.btnPlay.text = "立即播放"
+                binding.btnPlay.setOnClickListener {
+                    videoView.start()
+                }
+                binding.ibPause.setOnClickListener {
+                    videoView.start()
+                }
+            }
+
+            Media3PlayState.STATE_PLAYING -> {
+                binding.ibPause.isVisible = true
+                binding.ibPause.setImageResource(R.drawable.ic_round_pause_24)
+                binding.ibPause.setOnClickListener {
+                    videoView.pause()
+                }
+
+                binding.btnPlay.text = "暂停播放"
+                binding.btnPlay.setOnClickListener {
+                    videoView.pause()
                 }
             }
         }

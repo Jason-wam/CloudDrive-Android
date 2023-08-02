@@ -34,8 +34,19 @@ android {
         }
     }
 
-    buildFeatures { //DataBinding必须依赖KAPT
+    buildFeatures {
         dataBinding = true
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 
     compileOptions {
@@ -51,9 +62,7 @@ android {
 dependencies {
     implementation(project(mapOf("path" to ":theme")))
     implementation(project(mapOf("path" to ":extension")))
-    implementation(project(mapOf("path" to ":videoview")))
-    implementation(project(mapOf("path" to ":videoview-exo-extension")))
-    implementation(project(mapOf("path" to ":videoview-aplayer-extension")))
+    implementation(project(mapOf("path" to ":media3")))
 
     implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
     implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")
@@ -90,6 +99,4 @@ dependencies {
     implementation("io.github.scwang90:refresh-header-material:${Dependencies.smart_refresh}")
 
     implementation("io.github.FlyJingFish.OpenImage:OpenImageGlideLib:${Dependencies.open_image}")
-
-    implementation("com.tencent:mmkv:${Dependencies.mmkv}")
 }

@@ -7,7 +7,6 @@ import com.drake.net.interfaces.NetErrorHandler
 import com.drake.net.okhttp.setDebug
 import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
-import com.jason.aplaye.extension.APlayerFactory
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.DirManager
@@ -19,8 +18,6 @@ import com.jason.cloud.extension.toast
 import com.jason.cloud.utils.MMKVStore
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import okhttp3.Cache
-import xyz.doikki.videoplayer.player.VideoViewConfig
-import xyz.doikki.videoplayer.player.VideoViewManager
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
@@ -40,13 +37,6 @@ class App : Application() {
         SmartRefreshLayout.setDefaultRefreshFooterCreator { context, _ ->
             SrlRefreshFooter(context)
         }
-
-        VideoViewManager.setConfig(VideoViewConfig.Builder().let {
-            it.setLogEnabled(true)
-            it.setPlayerFactory(APlayerFactory.create(true))
-            it.setPlayOnMobileNetwork(false)
-            it.build()
-        })
     }
 
     private fun initNet() {

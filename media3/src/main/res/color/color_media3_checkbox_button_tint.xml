@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Disabled -->
+    <item android:alpha="0.38" android:color="@color/colorOnSurface" android:state_enabled="false" />
+
+    <!-- Error -->
+    <item android:color="@color/colorOnSurface" app:state_error="true" />
+
+    <!-- Indeterminate -->
+    <item android:color="@color/colorOnSurface" app:state_indeterminate="true" />
+
+    <!-- Checked -->
+    <item android:color="@color/colorSecondary" android:state_checked="true" />
+
+    <!-- Unchecked -->
+    <item android:color="@color/colorOnSurface" android:state_checked="false" />
+</selector>

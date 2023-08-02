@@ -28,5 +28,6 @@ object Dependencies {
     const val junit = "4.13.2"
     const val androidx_test_junit = "1.1.5"
     const val androidx_espresso_core = "3.5.1"
-    const val exo = "2.18.4"
+    const val exo = "2.19.0"
+    const val media3 = "1.1.0"
 }

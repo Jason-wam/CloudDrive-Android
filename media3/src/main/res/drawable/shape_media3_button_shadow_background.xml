@@ -1,0 +1,16 @@
+<!-- circle_button.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 定义圆形 -->
+    <corners android:radius="50dp" />
+    <size
+        android:width="44dp"
+        android:height="44dp" />
+    <!-- 定义渐变阴影 -->
+    <gradient
+        android:centerX="0.5"
+        android:centerY="0.5"
+        android:endColor="#00000000"
+        android:gradientRadius="22dp"
+        android:startColor="#44000000"
+        android:type="radial" />
+</shape>

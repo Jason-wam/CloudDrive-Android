@@ -29,7 +29,7 @@
                 android:background="@color/colorPrimary"
                 app:contentInsetStartWithNavigation="0dp"
                 app:navigationIconTint="@color/colorOnPrimary"
-                app:navigationIcon="@drawable/ic_round_keyboard_backspace_24"
+                app:navigationIcon="@drawable/ic_media3_round_keyboard_backspace_24"
                 app:subtitleTextAppearance="@style/SubtitleTextAppearance"
                 app:subtitleTextColor="@color/colorOnPrimaryMedium"
                 app:title="@string/search_file_from_cloud_drive"

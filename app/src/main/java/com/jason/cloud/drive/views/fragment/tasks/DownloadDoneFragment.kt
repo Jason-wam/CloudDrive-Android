@@ -11,7 +11,7 @@ import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.databinding.FragmentDownloadDoneBinding
-import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 
 class DownloadDoneFragment :
     BaseBindFragment<FragmentDownloadDoneBinding>(R.layout.fragment_download_done) {
@@ -25,7 +25,7 @@ class DownloadDoneFragment :
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun initView(context: Context) {
         binding.rvData.adapter = adapter
-        binding.rvData.addItemDecoration(CloudFileListDecoration(requireContext()))
+        binding.rvData.addItemDecoration(FileListDecoration(requireContext()))
 
         scopeNetLife {
             binding.stateLayout.showLoading()

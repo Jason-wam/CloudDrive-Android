@@ -14,15 +14,15 @@ import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.uploader.UploadQueue
 import com.jason.cloud.drive.database.uploader.UploadTask
 import com.jason.cloud.drive.databinding.FragmentTasksBinding
+import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
+import com.jason.cloud.drive.utils.extension.view.onTabSelected
+import com.jason.cloud.drive.utils.extension.view.setTitleFont
 import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.drive.views.fragment.tasks.DownloadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.DownloadFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadFragment
 import com.jason.cloud.extension.toast
-import com.jason.videocat.utils.extension.view.onMenuItemClickListener
-import com.jason.videocat.utils.extension.view.onTabSelected
-import com.jason.videocat.utils.extension.view.setTitleFont
 import kotlinx.coroutines.Dispatchers
 
 class TasksFragment : BaseBindFragment<FragmentTasksBinding>(R.layout.fragment_tasks) {

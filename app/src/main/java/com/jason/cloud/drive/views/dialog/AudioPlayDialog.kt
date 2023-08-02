@@ -14,28 +14,27 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutAudioPlayerDialogBinding
-import com.jason.cloud.drive.model.AudioEntity
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.service.AudioService
+import com.jason.cloud.drive.utils.VideoDataController
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.toast
-import com.jason.videoview.controller.MediaDataController
-import com.jason.videoview.model.VideoData
+import com.jason.cloud.media3.interfaces.OnStateChangeListener
+import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.utils.Media3PlayState
+import com.jason.cloud.media3.utils.Media3PlayerUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import xyz.doikki.videoplayer.player.BaseVideoView.SimpleOnStateChangeListener
-import xyz.doikki.videoplayer.player.VideoView
-import xyz.doikki.videoplayer.util.PlayerUtils
 import java.io.Serializable
 
 class AudioPlayDialog :
     BaseBindBottomSheetDialogFragment<LayoutAudioPlayerDialogBinding>(R.layout.layout_audio_player_dialog),
-    MediaDataController.OnCompleteListener, ServiceConnection, MediaDataController.OnPlayListener {
+    VideoDataController.OnCompleteListener, ServiceConnection, VideoDataController.OnPlayListener {
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private var progressJob: Job? = null
@@ -72,18 +71,23 @@ class AudioPlayDialog :
             next()
         }
 
-        MediaDataController.with("AudioService").addOnPlayListener(this)
-        MediaDataController.with("AudioService").addOnCompleteListener(this)
+        VideoDataController.with("AudioService").addOnPlayListener(this)
+        VideoDataController.with("AudioService").addOnCompleteListener(this)
+
         addOnDismissListener {
-            MediaDataController.with("AudioService").removeOnPlayListener(this)
-            MediaDataController.with("AudioService").removeOnCompleteListener(this)
+            VideoDataController.with("AudioService").removeOnPlayListener(this)
+            VideoDataController.with("AudioService").removeOnCompleteListener(this)
         }
 
         val position = arguments?.getInt("position", 0) ?: 0
         val audioList = arguments?.getSerializableListExtraEx<FileEntity>("list")?.let {
-            ArrayList<AudioEntity>().apply {
+            ArrayList<Media3VideoItem>().apply {
                 it.forEach {
-                    add(AudioEntity(it.name, it.rawURL, it.thumbnailURL))
+                    add(Media3VideoItem().apply {
+                        this.url = it.rawURL
+                        this.title = it.name
+                        this.image = it.thumbnailURL
+                    })
                 }
             }
         }
@@ -106,41 +110,40 @@ class AudioPlayDialog :
     }
 
     private fun previous() {
-        if (MediaDataController.with("AudioService").hasPrevious()) {
-            MediaDataController.with("AudioService").previous()
+        if (VideoDataController.with("AudioService").hasPrevious()) {
+            VideoDataController.with("AudioService").previous()
         } else {
             toast("已经是第一个啦")
         }
     }
 
     private fun next() {
-        if (MediaDataController.with("AudioService").hasNext()) {
-            MediaDataController.with("AudioService").next()
+        if (VideoDataController.with("AudioService").hasNext()) {
+            VideoDataController.with("AudioService").next()
         } else {
             toast("已经是最后一个啦")
         }
     }
 
-    override fun onCompletion() {
-        dismiss()
+
+    override fun onPlay(position: Int, videoData: Media3VideoItem) {
+        loadMediaInfo(videoData.url)
+        binding.tvTitle.text = videoData.title
+        binding.tvArtist.text = "未知艺术家"
+        binding.ivCover.loadIMG(videoData.image) {
+            placeholder(R.drawable.ic_default_audio_cover)
+            centerCrop()
+        }
+
+        binding.btnBackground.alpha = 1f
+        binding.btnBackground.isEnabled = true
+        binding.btnBackground.setOnClickListener {
+            dismiss()
+        }
     }
 
-    override fun onPlay(position: Int, videoData: VideoData) {
-        if (videoData is AudioEntity) {
-            loadMediaInfo(videoData.url)
-            binding.tvTitle.text = videoData.name
-            binding.tvArtist.text = "未知艺术家"
-            binding.ivCover.loadIMG(videoData.image) {
-                placeholder(R.drawable.ic_default_audio_cover)
-                centerCrop()
-            }
-
-            binding.btnBackground.alpha = 1f
-            binding.btnBackground.isEnabled = true
-            binding.btnBackground.setOnClickListener {
-                dismiss()
-            }
-        }
+    override fun onCompletion() {
+        dismiss()
     }
 
     @SuppressLint("SetTextI18n")
@@ -181,36 +184,35 @@ class AudioPlayDialog :
                 dismiss()
             }
 
-            val onStateChangeListener = object : SimpleOnStateChangeListener() {
-                @SuppressLint("SetTextI18n")
-                override fun onPlayStateChanged(playState: Int) {
-                    super.onPlayStateChanged(playState)
-                    when (playState) {
-                        VideoView.STATE_PREPARING, VideoView.STATE_BUFFERING -> {
+            val onStateChangeListener = object : OnStateChangeListener {
+                override fun onStateChanged(state: Int) {
+                    @SuppressLint("SetTextI18n")
+                    when (state) {
+                        Media3PlayState.STATE_BUFFERING -> {
                             binding.ibPause.isVisible = false
                             binding.progressBar.isVisible = true
                             binding.tvPosition.text = "正在连接媒体..."
                             progressJob?.cancel()
                         }
 
-                        VideoView.STATE_PREPARED -> {
+                        Media3PlayState.STATE_PREPARED -> {
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
-                            binding.seekBar.max = binder.videoView.duration.toInt()
+                            binding.seekBar.max = binder.videoView.getDuration().toInt()
                             binding.seekBar.progress = 0
                         }
 
-                        VideoView.STATE_PAUSED -> {
+                        Media3PlayState.STATE_PAUSED -> {
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_play_arrow_24)
                             binding.ibPause.setOnClickListener {
-                                binder.videoView.resume()
+                                binder.videoView.start()
                             }
                         }
 
-                        VideoView.STATE_ERROR, VideoView.STATE_START_ABORT -> {
+                        Media3PlayState.STATE_ERROR -> {
                             toast("媒体播放错误：STATE_ERROR")
                             binding.tvPosition.text = "媒体播放错误：STATE_ERROR"
                             binding.progressBar.isVisible = false
@@ -222,7 +224,7 @@ class AudioPlayDialog :
                             progressJob?.cancel()
                         }
 
-                        VideoView.STATE_IDLE, VideoView.STATE_PLAYBACK_COMPLETED -> {
+                        Media3PlayState.STATE_IDLE, Media3PlayState.STATE_ENDED -> {
                             binding.tvPosition.text = "00:00 / 00:00"
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
@@ -233,7 +235,7 @@ class AudioPlayDialog :
                             progressJob?.cancel()
                         }
 
-                        VideoView.STATE_PLAYING -> {
+                        Media3PlayState.STATE_PLAYING -> {
                             binding.progressBar.isVisible = false
                             binding.ibPause.isVisible = true
                             binding.ibPause.setImageResource(R.drawable.ic_round_pause_24)
@@ -243,16 +245,18 @@ class AudioPlayDialog :
 
                             progressJob?.cancel()
                             progressJob = scope.launch {
-                                while (isActive && binder.videoView.isPlaying) {
+                                while (isActive && binder.videoView.isPlaying()) {
                                     binding.seekBar.progress =
-                                        binder.videoView.currentPosition.toInt()
+                                        binder.videoView.getCurrentPosition().toInt()
                                     binding.tvPosition.text =
-                                        PlayerUtils.stringForTime(binder.videoView.currentPosition.toInt()) + " / " +
-                                                PlayerUtils.stringForTime(binder.videoView.duration.toInt())
+                                        Media3PlayerUtils.stringForTime(binder.videoView.getCurrentPosition()) + " / " +
+                                                Media3PlayerUtils.stringForTime(binder.videoView.getDuration())
                                     delay(1000)
                                 }
                             }
                         }
+
+                        else -> {}
                     }
                 }
             }
@@ -273,8 +277,9 @@ class AudioPlayDialog :
                 @SuppressLint("SetTextI18n")
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
-                        binding.tvPosition.text = PlayerUtils.stringForTime(progress) + " / " +
-                                PlayerUtils.stringForTime(seekBar.max)
+                        binding.tvPosition.text =
+                            Media3PlayerUtils.stringForTime(progress.toLong()) + " / " +
+                                    Media3PlayerUtils.stringForTime(seekBar.max.toLong())
                     }
                 }
 

@@ -14,17 +14,12 @@ import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.asJSONObject
 
 class FilesFragmentViewModel(application: Application) : AndroidViewModel(application) {
-    val histories = arrayListOf(FileNavigationEntity("Drive", "%root"))
+    private val histories = arrayListOf(FileNavigationEntity("Drive", "%root"))
     val onError = MutableLiveData<String>()
     val onSucceed = MutableLiveData<FileListRespond>()
     var isLoading = false
 
-    enum class ListSort {
-        NAME, SIZE, DATE, NAME_DESC, SIZE_DESC, DATE_DESC
-    }
-
     class FileListRespond(val isGoBack: Boolean, val respond: FileListRespondEntity)
-
 
     fun current(): String {
         return if (histories.isEmpty()) "%root" else histories.last().hash

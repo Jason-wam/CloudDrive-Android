@@ -1,8 +1,11 @@
 package com.jason.cloud.drive.views.activity
 
 import android.annotation.SuppressLint
+import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuCompat
+import androidx.core.view.forEach
 import androidx.lifecycle.ViewModelProvider
 import com.drake.softinput.hasSoftInput
 import com.drake.softinput.hideSoftInput
@@ -14,15 +17,16 @@ import com.jason.cloud.drive.base.BaseBindActivity
 import com.jason.cloud.drive.databinding.ActivitySearchFilesBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.ListSort
 import com.jason.cloud.drive.utils.extension.view.bindRvElevation
+import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
 import com.jason.cloud.drive.views.dialog.showFileMenu
-import com.jason.cloud.drive.views.fragment.FilesFragmentViewModel
-import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.extension.toast
-import com.jason.videocat.utils.extension.view.onMenuItemClickListener
 
 class SearchFilesActivity :
-    BaseBindActivity<ActivitySearchFilesBinding>(R.layout.activity_search_files) {
+    BaseBindActivity<ActivitySearchFilesBinding>(R.layout.activity_search_files),
+    Toolbar.OnMenuItemClickListener {
 
     private val stateLogo = "stateLogo"
     private val viewModel by lazy {
@@ -52,87 +56,21 @@ class SearchFilesActivity :
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun initView() {
-        initToolBar()
-        initSearchView()
-        initViewModel()
+        MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
+        binding.toolbar.setOnMenuItemClickListener(this)
 
         binding.stateLayout.bindView(stateLogo, R.layout.layout_state_logo)
         binding.stateLayout.switchView(stateLogo)
 
         binding.rvData.adapter = adapter
-        binding.rvData.addItemDecoration(CloudFileListDecoration(this))
+        binding.rvData.addItemDecoration(FileListDecoration(this))
         binding.appBarLayout.bindRvElevation(binding.rvData)
-    }
 
-    private fun initToolBar() {
-        MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
-        binding.toolbar.onMenuItemClickListener(R.id.name) {
-            Configure.SearchConfigure.sortModel = FilesFragmentViewModel.ListSort.NAME
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.name_desc) {
-            Configure.SearchConfigure.sortModel = FilesFragmentViewModel.ListSort.NAME_DESC
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.date) {
-            Configure.SearchConfigure.sortModel = FilesFragmentViewModel.ListSort.DATE
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.date_desc) {
-            Configure.SearchConfigure.sortModel = FilesFragmentViewModel.ListSort.DATE_DESC
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.size) {
-            Configure.SearchConfigure.sortModel = FilesFragmentViewModel.ListSort.SIZE
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.size_desc) {
-            Configure.SearchConfigure.sortModel = FilesFragmentViewModel.ListSort.SIZE_DESC
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
-        binding.toolbar.onMenuItemClickListener(R.id.show_hidden) {
-            Configure.SearchConfigure.showHidden = !Configure.SearchConfigure.showHidden
-            binding.stateLayout.showLoading()
-            viewModel.refresh()
-            updateSortMenu()
-        }
         updateSortMenu()
-    }
+        initSearchView()
 
-    private fun updateSortMenu() {
-        val sort = Configure.SearchConfigure.sortModel
-        binding.toolbar.menu.findItem(R.id.name).isChecked =
-            sort == FilesFragmentViewModel.ListSort.NAME
-        binding.toolbar.menu.findItem(R.id.date).isChecked =
-            sort == FilesFragmentViewModel.ListSort.DATE
-        binding.toolbar.menu.findItem(R.id.size).isChecked =
-            sort == FilesFragmentViewModel.ListSort.SIZE
-        binding.toolbar.menu.findItem(R.id.name_desc).isChecked =
-            sort == FilesFragmentViewModel.ListSort.NAME_DESC
-        binding.toolbar.menu.findItem(R.id.date_desc).isChecked =
-            sort == FilesFragmentViewModel.ListSort.DATE_DESC
-        binding.toolbar.menu.findItem(R.id.size_desc).isChecked =
-            sort == FilesFragmentViewModel.ListSort.SIZE_DESC
-
-        binding.toolbar.menu.findItem(R.id.show_hidden).isChecked =
-            Configure.SearchConfigure.showHidden
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun initViewModel() {
         viewModel.onError.observe(this) {
             binding.refreshLayout.finishRefresh(false)
             binding.refreshLayout.finishLoadMore(false)
@@ -142,6 +80,7 @@ class SearchFilesActivity :
                 toast(it)
             }
         }
+
         viewModel.onSucceed.observe(this) {
             it.hasMore
             binding.refreshLayout.finishRefresh(true)
@@ -165,6 +104,21 @@ class SearchFilesActivity :
 
         binding.refreshLayout.setOnLoadMoreListener {
             viewModel.nextPage()
+        }
+    }
+
+    private fun updateSortMenu() {
+        val sort = Configure.SearchConfigure.sortModel
+        binding.toolbar.menu.forEach {
+            when (it.itemId) {
+                R.id.name -> it.isChecked = sort == ListSort.NAME
+                R.id.date -> it.isChecked = sort == ListSort.DATE
+                R.id.size -> it.isChecked = sort == ListSort.SIZE
+                R.id.name_desc -> it.isChecked = sort == ListSort.NAME_DESC
+                R.id.date_desc -> it.isChecked = sort == ListSort.DATE_DESC
+                R.id.size_desc -> it.isChecked = sort == ListSort.SIZE_DESC
+                R.id.show_hidden -> it.isChecked = Configure.SearchConfigure.showHidden
+            }
         }
     }
 
@@ -253,5 +207,60 @@ class SearchFilesActivity :
         adapter.notifyDataSetChanged()
         binding.stateLayout.showLoading()
         viewModel.search(text)
+    }
+
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.name -> {
+                Configure.SearchConfigure.sortModel = ListSort.NAME
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+
+            R.id.date -> {
+                Configure.SearchConfigure.sortModel = ListSort.DATE
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+
+            R.id.size -> {
+                Configure.SearchConfigure.sortModel = ListSort.SIZE
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+
+            R.id.name_desc -> {
+                Configure.SearchConfigure.sortModel = ListSort.NAME_DESC
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+
+            R.id.date_desc -> {
+                Configure.SearchConfigure.sortModel = ListSort.DATE_DESC
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+
+            R.id.size_desc -> {
+                Configure.SearchConfigure.sortModel = ListSort.SIZE_DESC
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+
+            R.id.show_hidden -> {
+                Configure.SearchConfigure.showHidden =
+                    !Configure.SearchConfigure.showHidden
+                binding.stateLayout.showLoading()
+                viewModel.refresh()
+                updateSortMenu()
+            }
+        }
+        return true
     }
 }

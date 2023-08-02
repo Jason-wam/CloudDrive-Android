@@ -61,29 +61,29 @@ data class FileEntity(
             return builder.build()
         }
     }
-}
 
-fun FileEntity.mimeType(): String {
-    val extension = name.substringAfterLast(".")
-    return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
-}
+    fun mimeType(): String {
+        val extension = name.substringAfterLast(".")
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "*/*"
+    }
 
-fun FileEntity.toOpenImageUrl(): OpenImageUrl {
-    return object : OpenImageUrl {
-        override fun getImageUrl(): String {
-            return rawURL
-        }
+    fun toOpenImageUrl(): OpenImageUrl {
+        return object : OpenImageUrl {
+            override fun getImageUrl(): String {
+                return rawURL
+            }
 
-        override fun getVideoUrl(): String {
-            return ""
-        }
+            override fun getVideoUrl(): String {
+                return ""
+            }
 
-        override fun getCoverImageUrl(): String {
-            return thumbnailURL
-        }
+            override fun getCoverImageUrl(): String {
+                return thumbnailURL
+            }
 
-        override fun getType(): com.flyjingfish.openimagelib.enums.MediaType {
-            return com.flyjingfish.openimagelib.enums.MediaType.IMAGE
+            override fun getType(): com.flyjingfish.openimagelib.enums.MediaType {
+                return com.flyjingfish.openimagelib.enums.MediaType.IMAGE
+            }
         }
     }
 }

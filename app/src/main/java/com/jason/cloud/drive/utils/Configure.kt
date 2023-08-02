@@ -1,6 +1,5 @@
 package com.jason.cloud.drive.utils
 
-import com.jason.cloud.drive.views.fragment.FilesFragmentViewModel
 import com.jason.cloud.utils.MMKVStore
 
 object Configure {
@@ -28,15 +27,15 @@ object Configure {
         }
 
     object CloudFileConfigure {
-        var sortModel: FilesFragmentViewModel.ListSort = FilesFragmentViewModel.ListSort.DATE_DESC
+        var sortModel: ListSort = ListSort.DATE_DESC
             set(value) {
                 field = value
                 MMKVStore.with("CloudFilesConfigure").put("sort", value.name)
             }
             get() {
                 return MMKVStore.with("CloudFilesConfigure")
-                    .getString("sort", FilesFragmentViewModel.ListSort.DATE_DESC.name).let {
-                        FilesFragmentViewModel.ListSort.valueOf(it)
+                    .getString("sort", ListSort.DATE_DESC.name).let {
+                        ListSort.valueOf(it)
                     }
             }
 
@@ -52,15 +51,15 @@ object Configure {
     }
 
     object SearchConfigure {
-        var sortModel: FilesFragmentViewModel.ListSort = FilesFragmentViewModel.ListSort.DATE_DESC
+        var sortModel: ListSort = ListSort.DATE_DESC
             set(value) {
                 field = value
                 MMKVStore.with("SearchFilesConfigure").put("sort", value.name)
             }
             get() {
                 return MMKVStore.with("SearchFilesConfigure")
-                    .getString("sort", FilesFragmentViewModel.ListSort.DATE_DESC.name).let {
-                        FilesFragmentViewModel.ListSort.valueOf(it)
+                    .getString("sort", ListSort.DATE_DESC.name).let {
+                        ListSort.valueOf(it)
                     }
             }
 

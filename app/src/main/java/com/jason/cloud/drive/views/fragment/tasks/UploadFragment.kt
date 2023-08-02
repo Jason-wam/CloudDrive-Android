@@ -11,7 +11,7 @@ import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.database.uploader.UploadQueue
 import com.jason.cloud.drive.database.uploader.getStatusText
 import com.jason.cloud.drive.databinding.FragmentUploadBinding
-import com.jason.cloud.drive.views.widgets.decoration.CloudFileListDecoration
+import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.extension.toFileSizeString
 
 class UploadFragment : BaseBindFragment<FragmentUploadBinding>(R.layout.fragment_upload) {
@@ -25,7 +25,7 @@ class UploadFragment : BaseBindFragment<FragmentUploadBinding>(R.layout.fragment
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun initView(context: Context) {
         binding.rvData.adapter = adapter
-        binding.rvData.addItemDecoration(CloudFileListDecoration(requireContext()))
+        binding.rvData.addItemDecoration(FileListDecoration(requireContext()))
 
         scopeNetLife {
             binding.stateLayout.showLoading()
