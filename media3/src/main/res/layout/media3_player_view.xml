@@ -17,8 +17,7 @@
             android:id="@+id/media3_content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            app:resize_mode="fit">
+            android:layout_gravity="center">
 
             <ImageView
                 android:id="@+id/media3_iv_holder_background"

@@ -19,6 +19,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.util.Util
@@ -70,6 +71,7 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
     private lateinit var ibList: ImageButton
     private lateinit var ibSubtitle: ImageButton
     private lateinit var ibAudioTrack: ImageButton
+    private lateinit var ibPlaySpeed: ImageButton
     private lateinit var ibRatio: ImageButton
     private lateinit var ibRotation: ImageButton
     private lateinit var bottomBar: LinearLayout
@@ -136,6 +138,9 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
             ibAudioTrack.setOnClickListener {
                 showAudioTrackSelector()
             }
+            ibPlaySpeed.setOnClickListener {
+                showSpeedSelector()
+            }
             ibRatio.setOnClickListener {
                 showRatioSelector()
             }
@@ -173,6 +178,7 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
         ibList = findViewById(R.id.media3_ib_list)
         ibSubtitle = findViewById(R.id.media3_ib_subtitle)
         ibAudioTrack = findViewById(R.id.media3_ib_audio_track)
+        ibPlaySpeed = findViewById(R.id.media3_ib_play_speed)
         ibRatio = findViewById(R.id.media3_ib_ratio)
         ibRotation = findViewById(R.id.media3_ib_rotation)
         bottomBar = findViewById(R.id.media3_bottom_bar)
@@ -581,6 +587,40 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 onNegative("取消")
                 onPositive("确定") {
                     selectAudioTrack(it.tag as AudioTrack)
+                }
+                show()
+            }
+        }
+    }
+
+    private fun showSpeedSelector() {
+        playerView?.internalPlayer?.let { player ->
+            val list = ArrayList<TrackSelectEntity>().apply {
+                add(TrackSelectEntity(0.25f, "0.25x"))
+                add(TrackSelectEntity(0.5f, "0.5x"))
+                add(TrackSelectEntity(1.0f, "1.0x"))
+                add(TrackSelectEntity(1.25f, "1.25x"))
+                add(TrackSelectEntity(1.5f, "1.5x"))
+                add(TrackSelectEntity(2.0f, "2.0x"))
+                add(TrackSelectEntity(3.0f, "3.0x"))
+                add(TrackSelectEntity(4.0f, "4.0x"))
+                add(TrackSelectEntity(8.0f, "8.0x"))
+                add(TrackSelectEntity(16.0f, "16.0x"))
+            }
+
+            val selectedPosition = list.indexOfFirst {
+                it.tag as Float == player.playbackParameters.speed
+            }
+
+            TrackSelectDialog(context).apply {
+                setTitle("倍速播放")
+                setOnShowListener { player.pause() }
+                setOnDismissListener { player.playWhenReady = true }
+                setSelectedPosition(selectedPosition)
+                setSelectionData(list)
+                onNegative("取消")
+                onPositive("确定") {
+                    player.playbackParameters = PlaybackParameters(it.tag as Float)
                 }
                 show()
             }

@@ -75,11 +75,6 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-    <style name="Media3DialogStyle.Button" parent="Theme.MaterialComponents.Light.Dialog">
-        <item name="minWidth">64dp</item>
-        <item name="minHeight">48dp</item>
-    </style>
-
     <style name="Media3DialogTitleTextBoldMedium">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">17sp</item>

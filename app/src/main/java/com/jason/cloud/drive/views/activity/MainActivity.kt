@@ -12,7 +12,6 @@ import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import com.jason.cloud.drive.databinding.ActivityMainBinding
-import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.interfaces.CallMainActivity
 import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.extension.view.bindBottomNavigationView
@@ -61,7 +60,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
             override fun handleOnBackPressed() {
                 val fragment: Fragment? =
                     viewPager2Adapter.getFragment(binding.viewPager2.currentItem)
-                if (fragment !is CallFragment) {
+                if (fragment !is FilesFragment) {
                     callBackPressed()
                 } else {
                     if (fragment.isVisible && fragment.callBackPressed()) {

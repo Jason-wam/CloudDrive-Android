@@ -3,9 +3,6 @@
     <string name="media3_error_message">出了点小问题，请稍后重试</string>
     <string name="media3_player_retry">"  重 试  "</string>
     <string name="media3_buffering_message">正在打开媒体文件..</string>
-    <string name="media3_select_video">选集</string>
-    <string name="media3_select_speed">倍速</string>
-    <string name="media3_select_scale">缩放</string>
     <string name="media3_select_episode">选集</string>
     <string name="media3_select_subtitles">选择字幕</string>
     <string name="media3_select_audio_track">选择音轨</string>
@@ -23,4 +20,5 @@
     <string name="media3_double_speed_playing">×%.1f 倍速播放</string>
     <string name="cancel">取消</string>
     <string name="confirm">确定</string>
+    <string name="media3_select_play_speed">倍速播放</string>
 </resources>

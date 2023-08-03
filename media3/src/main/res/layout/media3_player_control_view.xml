@@ -14,7 +14,7 @@
         android:background="@drawable/shape_media3_player_controller_title"
         android:orientation="vertical"
         android:visibility="invisible"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <View
             android:id="@+id/status_view"
@@ -30,10 +30,10 @@
 
             <ImageButton
                 android:id="@+id/media3_ib_backspace"
+                style="?toolbarNavigationButtonStyle"
                 android:layout_width="48dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
                 android:scaleType="centerInside"
                 android:visibility="visible"
                 app:srcCompat="@drawable/ic_media3_round_keyboard_backspace_24"
@@ -133,10 +133,12 @@
         android:background="@drawable/shape_media3_button_shadow_background"
         android:contentDescription="@string/media3_lock_and_unlock"
         android:scaleType="centerInside"
+        android:tooltipText="@string/media3_lock_and_unlock"
         android:visibility="visible"
         app:srcCompat="@drawable/selector_media3_player_lock_button"
         app:tint="@color/color_media3_player_button_press_tint"
-        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck"
+        tools:targetApi="o" />
 
     <LinearLayout
         android:id="@+id/media3_bottom_bar"
@@ -261,21 +263,25 @@
 
             <ImageButton
                 android:id="@+id/media3_ib_play"
+                style="?toolbarNavigationButtonStyle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_play_or_pause"
+                android:tooltipText="@string/media3_play_or_pause"
                 app:srcCompat="@drawable/selector_media3_play_button"
-                app:tint="@color/color_media3_player_button_press_tint" />
+                app:tint="@color/color_media3_player_button_press_tint"
+                tools:targetApi="o" />
 
             <ImageButton
                 android:id="@+id/media3_ib_next"
-                android:layout_width="48dp"
+                style="?toolbarNavigationButtonStyle"
+                android:layout_width="40dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_next_episode"
+                android:tooltipText="@string/media3_next_episode"
                 app:srcCompat="@drawable/ic_media3_contra_button_skip_next_24"
-                app:tint="@color/color_media3_player_button_tint" />
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
 
             <TextView
                 android:id="@+id/media3_tv_video_size"
@@ -291,58 +297,81 @@
             <Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:minWidth="48dp" />
 
             <ImageButton
                 android:id="@+id/media3_ib_list"
-                android:layout_width="48dp"
+                style="?toolbarNavigationButtonStyle"
+                android:layout_width="40dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_select_episode"
                 android:scaleType="centerInside"
+                android:tooltipText="@string/media3_select_episode"
                 app:srcCompat="@drawable/ic_media3_contra_button_list_24"
-                app:tint="@color/color_media3_player_button_tint" />
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
 
             <ImageButton
                 android:id="@+id/media3_ib_subtitle"
-                android:layout_width="48dp"
+                style="?toolbarNavigationButtonStyle"
+                android:layout_width="40dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_select_subtitles"
                 android:scaleType="centerInside"
+                android:tooltipText="@string/media3_select_subtitles"
                 app:srcCompat="@drawable/ic_media3_contra_button_subtitle"
-                app:tint="@color/color_media3_player_button_tint" />
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
 
             <ImageButton
                 android:id="@+id/media3_ib_audio_track"
-                android:layout_width="48dp"
+                style="?toolbarNavigationButtonStyle"
+                android:layout_width="40dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_select_audio_track"
                 android:scaleType="centerInside"
+                android:tooltipText="@string/media3_select_audio_track"
                 app:srcCompat="@drawable/ic_media3_contra_button_audio_track_24"
-                app:tint="@color/color_media3_player_button_tint" />
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
+
+            <ImageButton
+                android:id="@+id/media3_ib_play_speed"
+                style="?toolbarNavigationButtonStyle"
+                android:layout_width="40dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/media3_select_play_speed"
+                android:scaleType="centerInside"
+                android:tooltipText="@string/media3_select_play_speed"
+                app:srcCompat="@drawable/ic_media3_play_speed_24"
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
 
             <ImageButton
                 android:id="@+id/media3_ib_ratio"
-                android:layout_width="48dp"
+                style="?toolbarNavigationButtonStyle"
+                android:layout_width="40dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_select_scale_mode"
                 android:rotation="-45"
                 android:scaleType="centerInside"
+                android:tooltipText="@string/media3_select_scale_mode"
                 app:srcCompat="@drawable/ic_media3_contra_button_ratio_24"
-                app:tint="@color/color_media3_player_button_tint" />
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
 
             <ImageButton
                 android:id="@+id/media3_ib_rotation"
+                style="?toolbarNavigationButtonStyle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?selectableItemBackgroundBorderless"
                 android:contentDescription="@string/media3_screen_rotation"
                 android:scaleType="centerInside"
+                android:tooltipText="@string/media3_screen_rotation"
                 app:srcCompat="@drawable/ic_media3_contra_button_rotation_24"
-                app:tint="@color/color_media3_player_button_tint" />
+                app:tint="@color/color_media3_player_button_tint"
+                tools:targetApi="o" />
         </LinearLayout>
 
         <Space

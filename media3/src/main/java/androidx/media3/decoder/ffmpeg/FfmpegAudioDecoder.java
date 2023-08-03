@@ -155,23 +155,17 @@ final class FfmpegAudioDecoder
     nativeContext = 0;
   }
 
-  /**
-   * Returns the channel count of output audio.
-   */
+  /** Returns the channel count of output audio. */
   public int getChannelCount() {
     return channelCount;
   }
 
-  /**
-   * Returns the sample rate of output audio.
-   */
+  /** Returns the sample rate of output audio. */
   public int getSampleRate() {
     return sampleRate;
   }
 
-  /**
-   * Returns the encoding of output audio.
-   */
+  /** Returns the encoding of output audio. */
   public @C.PcmEncoding int getEncoding() {
     return encoding;
   }

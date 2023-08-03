@@ -75,7 +75,6 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private lateinit var surfaceView: View
 
     private val mediaSourceHelper by lazy { Media3SourceHelper.getInstance(context) }
-    private var speedPlaybackParameters: PlaybackParameters? = null
 
     private var currentPlayState = Media3PlayState.STATE_IDLE
     internal val internalPlayer: ExoPlayer by lazy {
@@ -99,25 +98,24 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private var onBackPressedListener: (() -> Unit)? = null
     private var onRequestScreenOrientationListener: ((isFullScreen: Boolean) -> Unit)? = null
 
-    private fun getUserCaptionStyle(): CaptionStyleCompat {
-        return CaptionStyleCompat(
-            Color.WHITE,
-            Color.TRANSPARENT,
-            Color.TRANSPARENT,
-            CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW,
-            Color.DKGRAY,
-            Typeface.DEFAULT
-        )
-    }
-
     init {
         LayoutInflater.from(context).inflate(R.layout.media3_player_view, this)
         if (isInEditMode.not()) {
             bindViews()
             initPlayListener()
             subtitleView.setUserDefaultTextSize()
-            subtitleView.setStyle(getUserCaptionStyle())
+            subtitleView.setStyle(
+                CaptionStyleCompat(
+                    Color.WHITE,
+                    Color.TRANSPARENT,
+                    Color.TRANSPARENT,
+                    CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW,
+                    Color.BLACK,
+                    Typeface.DEFAULT
+                )
+            )
 
+            ratioContentFrame.alpha = 0f //避免首屏闪烁
             ratioContentFrame.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
             ratioContentFrame.addView(
                 surfaceView, 0, LayoutParams(
@@ -126,7 +124,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 )
             )
 
-            internalPlayer.addAnalyticsListener(EventLogger("ExoPlayer"))
+            internalPlayer.addAnalyticsListener(EventLogger("Media3Player"))
             internalPlayer.setVideoSurfaceView(surfaceView as SurfaceView)
             internalPlayer.setWakeMode(C.WAKE_MODE_LOCAL)
             internalPlayer.addListener(playerListener)
@@ -178,11 +176,6 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 //相当于暂停继续
                 surfaceView.keepScreenOn = isPlaying
                 if (isPlaying) {
-                    val videoSize = internalPlayer.videoSize
-                    ratioContentFrame.setAspectRatio(
-                        videoSize.width * videoSize.pixelWidthHeightRatio / videoSize.height
-                    )
-
                     startHideControlViewJob()
                     currentPlayState = Media3PlayState.STATE_PLAYING
                     onPlayStateListeners.forEach {
@@ -209,6 +202,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
             override fun onVideoSizeChanged(videoSize: VideoSize) {
                 super.onVideoSizeChanged(videoSize)
                 if (videoSize.width > 0 && videoSize.height > 0) {
+                    ratioContentFrame.animate().alpha(1f).duration = 200
                     ratioContentFrame.setAspectRatio(
                         videoSize.width * videoSize.pixelWidthHeightRatio / videoSize.height
                     )
@@ -383,13 +377,11 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     }
 
     fun setSpeed(speed: Float) {
-        internalPlayer.playbackParameters = PlaybackParameters(speed).also {
-            speedPlaybackParameters = it
-        }
+        internalPlayer.playbackParameters = PlaybackParameters(speed)
     }
 
     fun getSpeed(): Float {
-        return speedPlaybackParameters?.speed ?: 1f
+        return internalPlayer.playbackParameters.speed
     }
 
     fun release() {
