@@ -178,13 +178,11 @@
                 tools:text="蝙蝠侠大战超人.正义黎明.Batman.v.Superman.Dawn.of.Justice.2016.EXTENDED.BD1080P.X264.AC3.Mandarin.English.CHS-ENG.Adans"
                 tools:visibility="visible" />
 
-            <TextView
+            <com.jason.cloud.media3.widget.MarqueeTextView
                 android:id="@+id/media3_tv_bottom_subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:ellipsize="end"
-                android:maxLines="3"
                 android:shadowColor="#000000"
                 android:shadowDx="0"
                 android:shadowDy="0"
@@ -211,7 +209,8 @@
                 android:id="@+id/media3_tv_video_position"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="48dp"
+                android:minWidth="50dp"
+                android:paddingStart="0dp"
                 android:paddingEnd="5dp"
                 android:shadowColor="#000000"
                 android:shadowDx="0"
@@ -235,15 +234,17 @@
                 android:paddingEnd="0dp"
                 android:progressDrawable="@drawable/layer_media3_player_video_seekbar"
                 android:thumb="@drawable/shape_media3_player_video_seek_thumb"
-                android:thumbOffset="0dp" />
+                android:thumbOffset="0dp"
+                tools:secondaryProgress="500" />
 
             <TextView
                 android:id="@+id/media3_tv_video_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="end|center_vertical"
-                android:minWidth="48dp"
+                android:minWidth="50dp"
                 android:paddingStart="5dp"
+                android:paddingEnd="0dp"
                 android:shadowColor="#000000"
                 android:shadowDx="0"
                 android:shadowDy="0"
@@ -354,7 +355,6 @@
                 android:layout_width="40dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/media3_select_scale_mode"
-                android:rotation="-45"
                 android:scaleType="centerInside"
                 android:tooltipText="@string/media3_select_scale_mode"
                 app:srcCompat="@drawable/ic_media3_contra_button_ratio_24"

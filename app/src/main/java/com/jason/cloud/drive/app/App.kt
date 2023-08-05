@@ -29,7 +29,7 @@ class App : Application() {
         initNet()
 
         Configure.port = 8820
-        Configure.host = "192.168.0.4"
+        Configure.host = "192.168.0.5"
 
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
             SrlRefreshHeader(context)

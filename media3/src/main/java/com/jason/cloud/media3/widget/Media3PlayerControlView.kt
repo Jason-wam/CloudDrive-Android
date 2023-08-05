@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,18 +22,15 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.util.Util
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.DefaultTrackNameProvider
 import com.jason.cloud.media3.R
 import com.jason.cloud.media3.dialog.TrackSelectDialog
-import com.jason.cloud.media3.model.AudioTrack
-import com.jason.cloud.media3.model.Media3VideoItem
-import com.jason.cloud.media3.model.SubtitleTrack
+import com.jason.cloud.media3.model.Media3Item
+import com.jason.cloud.media3.model.Media3Track
 import com.jason.cloud.media3.model.TrackSelectEntity
-import com.jason.cloud.media3.utils.Media3PlayerUtils
-import com.jason.cloud.media3.utils.Media3VideoScaleModel
+import com.jason.cloud.media3.utils.CutoutUtil
+import com.jason.cloud.media3.utils.Media3VideoScaleMode
+import com.jason.cloud.media3.utils.PlayerUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -125,7 +123,11 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
             }
             batteryReceiver = BatteryReceiver(ivBattery, tvBattery)
             ibBackspace.setOnClickListener {
-                onBackPressedListener?.invoke()
+                if (playerView?.isInFullscreen == true) {
+                    toggleFullScreen()
+                } else {
+                    onBackPressedListener?.invoke()
+                }
             }
             ibList.setOnClickListener {
                 showEpisodeSelector()
@@ -194,11 +196,7 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 playerView?.isInFullscreen = false
                 titleBar.visibility = View.INVISIBLE
                 bottomTitle.visibility = View.VISIBLE
-                statusView.layoutParams.height =
-                    Media3PlayerUtils.getStatusBarHeight(context).toInt()
                 tvVideoSize.isVisible = false
-                titleBar.setPadding(0, 0, 0, 0)
-                bottomBar.setPadding(0, 0, 0, 0)
             }
         } else {
             ibRotation.isEnabled = false
@@ -207,17 +205,42 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 playerView?.startFullScreen()
                 titleBar.visibility = View.VISIBLE
                 bottomTitle.visibility = View.GONE
-                statusView.layoutParams.height = 0
                 playerView?.internalPlayer?.videoSize?.let { size ->
                     tvVideoSize.text = "${size.width} × ${size.height}"
                     tvVideoSize.isVisible = true
                 }
-                titleBar.setPadding(
-                    Media3PlayerUtils.getStatusBarHeight(context).toInt(), 0, 0, 0
-                )
-                bottomBar.setPadding(
-                    Media3PlayerUtils.getStatusBarHeight(context).toInt(), 0, 0, 0
-                )
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        PlayerUtils.scanForActivity(context)?.let { activity ->
+            Log.i(
+                "onConfigurationChanged",
+                "orientation = ${activity.requestedOrientation}"
+            )
+            val statusHeight: Int = PlayerUtils.getStatusBarHeightPortrait(context).toInt()
+            if (CutoutUtil.hasCutout(activity).not()) { //没有刘海的情况下
+                if (playerView?.isInFullscreen == true) { //非全屏情况下
+                    titleBar.setPadding(0, 0, 0, 0)
+                    bottomBar.setPadding(0, 0, 0, 0)
+                    statusView.layoutParams.height = 0
+                } else {
+                    titleBar.setPadding(0, 0, 0, 0)
+                    bottomBar.setPadding(0, 0, 0, 0)
+                    statusView.layoutParams.height = statusHeight
+                }
+            } else { //有刘海
+                if (playerView?.isInFullscreen == true) { //非全屏情况下
+                    titleBar.setPadding(statusHeight, 0, 0, 0)
+                    bottomBar.setPadding(statusHeight, 0, 0, 0)
+                    statusView.layoutParams.height = 0
+                } else {
+                    titleBar.setPadding(0, 0, 0, 0)
+                    bottomBar.setPadding(0, 0, 0, 0)
+                    statusView.layoutParams.height = statusHeight
+                }
             }
         }
     }
@@ -309,7 +332,10 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         super.onMediaItemTransition(mediaItem, reason)
-        Log.e("Media3PlayerControlView", "onMediaItemTransition: $mediaItem")
+        val tag = mediaItem?.localConfiguration?.tag
+        if (tag is Media3Item) {
+            Log.e("Media3PlayerControlView", "onMediaItemTransition: ${tag.title}")
+        }
         updateNextButtonAction()
     }
 
@@ -322,7 +348,11 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
         super.onIsPlayingChanged(isPlaying)
         ibPlay.isSelected = isPlaying
         ibPlay.setOnClickListener {
-            playerView?.internalPlayer?.playWhenReady = !isPlaying
+            if (isPlaying) {
+                playerView?.pause()
+            } else {
+                playerView?.start()
+            }
         }
 
         var isDragging = false
@@ -352,11 +382,15 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                         }
 
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
-                            var newPosition = duration * seekBar.progress / seekBar.max
-                            if (newPosition == duration) {
-                                newPosition = duration - 1
+                            if (seekBar.progress == seekBar.max) {
+                                seekTo(duration - 1)
+                            } else {
+                                var newPosition = duration * seekBar.progress / seekBar.max
+                                if (newPosition == duration) {
+                                    newPosition = duration - 1
+                                }
+                                seekTo(newPosition)
                             }
-                            seekTo(newPosition)
                             isDragging = false
                         }
                     })
@@ -364,16 +398,19 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
 
                 videoPositionJob?.cancel()
                 videoPositionJob = scope.launch {
-                    var progress: Int
+                    var progress: Float
+                    var bufferedProgress: Float
                     while (isActive) {
                         delay(500)
                         if (isDragging) {
                             continue
                         }
-                        progress = (currentPosition / duration.toFloat() * 100).toInt()
+                        progress = currentPosition / duration.toFloat() * 100
+                        bufferedProgress = contentBufferedPosition / contentDuration.toFloat() * 100
+                        Log.e("ControlView", "bufferedProgress = $bufferedProgress")
                         videoSeekBar.max = 100
-                        videoSeekBar.progress = progress
-                        videoSeekBar.secondaryProgress = bufferedPercentage
+                        videoSeekBar.progress = progress.toInt()
+                        videoSeekBar.secondaryProgress = bufferedProgress.toInt()
                         tvVideoPosition.text = Util.getStringForTime(
                             formatBuilder, formatter, currentPosition
                         )
@@ -397,14 +434,14 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 ibNext.alpha = 1.0f
                 ibNext.isEnabled = true
                 ibNext.setOnClickListener {
-                    player.seekToNextMediaItem()
-                    player.prepare()
-                    player.playWhenReady = true
+                    playerView?.seekToNext()
+                    playerView?.prepare()
+                    playerView?.start()
                 }
             }
 
             val tag = player.currentMediaItem?.localConfiguration?.tag
-            if (tag is Media3VideoItem) {
+            if (tag is Media3Item) {
                 tvBottomTitle.text = tag.title
                 tvBottomTitle.isVisible = tag.title.isNotBlank()
                 tvBottomSubtitle.text = tag.subtitle
@@ -419,135 +456,8 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
         playerView?.internalPlayer?.let {
             when (playbackState) {
                 Player.STATE_READY -> {
-                    ibSubtitle.isVisible = getSubtitlesList().isNotEmpty()
-                    ibAudioTrack.isVisible = getAudioTracks().isNotEmpty()
-                }
-
-                Player.STATE_ENDED -> {}
-
-                Player.STATE_IDLE -> {
-
-                }
-
-                Player.STATE_BUFFERING -> {
-
-                }
-            }
-        }
-    }
-
-    fun getAudioTracks(): List<AudioTrack> {
-        return ArrayList<AudioTrack>().apply {
-            playerView?.internalPlayer?.let { player ->
-                val trackNameProvider = DefaultTrackNameProvider(resources)
-                player.currentTracks.groups.filter {
-                    it.type == C.TRACK_TYPE_AUDIO
-                }.forEach { group ->
-                    if (group.type == C.TRACK_TYPE_AUDIO) {
-                        for (i in 0 until group.mediaTrackGroup.length) {
-                            val format = group.getTrackFormat(i)
-                            if (format.id != null) {
-                                Log.i(
-                                    "ControlView",
-                                    "audioTrack: ${format.label} >> ${group.isSelected}"
-                                )
-                                if (format.label == null) {
-                                    add(
-                                        AudioTrack(
-                                            format.id!!,
-                                            trackNameProvider.getTrackName(format),
-                                            group.isSelected
-                                        )
-                                    )
-                                } else {
-                                    add(
-                                        AudioTrack(
-                                            format.id!!,
-                                            trackNameProvider.getTrackName(format) + "(${format.label})",
-                                            group.isSelected
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun selectAudioTrack(track: AudioTrack) {
-        playerView?.internalPlayer?.let { player ->
-            Log.i("TrackSelector", "selectAudioTrack > ${track.name}")
-            player.currentTracks.groups.filter {
-                it.type == C.TRACK_TYPE_AUDIO
-            }.forEach { group ->
-                for (i in 0 until group.mediaTrackGroup.length) {
-                    val id = group.getTrackFormat(i).id
-                    if (id == track.id) {
-                        val parameters = player.trackSelectionParameters
-                        val selection = TrackSelectionOverride(group.mediaTrackGroup, 0)
-                        player.trackSelectionParameters =
-                            parameters.buildUpon().setOverrideForType(selection).build()
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-    fun getSubtitlesList(): List<SubtitleTrack> {
-        return ArrayList<SubtitleTrack>().apply {
-            playerView?.internalPlayer?.let { player ->
-                val trackNameProvider = DefaultTrackNameProvider(resources)
-                player.currentTracks.groups.filter {
-                    it.type == C.TRACK_TYPE_TEXT
-                }.forEach { group ->
-                    for (i in 0 until group.mediaTrackGroup.length) {
-                        val format = group.getTrackFormat(i)
-                        if (format.id != null) {
-                            Log.i(
-                                "ControlView", "subtitle: ${format.label} >> ${group.isSelected}"
-                            )
-                            if (format.label == null) {
-                                add(
-                                    SubtitleTrack(
-                                        format.id!!,
-                                        trackNameProvider.getTrackName(format),
-                                        group.isSelected
-                                    )
-                                )
-                            } else {
-                                add(
-                                    SubtitleTrack(
-                                        format.id!!,
-                                        trackNameProvider.getTrackName(format) + "(${format.label})",
-                                        group.isSelected
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun selectSubtitle(track: SubtitleTrack) {
-        playerView?.internalPlayer?.let { player ->
-            Log.i("TrackSelector", "selectSubtitle > ${track.name}")
-            player.currentTracks.groups.filter {
-                it.type == C.TRACK_TYPE_TEXT
-            }.forEach { group ->
-                for (i in 0 until group.mediaTrackGroup.length) {
-                    val id = group.getTrackFormat(i).id
-                    if (id == track.id) {
-                        val parameters = player.trackSelectionParameters
-                        val selection = TrackSelectionOverride(group.mediaTrackGroup, 0)
-                        player.trackSelectionParameters =
-                            parameters.buildUpon().setOverrideForType(selection).build()
-                        break
-                    }
+                    ibSubtitle.isVisible = it.getTrackList(context, C.TRACK_TYPE_TEXT).isNotEmpty()
+                    ibAudioTrack.isVisible = it.getTrackList(context, C.TRACK_TYPE_AUDIO).size > 1
                 }
             }
         }
@@ -555,18 +465,18 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
 
     private fun showSubtitleSelector() {
         playerView?.internalPlayer?.let { player ->
-            val subtitles = getSubtitlesList()
-            val selectedPosition = subtitles.indexOfFirst { it.isSelected }
+            val subtitles = player.getTrackList(context, C.TRACK_TYPE_TEXT)
+            val selectedPosition = subtitles.indexOfFirst { it.selected }
             val list = subtitles.map { TrackSelectEntity(it, it.name) }
             TrackSelectDialog(context).apply {
                 setTitle("字幕选择")
-                setOnShowListener { player.playWhenReady = false }
-                setOnDismissListener { player.playWhenReady = true }
+                setOnShowListener { playerView?.pause() }
+                setOnDismissListener { playerView?.start() }
                 setSelectedPosition(selectedPosition)
                 setSelectionData(list)
                 onNegative("取消")
                 onPositive("确定") {
-                    selectSubtitle(it.tag as SubtitleTrack)
+                    player.selectTrack(it.tag as Media3Track)
                 }
                 show()
             }
@@ -575,18 +485,18 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
 
     private fun showAudioTrackSelector() {
         playerView?.internalPlayer?.let { player ->
-            val audioTracks = getAudioTracks()
-            val selectedPosition = audioTracks.indexOfFirst { it.isSelected }
+            val audioTracks = player.getTrackList(context, C.TRACK_TYPE_AUDIO)
+            val selectedPosition = audioTracks.indexOfFirst { it.selected }
             val list = audioTracks.map { TrackSelectEntity(it, it.name) }
             TrackSelectDialog(context).apply {
                 setTitle("音轨选择")
-                setOnShowListener { player.playWhenReady = false }
-                setOnDismissListener { player.playWhenReady = true }
+                setOnShowListener { playerView?.pause() }
+                setOnDismissListener { playerView?.start() }
                 setSelectedPosition(selectedPosition)
                 setSelectionData(list)
                 onNegative("取消")
                 onPositive("确定") {
-                    selectAudioTrack(it.tag as AudioTrack)
+                    player.selectTrack(it.tag as Media3Track)
                 }
                 show()
             }
@@ -605,7 +515,6 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 add(TrackSelectEntity(3.0f, "3.0x"))
                 add(TrackSelectEntity(4.0f, "4.0x"))
                 add(TrackSelectEntity(8.0f, "8.0x"))
-                add(TrackSelectEntity(16.0f, "16.0x"))
             }
 
             val selectedPosition = list.indexOfFirst {
@@ -614,8 +523,8 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
 
             TrackSelectDialog(context).apply {
                 setTitle("倍速播放")
-                setOnShowListener { player.pause() }
-                setOnDismissListener { player.playWhenReady = true }
+                setOnShowListener { playerView?.pause() }
+                setOnDismissListener { playerView?.start() }
                 setSelectedPosition(selectedPosition)
                 setSelectionData(list)
                 onNegative("取消")
@@ -630,25 +539,26 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
     private fun showRatioSelector() {
         playerView?.let { view ->
             val list = ArrayList<TrackSelectEntity>().apply {
-                add(TrackSelectEntity(Media3VideoScaleModel.FIT, "自适应"))
-                add(TrackSelectEntity(Media3VideoScaleModel.ZOOM, "居中裁剪"))
-                add(TrackSelectEntity(Media3VideoScaleModel.FILL, "填充屏幕"))
-                add(TrackSelectEntity(Media3VideoScaleModel.FIXED_WIDTH, "宽度自适应"))
-                add(TrackSelectEntity(Media3VideoScaleModel.FIXED_HEIGHT, "高度自适应"))
+                add(TrackSelectEntity(Media3VideoScaleMode.FIT, "自适应"))
+                add(TrackSelectEntity(Media3VideoScaleMode.ZOOM, "居中裁剪"))
+                add(TrackSelectEntity(Media3VideoScaleMode.FILL, "填充屏幕"))
+                add(TrackSelectEntity(Media3VideoScaleMode.FIXED_WIDTH, "宽度自适应"))
+                add(TrackSelectEntity(Media3VideoScaleMode.FIXED_HEIGHT, "高度自适应"))
             }
+
             val selectedPosition = list.indexOfFirst {
-                it.tag == view.getScaleModel()
+                it.tag == view.getScaleMode()
             }
 
             TrackSelectDialog(context).apply {
                 setTitle("画面缩放")
-                setOnShowListener { view.internalPlayer.playWhenReady = false }
-                setOnDismissListener { view.internalPlayer.playWhenReady = true }
+                setOnShowListener { view.pause() }
+                setOnDismissListener { view.start() }
                 setSelectedPosition(selectedPosition)
                 setSelectionData(list)
                 onNegative("取消")
                 onPositive("确定") {
-                    view.setScaleModel(it.tag as Media3VideoScaleModel)
+                    view.setScaleMode(it.tag as Media3VideoScaleMode)
                 }
                 show()
             }
@@ -661,7 +571,7 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
             val list = ArrayList<TrackSelectEntity>().apply {
                 for (i in 0 until player.mediaItemCount) {
                     val tag = player.getMediaItemAt(i).localConfiguration?.tag
-                    if (tag is Media3VideoItem) {
+                    if (tag is Media3Item) {
                         val name = if (tag.subtitle.isBlank()) tag.title else {
                             tag.title + " / " + tag.subtitle
                         }
@@ -675,23 +585,18 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
 
             TrackSelectDialog(context).apply {
                 setTitle("选择剧集")
-                setOnShowListener { player.playWhenReady = false }
-                setOnDismissListener { player.playWhenReady = true }
+                setOnShowListener { playerView!!.pause() }
+                setOnDismissListener { playerView!!.start() }
                 setSelectedPosition(selectedPosition)
                 setSelectionData(list)
                 onNegative("取消")
                 onPositive("确定") {
-                    player.seekTo(it.tag as Int, 0)
-                    player.prepare()
-                    player.playWhenReady = true
+                    playerView?.seekToItem(it.tag as Int, 0)
+                    playerView?.prepare()
+                    playerView?.start()
                 }
                 show()
             }
         }
-    }
-
-    private fun ExoPlayer.getCurrentMedia3Item(): Media3VideoItem? {
-        val tag = currentMediaItem?.localConfiguration?.tag ?: return null
-        return tag as Media3VideoItem
     }
 }

@@ -2,7 +2,7 @@ package com.jason.cloud.media3.model
 
 import java.io.Serializable
 
-open class Media3VideoItem : Serializable {
+open class Media3Item : Serializable {
     var url: String = ""
     var title: String = ""
     var image: String = ""
@@ -11,8 +11,8 @@ open class Media3VideoItem : Serializable {
     var headers: Map<String, String> = mapOf()
 
     companion object {
-        fun create(title: String, url: String, cache: Boolean = false): Media3VideoItem {
-            return Media3VideoItem().apply {
+        fun create(title: String, url: String, cache: Boolean = false): Media3Item {
+            return Media3Item().apply {
                 this.title = title
                 this.url = url
                 this.cacheEnabled = cache
@@ -24,8 +24,8 @@ open class Media3VideoItem : Serializable {
             subtitle: String,
             url: String,
             cache: Boolean = false
-        ): Media3VideoItem {
-            return Media3VideoItem().apply {
+        ): Media3Item {
+            return Media3Item().apply {
                 this.title = title
                 this.subtitle = subtitle
                 this.url = url

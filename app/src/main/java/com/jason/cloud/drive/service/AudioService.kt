@@ -24,14 +24,16 @@ import com.bumptech.glide.Glide
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
-import com.jason.cloud.drive.utils.VideoDataController
+import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.dp
 import com.jason.cloud.extension.squared
 import com.jason.cloud.extension.toast
+import com.jason.cloud.media3.interfaces.OnMediaItemTransitionListener
+import com.jason.cloud.media3.interfaces.OnPlayCompleteListener
 import com.jason.cloud.media3.interfaces.OnStateChangeListener
-import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.model.Media3Item
 import com.jason.cloud.media3.utils.Media3PlayState
-import com.jason.cloud.media3.utils.Media3PlayerUtils
+import com.jason.cloud.media3.utils.PlayerUtils
 import com.jason.cloud.media3.widget.Media3AudioPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +51,7 @@ class AudioService : Service(), OnStateChangeListener {
     private val channelId = "audio_service"
     private val notificationId: Int = 20003
     private val channel by lazy {
-        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(name).build()
     }
 
@@ -63,11 +65,11 @@ class AudioService : Service(), OnStateChangeListener {
         private const val MEDIA_STYLE_ACTION_PREVIOUS = "MEDIA_STYLE_ACTION_PREVIOUS"
         private const val MEDIA_STYLE_ACTION_NEXT = "MEDIA_STYLE_ACTION_NEXT"
         private const val MEDIA_STYLE_ACTION_STOP = "MEDIA_STYLE_ACTION_STOP"
-        private val tempList = ArrayList<Media3VideoItem>()
+        private val tempList = ArrayList<Media3Item>()
 
         fun launchWith(
             context: Context,
-            list: List<Media3VideoItem>,
+            list: List<Media3Item>,
             position: Int = 0,
             block: Intent.() -> Unit
         ) {
@@ -86,14 +88,28 @@ class AudioService : Service(), OnStateChangeListener {
                 }
             }
 
-            XXPermissions.with(context).permission(Permission.NOTIFICATION_SERVICE)
-                .request { _, allGranted ->
-                    if (allGranted.not()) {
-                        context.toast("请先赋予通知权限")
-                    } else {
-                        start()
+            fun continueRun() {
+                XXPermissions.with(context).permission(Permission.POST_NOTIFICATIONS)
+                    .request { _, allGranted ->
+                        if (allGranted) {
+                            start()
+                        } else {
+                            context.toast("请赋予软件通知权限！")
+                        }
                     }
-                }
+            }
+
+            val isGranted = XXPermissions.isGranted(context, Permission.POST_NOTIFICATIONS)
+            if (isGranted) {
+                start()
+            } else {
+                TextDialog(context)
+                    .setTitle("权限提醒")
+                    .setText("播放媒体文件需要获取通知权限，请赋予相关权限后继续执行取回！")
+                    .onNegative("取消")
+                    .onPositive("继续执行", ::continueRun)
+                    .show()
+            }
         }
 
         fun stopService(context: Context?) {
@@ -135,7 +151,7 @@ class AudioService : Service(), OnStateChangeListener {
                 progressJob = scope.launch {
                     while (isActive && audioPlayer.isPlaying()) {
                         notificationBuilder.setSubText(
-                            Media3PlayerUtils.stringForTime(
+                            PlayerUtils.stringForTime(
                                 audioPlayer.getDuration() - audioPlayer.getCurrentPosition()
                             )
                         )
@@ -154,7 +170,17 @@ class AudioService : Service(), OnStateChangeListener {
         super.onCreate()
         audioPlayer = Media3AudioPlayer(this)
         audioPlayer.addOnStateChangeListener(this)
-        VideoDataController.with("AudioService").attachPlayer(audioPlayer)
+        audioPlayer.addOnMediaItemTransitionListener(object : OnMediaItemTransitionListener {
+            override fun onTransition(index: Int, item: Media3Item) {
+                loadMediaInfo(item)
+            }
+        })
+        audioPlayer.addOnPlayCompleteListener(object : OnPlayCompleteListener {
+            override fun onCompletion() {
+                audioPlayer.release()
+                stopSelf()
+            }
+        })
 
         notificationManager = NotificationManagerCompat.from(this)
         notificationBuilder = NotificationCompat.Builder(this, channelId)
@@ -180,21 +206,6 @@ class AudioService : Service(), OnStateChangeListener {
         )
         notificationBuilder.setOngoing(true)
         startForeground(notificationId, notificationBuilder.build())
-
-        VideoDataController.with("AudioService")
-            .addOnCompleteListener(object : VideoDataController.OnCompleteListener {
-                override fun onCompletion() {
-                    audioPlayer.release()
-                    stopSelf()
-                }
-            })
-
-        VideoDataController.with("AudioService")
-            .addOnPlayListener(object : VideoDataController.OnPlayListener {
-                override fun onPlay(position: Int, videoData: Media3VideoItem) {
-                    loadMediaInfo(videoData)
-                }
-            })
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -210,20 +221,21 @@ class AudioService : Service(), OnStateChangeListener {
 
             else -> {
                 val list = ArrayList(tempList)
-                tempList.clear()
-                VideoDataController.with("AudioService").setData(list)
-                VideoDataController.with("AudioService").start(
-                    intent.getIntExtra(
-                        "position", 0
-                    )
+                val position = intent.getIntExtra(
+                    "position", 0
                 )
+                tempList.clear()
+                audioPlayer.setDataSource(list)
+                audioPlayer.prepare()
+                audioPlayer.seekToDefaultPosition(position)
+                audioPlayer.start()
             }
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
     @SuppressLint("SetTextI18n")
-    private fun loadMediaInfo(file: Media3VideoItem) = scope.launch(Dispatchers.IO) {
+    private fun loadMediaInfo(file: Media3Item) = scope.launch(Dispatchers.IO) {
         try {
             val bitmap = withContext(Dispatchers.IO) {
                 Glide.with(this@AudioService).asBitmap().load(file.image).override(300.dp)
@@ -335,16 +347,20 @@ class AudioService : Service(), OnStateChangeListener {
     }
 
     private fun previous() {
-        if (VideoDataController.with("AudioService").hasPrevious()) {
-            VideoDataController.with("AudioService").previous()
+        if (audioPlayer.hasPreviousMediaItem()) {
+            audioPlayer.seekToPrevious()
+            audioPlayer.prepare()
+            audioPlayer.start()
         } else {
             toast("已经是第一个啦")
         }
     }
 
     private fun next() {
-        if (VideoDataController.with("AudioService").hasNext()) {
-            VideoDataController.with("AudioService").next()
+        if (audioPlayer.hasNextMediaItem()) {
+            audioPlayer.seekToNext()
+            audioPlayer.prepare()
+            audioPlayer.start()
         } else {
             toast("已经是最后一个啦")
         }
@@ -387,7 +403,6 @@ class AudioService : Service(), OnStateChangeListener {
     override fun onDestroy() {
         super.onDestroy()
         audioPlayer.release()
-        VideoDataController.with("AudioService").release()
     }
 
 }

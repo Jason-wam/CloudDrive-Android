@@ -30,7 +30,10 @@ import com.jason.cloud.extension.toast
 import com.jason.cloud.utils.MMKVStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,7 +45,7 @@ class BackupService : Service() {
     private val channelId = "backup_service"
     private val notificationId: Int = 20002
     private val channel by lazy {
-        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(name).build()
     }
 
@@ -137,7 +140,7 @@ class BackupService : Service() {
             withContext(Dispatchers.Main) {
                 notificationBuilder.setContentText("正在备份文件 ...")
                 notificationBuilder.setProgress(files.size, 0, false)
-                update()
+                updateNow()
             }
             startBackupQueue(files)
         }
@@ -145,8 +148,7 @@ class BackupService : Service() {
 
     private fun startBackupQueue(list: List<Pair<MediaEntity, String>>) {
         var count = 0
-        val queue = TaskQueue<BackupTask>().apply {
-            threadSize(3)
+        val queue = TaskQueue<BackupTask>().apply { //threadSize(3)
             list.distinctBy {
                 it.second
             }.also {
@@ -158,17 +160,36 @@ class BackupService : Service() {
                 }
             }
         }
-        queue.onTaskDone {
+        queue.onTaskStart {
             count += 1
-            notificationBuilder.setContentText("正在备份文件: $count/${list.size} ..")
+            notificationBuilder.setSubText("$count/${list.size}")
+            notificationBuilder.setContentText("正在备份文件: ${it.fileName} ..")
             notificationBuilder.setProgress(list.size, count, false)
             update()
+            startTaskObserve(it)
         }
         queue.onTaskListDone {
             toast("文件备份完毕！")
             stopSelf()
         }
         queue.start()
+    }
+
+    private var taskObserveJob: Job? = null
+    private fun startTaskObserve(task: BackupTask) {
+        taskObserveJob?.cancel()
+        taskObserveJob = scope.launch {
+            while (isActive && task.isRunning()) {
+                delay(1000)
+                if (task.status == BackupTask.Status.CONNECTING) {
+                    notificationBuilder.setProgress(100, 0, true)
+                    update()
+                } else {
+                    notificationBuilder.setProgress(100, task.progress, false)
+                    update()
+                }
+            }
+        }
     }
 
     private suspend fun <T> T.listFiles(block: suspend T.(Int) -> Unit) =
@@ -211,14 +232,22 @@ class BackupService : Service() {
     }
 
     private var lastUpdate = 0L
-    private fun update(important: Boolean = false) {
-        val hasPermission =
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
-                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                )
-            }
+
+    private fun update() {
+        if (System.currentTimeMillis() - lastUpdate > 100) {
+            lastUpdate = System.currentTimeMillis()
+            updateNow()
+        }
+    }
+
+    private fun updateNow() {
+        lastUpdate = System.currentTimeMillis()
+        val hasPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
+            PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
         if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }

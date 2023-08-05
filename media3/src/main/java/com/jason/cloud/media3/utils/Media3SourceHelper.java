@@ -3,7 +3,9 @@ package com.jason.cloud.media3.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
@@ -11,26 +13,30 @@ import androidx.media3.common.util.Util;
 import androidx.media3.database.StandaloneDatabaseProvider;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.datasource.cache.Cache;
 import androidx.media3.datasource.cache.CacheDataSource;
 import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor;
 import androidx.media3.datasource.cache.SimpleCache;
+import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.datasource.rtmp.RtmpDataSource;
 import androidx.media3.exoplayer.dash.DashMediaSource;
 import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.exoplayer.rtsp.RtspMediaSource;
+import androidx.media3.exoplayer.source.ConcatenatingMediaSource;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
-import com.jason.cloud.media3.model.Media3VideoItem;
+import com.jason.cloud.media3.model.Media3Item;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 @UnstableApi
 public final class Media3SourceHelper {
@@ -98,40 +104,41 @@ public final class Media3SourceHelper {
         }
     }
 
-    public MediaSource getMediaSource(Media3VideoItem item) {
+    public MediaSource getMediaSource(Media3Item item) {
         return getMediaSource(item, null, item.getCacheEnabled());
     }
 
-    public MediaSource getMediaSource(Media3VideoItem item, boolean isCache) {
+    public MediaSource getMediaSource(Media3Item item, boolean isCache) {
         return getMediaSource(item, item.getHeaders(), isCache);
     }
 
-    public List<MediaSource> getMediaSource(List<Media3VideoItem> itemList) {
-        ArrayList<MediaSource> sourceList = new ArrayList<>();
+    public ConcatenatingMediaSource getMediaSource(List<Media3Item> itemList) {
+        ConcatenatingMediaSource source = new ConcatenatingMediaSource();
         for (int i = 0; i < itemList.size(); i++) {
-            Media3VideoItem item = itemList.get(i);
-            sourceList.add(getMediaSource(item, item.getHeaders(), item.getCacheEnabled()));
+            Media3Item item = itemList.get(i);
+            source.addMediaSource(getMediaSource(item, item.getHeaders(), item.getCacheEnabled()));
         }
-        return sourceList;
+        return source;
     }
 
-    public List<MediaSource> getMediaSource(List<Media3VideoItem> itemList, Map<String, String> headers, boolean isCache) {
-        ArrayList<MediaSource> sourceList = new ArrayList<>();
+    public ConcatenatingMediaSource getMediaSource(List<Media3Item> itemList, Map<String, String> headers, boolean isCache) {
+        ConcatenatingMediaSource source = new ConcatenatingMediaSource();
         for (int i = 0; i < itemList.size(); i++) {
-            sourceList.add(getMediaSource(itemList.get(i), headers, isCache));
+            Media3Item item = itemList.get(i);
+            source.addMediaSource(getMediaSource(item, headers, isCache));
         }
-        return sourceList;
+        return source;
     }
 
-    public List<MediaSource> getMediaSource(List<Media3VideoItem> itemList, boolean isCache) {
-        ArrayList<MediaSource> sourceList = new ArrayList<>();
+    public ConcatenatingMediaSource getMediaSource(List<Media3Item> itemList, boolean isCache) {
+        ConcatenatingMediaSource source = new ConcatenatingMediaSource();
         for (int i = 0; i < itemList.size(); i++) {
-            sourceList.add(getMediaSource(itemList.get(i), isCache));
+            source.addMediaSource(getMediaSource(itemList.get(i), isCache));
         }
-        return sourceList;
+        return source;
     }
 
-    public MediaSource getMediaSource(Media3VideoItem item, Map<String, String> headers, boolean isCache) {
+    public MediaSource getMediaSource(Media3Item item, Map<String, String> headers, boolean isCache) {
         Uri contentUri = Uri.parse(item.getUrl());
         if ("rtmp".equals(contentUri.getScheme())) {
             return new ProgressiveMediaSource.Factory(new RtmpDataSource.Factory()).createMediaSource(createMediaItem(item));
@@ -159,7 +166,7 @@ public final class Media3SourceHelper {
         }
     }
 
-    private MediaItem createMediaItem(Media3VideoItem item) {
+    private MediaItem createMediaItem(Media3Item item) {
         return new MediaItem.Builder().setTag(item).setUri(item.getUrl()).build();
     }
 
@@ -185,12 +192,16 @@ public final class Media3SourceHelper {
     }
 
     private Cache newCache() {
-        //1k = 1024 * 1024
+        //1k = 1024 b
         //1M = 1024 * 1k
         //1G = 1024 * 1M
+        File cacheDir = Media3Configure.INSTANCE.getCachePoolDir();
+        if (cacheDir == null) {
+            cacheDir = new File(mAppContext.getExternalCacheDir(), "media3-cache");
+        }
         return new SimpleCache(
-                new File(mAppContext.getExternalCacheDir(), "media3-cache"),//缓存目录
-                new LeastRecentlyUsedCacheEvictor(1024L * 1024 * 1024 * 1024 * 10),//缓存大小，默认512M，使用LRU算法实现
+                cacheDir,//缓存目录
+                new LeastRecentlyUsedCacheEvictor(Media3Configure.INSTANCE.getCachePoolSize()),//缓存大小，默认512M，使用LRU算法实现
                 new StandaloneDatabaseProvider(mAppContext));
     }
 
@@ -210,10 +221,24 @@ public final class Media3SourceHelper {
      */
     private DataSource.Factory getHttpDataSourceFactory() {
         if (mHttpDataSourceFactory == null) {
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.followRedirects(true);
+            builder.followSslRedirects(true);
+            OkHttpClient client = builder.build();
+            mHttpDataSourceFactory = new OkHttpDataSource.Factory(new Call.Factory() {
+                @NonNull
+                @Override
+                public Call newCall(@NonNull Request request) {
+                    Log.i("DataSourceFactory", "newCall: " + request);
+                    return client.newCall(request);
+                }
+            });
+        }
+        /*if (mHttpDataSourceFactory == null) {
             mHttpDataSourceFactory = new DefaultHttpDataSource.Factory()
                     .setUserAgent(mUserAgent)
                     .setAllowCrossProtocolRedirects(true);
-        }
+        }*/
         return mHttpDataSourceFactory;
     }
 

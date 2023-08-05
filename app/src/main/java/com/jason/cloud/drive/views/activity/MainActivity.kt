@@ -16,7 +16,7 @@ import com.jason.cloud.drive.interfaces.CallMainActivity
 import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.extension.view.bindBottomNavigationView
 import com.jason.cloud.drive.views.dialog.TextDialog
-import com.jason.cloud.drive.views.fragment.FilesFragment
+import com.jason.cloud.drive.views.fragment.BrowseFragment
 import com.jason.cloud.drive.views.fragment.HomeFragment
 import com.jason.cloud.drive.views.fragment.MineFragment
 import com.jason.cloud.drive.views.fragment.TasksFragment
@@ -32,7 +32,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
     private val viewPager2Adapter by lazy {
         BaseViewPager2Adapter(this).apply {
             addFragment("0", HomeFragment.newInstance())
-            addFragment("1", FilesFragment.newInstance())
+            addFragment("1", BrowseFragment.newInstance())
             addFragment("2", TasksFragment.newInstance())
             addFragment("3", MineFragment.newInstance())
         }
@@ -60,7 +60,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
             override fun handleOnBackPressed() {
                 val fragment: Fragment? =
                     viewPager2Adapter.getFragment(binding.viewPager2.currentItem)
-                if (fragment !is FilesFragment) {
+                if (fragment !is BrowseFragment) {
                     callBackPressed()
                 } else {
                     if (fragment.isVisible && fragment.callBackPressed()) {
@@ -131,7 +131,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
     override fun locateFileLocation(hash: String, fileHash: String) {
         super.locateFileLocation(hash, fileHash)
         binding.viewPager2.setCurrentItem(1, false)
-        viewPager2Adapter.findFragment(FilesFragment::class.java)?.let {
+        viewPager2Adapter.findFragment(BrowseFragment::class.java)?.let {
             it.arguments = Bundle().apply {
                 putString("hash", hash)
                 putString("fileHash", fileHash)

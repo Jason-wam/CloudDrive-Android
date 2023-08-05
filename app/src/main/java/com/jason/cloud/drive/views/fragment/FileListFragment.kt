@@ -1,20 +1,14 @@
 package com.jason.cloud.drive.views.fragment
 
-import android.animation.AnimatorInflater
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import androidx.activity.result.ActivityResultLauncher
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.MenuCompat
-import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
@@ -29,35 +23,41 @@ import com.jason.cloud.drive.adapter.CloudFilePathIndicatorAdapter
 import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.contract.SelectFilesContract
 import com.jason.cloud.drive.contract.SelectFolderContract
-import com.jason.cloud.drive.databinding.FragmentFilesBinding
+import com.jason.cloud.drive.databinding.FragmentFileListBinding
 import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.service.BackupService
 import com.jason.cloud.drive.service.UploadService
 import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.ListSort
 import com.jason.cloud.drive.utils.extension.toMessage
-import com.jason.cloud.drive.utils.extension.view.setTitleFont
 import com.jason.cloud.drive.viewmodel.ListFilesViewModel
-import com.jason.cloud.drive.views.activity.SearchFilesActivity
 import com.jason.cloud.drive.views.dialog.LoadDialog
 import com.jason.cloud.drive.views.dialog.TextEditDialog
 import com.jason.cloud.drive.views.dialog.showFileMenu
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.FilePathIndicatorDecoration
 import com.jason.cloud.extension.asJSONObject
-import com.jason.cloud.extension.startActivity
+import com.jason.cloud.extension.getSerializableEx
 import com.jason.cloud.extension.toast
 import kotlinx.coroutines.delay
 
-class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_files),
-    CallFragment, Toolbar.OnMenuItemClickListener {
+/**
+ * 通用文件浏览
+ */
+class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.fragment_file_list),
+    CallFragment {
     companion object {
         @JvmStatic
-        fun newInstance() = FilesFragment()
+        fun newInstance() = FileListFragment()
+
+
+        @JvmStatic
+        fun newInstance(file: FileEntity) = FileListFragment().apply {
+            arguments = Bundle().apply {
+                putSerializable("file", file)
+            }
+        }
     }
 
-    var isCreated = false
     private val lastPosition: HashMap<String, Pair<Int, Int>> = HashMap()
     private lateinit var fileSelectLauncher: ActivityResultLauncher<String>
     private lateinit var selectFolderLauncher: ActivityResultLauncher<Any?>
@@ -69,8 +69,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     private val adapter = CloudFileAdapter().apply {
         addOnClickObserver { position, item, _ ->
             if (item.isDirectory) {
-                binding.stateLayout.showLoading()
-                viewModel.getList(item)
+                openFolder(item)
             } else {
                 activity?.showFileMenu(itemData, position) {
                     removeFileIndex(item)
@@ -102,7 +101,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
     }
 
     override fun callBackPressed(): Boolean {
-        if (isInLayout.not()) return true
+        if (isVisible.not()) return true
         return if (viewModel.isLoading) false else {
             if (viewModel.canGoBack().not()) {
                 true
@@ -123,9 +122,18 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
+    fun refresh(isGoBack: Boolean = false) {
+        binding.stateLayout.showLoading()
+        viewModel.refresh(isGoBack = isGoBack)
+    }
+
+    private fun openFolder(item: FileEntity) {
+        binding.stateLayout.showLoading()
+        viewModel.getList(item)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isCreated = true
         fileSelectLauncher = registerForActivityResult(SelectFilesContract()) { uriList ->
             if (uriList.isNotEmpty()) {
                 UploadService.launchWith(requireContext(), viewModel.current(), uriList) {
@@ -161,25 +169,19 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
+    private var appbarCallback: ((show: Boolean) -> Unit)? = null
+
+    fun onAppbarCallback(call: (show: Boolean) -> Unit) {
+        this.appbarCallback = call
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun initView(context: Context) {
-        MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
-        binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
-        binding.toolbar.setOnMenuItemClickListener(this)
-        updateSortMenu()
-
         binding.rvPathIndicator.adapter = indicatorAdapter
         binding.rvPathIndicator.addItemDecoration(FilePathIndicatorDecoration())
         binding.indicatorBar.addOnOffsetChangedListener { _, verticalOffset ->
-            binding.appBarLayout.stateListAnimator = if (verticalOffset != 0) {
-                AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation)
-            } else {
-                AnimatorInflater.loadStateListAnimator(
-                    context, R.animator.appbar_layout_elevation_nil
-                )
-            }
+            appbarCallback?.invoke(verticalOffset != 0)
         }
-
 
         binding.rvData.adapter = adapter
         binding.rvData.addItemDecoration(FileListDecoration(requireContext()))
@@ -260,35 +262,15 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             fileSelectLauncher.launch("*/*")
         }
 
-        val hash = arguments?.getString("hash").orEmpty()
-        arguments?.remove("hash")
-        binding.stateLayout.showLoading()
-        viewModel.refresh(hash, isGoBack = false)
-    }
-
-    private fun updateSortMenu() {
-        val sort = Configure.CloudFileConfigure.sortModel
-        binding.toolbar.menu.children().forEach {
-            when (it.itemId) {
-                R.id.name -> it.isChecked = sort == ListSort.NAME
-                R.id.date -> it.isChecked = sort == ListSort.DATE
-                R.id.size -> it.isChecked = sort == ListSort.SIZE
-                R.id.name_desc -> it.isChecked = sort == ListSort.NAME_DESC
-                R.id.date_desc -> it.isChecked = sort == ListSort.DATE_DESC
-                R.id.size_desc -> it.isChecked = sort == ListSort.SIZE_DESC
-                R.id.show_hidden -> it.isChecked = Configure.CloudFileConfigure.showHidden
-            }
-        }
-    }
-
-    private fun Menu.children(): List<MenuItem> {
-        return ArrayList<MenuItem>().apply {
-            this@children.forEach { child ->
-                add(child)
-                if (child.hasSubMenu()) {
-                    addAll(child.subMenu?.children().orEmpty())
-                }
-            }
+        val file = arguments?.getSerializableEx("file", FileEntity::class.java)
+        if (file != null) {
+            openFolder(file)
+            arguments?.clear()
+        } else {
+            val hash = arguments?.getString("hash").orEmpty()
+            arguments?.clear()
+            binding.stateLayout.showLoading()
+            viewModel.refresh(hash, isGoBack = false)
         }
     }
 
@@ -316,7 +298,7 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
         }
     }
 
-    private fun createNewFolder() {
+    fun createNewFolder() {
         fun create(name: String) {
             val dialog = LoadDialog(requireContext()).setMessage("正在创建文件夹...")
             scopeDialog(dialog, cancelable = true) {
@@ -352,74 +334,4 @@ class FilesFragment : BaseBindFragment<FragmentFilesBinding>(R.layout.fragment_f
             show()
         }
     }
-
-    override fun onMenuItemClick(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.search -> {
-                startActivity(SearchFilesActivity::class)
-            }
-
-            R.id.folder -> {
-                createNewFolder()
-            }
-
-            R.id.backup -> {
-                BackupService.launchWith(requireContext()) {
-                    toast("正在后台备份文件..")
-                }
-            }
-
-            R.id.name -> {
-                Configure.CloudFileConfigure.sortModel = ListSort.NAME
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-
-            R.id.date -> {
-                Configure.CloudFileConfigure.sortModel = ListSort.DATE
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-
-            R.id.size -> {
-                Configure.CloudFileConfigure.sortModel = ListSort.SIZE
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-
-            R.id.name_desc -> {
-                Configure.CloudFileConfigure.sortModel = ListSort.NAME_DESC
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-
-            R.id.date_desc -> {
-                Configure.CloudFileConfigure.sortModel = ListSort.DATE_DESC
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-
-            R.id.size_desc -> {
-                Configure.CloudFileConfigure.sortModel = ListSort.SIZE_DESC
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-
-            R.id.show_hidden -> {
-                Configure.CloudFileConfigure.showHidden =
-                    !Configure.CloudFileConfigure.showHidden
-                binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false)
-                updateSortMenu()
-            }
-        }
-        return true
-    }
-
 }

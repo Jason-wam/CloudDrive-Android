@@ -1,10 +1,11 @@
-package com.jason.cloud.drive.views.fragment
+package com.jason.cloud.drive.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.scopeNetLife
 import com.drake.net.Get
+import com.drake.net.cache.CacheMode
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.FileListRespondEntity
 import com.jason.cloud.drive.model.FileNavigationEntity
@@ -13,7 +14,7 @@ import com.jason.cloud.drive.utils.UrlBuilder
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.asJSONObject
 
-class FilesFragmentViewModel(application: Application) : AndroidViewModel(application) {
+class ListFilesViewModel(application: Application) : AndroidViewModel(application) {
     private val histories = arrayListOf(FileNavigationEntity("Drive", "%root"))
     val onError = MutableLiveData<String>()
     val onSucceed = MutableLiveData<FileListRespond>()
@@ -44,7 +45,7 @@ class FilesFragmentViewModel(application: Application) : AndroidViewModel(applic
         refresh(histories[histories.lastIndex - 1].hash, true)
     }
 
-    fun refresh(hash: String? = null, isGoBack: Boolean) {
+    fun refresh(hash: String? = null, isGoBack: Boolean, noneCache: Boolean = false) {
         isLoading = true
         scopeNetLife {
             val url = UrlBuilder(Configure.hostURL).path("/list").build()
@@ -52,6 +53,15 @@ class FilesFragmentViewModel(application: Application) : AndroidViewModel(applic
                 param("hash", hash ?: current())
                 param("sort", Configure.CloudFileConfigure.sortModel.name)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
+                if (noneCache) {//强制刷新，不读缓存
+                    setCacheMode(CacheMode.WRITE)
+                } else {
+                    if (isGoBack) { //如果是返回则读取缓存
+                        setCacheMode(CacheMode.READ_THEN_REQUEST)
+                    } else {
+                        setCacheMode(CacheMode.REQUEST_THEN_READ)
+                    }
+                }
             }.await().asJSONObject().also {
                 if (it.has("code")) {
                     onError.postValue(it.getString("message"))
@@ -59,12 +69,7 @@ class FilesFragmentViewModel(application: Application) : AndroidViewModel(applic
                     val respond = FileListRespondEntity.createFromJson(it)
                     histories.clear()
                     histories.addAll(respond.navigation)
-                    onSucceed.postValue(
-                        FileListRespond(
-                            isGoBack,
-                            respond
-                        )
-                    )
+                    onSucceed.postValue(FileListRespond(isGoBack, respond))
                 }
             }
         }.catch {

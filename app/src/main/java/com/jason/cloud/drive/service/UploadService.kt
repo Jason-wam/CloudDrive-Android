@@ -40,7 +40,7 @@ class UploadService : Service() {
     private val channelId = "file_upload_service"
     private val notificationId: Int = 20000
     private val channel by lazy {
-        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(name).build()
     }
 

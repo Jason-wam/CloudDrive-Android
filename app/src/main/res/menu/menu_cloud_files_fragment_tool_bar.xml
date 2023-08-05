@@ -10,14 +10,6 @@
         app:iconTint="@color/colorOnPrimary"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,UnusedAttribute" />
-    <item
-        android:id="@+id/refresh"
-        android:icon="@drawable/ic_round_refresh_24"
-        android:iconTint="@color/colorOnPrimary"
-        android:title="@string/refresh_list"
-        app:iconTint="@color/colorOnPrimary"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction,UnusedAttribute" />
 
     <item
         android:id="@+id/more"

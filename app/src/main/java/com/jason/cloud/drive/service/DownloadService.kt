@@ -45,7 +45,7 @@ class DownloadService : Service() {
     private val notificationId: Int = 20001
     private val channelId = "file_download_service"
     private val channel by lazy {
-        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_DEFAULT)
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(name).build()
     }
 

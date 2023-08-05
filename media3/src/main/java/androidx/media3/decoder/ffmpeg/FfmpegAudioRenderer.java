@@ -45,14 +45,18 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
 
   private static final String TAG = "FfmpegAudioRenderer";
 
-    /** The number of input and output buffers. */
-  private static final int NUM_BUFFERS = 16;
-    /** The default input buffer size. */
-  private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
+    /**
+     * The number of input and output buffers.
+     */
+    private static final int NUM_BUFFERS = 16;
+    /**
+     * The default input buffer size.
+     */
+    private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
-  public FfmpegAudioRenderer() {
-    this(/* eventHandler= */ null, /* eventListener= */ null);
-  }
+    public FfmpegAudioRenderer() {
+        this(/* eventHandler= */ null, /* eventListener= */ null);
+    }
 
     /**
      * Creates a new instance.
@@ -85,33 +89,33 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
             @Nullable AudioRendererEventListener eventListener,
             AudioSink audioSink) {
         super(eventHandler, eventListener, audioSink);
-  }
+    }
 
-  @Override
-  public String getName() {
-    return TAG;
-  }
+    @Override
+    public String getName() {
+        return TAG;
+    }
 
-  @Override
-  protected @C.FormatSupport int supportsFormatInternal(Format format) {
-    String mimeType = Assertions.checkNotNull(format.sampleMimeType);
-    if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
-        return C.FORMAT_UNSUPPORTED_TYPE;
-    } else if (!FfmpegLibrary.supportsFormat(mimeType)
-            || (!sinkSupportsFormat(format, C.ENCODING_PCM_16BIT)
+    @Override
+    protected @C.FormatSupport int supportsFormatInternal(Format format) {
+        String mimeType = Assertions.checkNotNull(format.sampleMimeType);
+        if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
+            return C.FORMAT_UNSUPPORTED_TYPE;
+        } else if (!FfmpegLibrary.supportsFormat(mimeType)
+                || (!sinkSupportsFormat(format, C.ENCODING_PCM_16BIT)
             && !sinkSupportsFormat(format, C.ENCODING_PCM_FLOAT))) {
       return C.FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (format.cryptoType != C.CRYPTO_TYPE_NONE) {
-      return C.FORMAT_UNSUPPORTED_DRM;
-    } else {
-      return C.FORMAT_HANDLED;
+        } else if (format.cryptoType != C.CRYPTO_TYPE_NONE) {
+            return C.FORMAT_UNSUPPORTED_DRM;
+        } else {
+            return C.FORMAT_HANDLED;
+        }
     }
-  }
 
-  @Override
-  public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
-      return ADAPTIVE_NOT_SEAMLESS;
-  }
+    @Override
+    public @AdaptiveSupport int supportsMixedMimeTypeAdaptation() {
+        return ADAPTIVE_NOT_SEAMLESS;
+    }
 
     /**
      * {@inheritDoc}
@@ -127,7 +131,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
         FfmpegAudioDecoder decoder =
                 new FfmpegAudioDecoder(
                         format, NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, shouldOutputFloat(format));
-    TraceUtil.endSection();
+        TraceUtil.endSection();
     return decoder;
   }
 
@@ -153,29 +157,29 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
    */
   private boolean sinkSupportsFormat(Format inputFormat, @C.PcmEncoding int pcmEncoding) {
       return sinkSupportsFormat(
-              Util.getPcmFormat(pcmEncoding, inputFormat.channelCount, inputFormat.sampleRate));
+        Util.getPcmFormat(pcmEncoding, inputFormat.channelCount, inputFormat.sampleRate));
   }
 
-  private boolean shouldOutputFloat(Format inputFormat) {
-    if (!sinkSupportsFormat(inputFormat, C.ENCODING_PCM_16BIT)) {
-      // We have no choice because the sink doesn't support 16-bit integer PCM.
-        return true;
-    }
+    private boolean shouldOutputFloat(Format inputFormat) {
+        if (!sinkSupportsFormat(inputFormat, C.ENCODING_PCM_16BIT)) {
+            // We have no choice because the sink doesn't support 16-bit integer PCM.
+            return true;
+        }
 
-      @SinkFormatSupport
-      int formatSupport =
-              getSinkFormatSupport(
-                      Util.getPcmFormat(
-                              C.ENCODING_PCM_FLOAT, inputFormat.channelCount, inputFormat.sampleRate));
-    switch (formatSupport) {
-      case SINK_FORMAT_SUPPORTED_DIRECTLY:
-        // AC-3 is always 16-bit, so there's no point using floating point. Assume that it's worth
-        // using for all other formats.
-        return !MimeTypes.AUDIO_AC3.equals(inputFormat.sampleMimeType);
-      case SINK_FORMAT_UNSUPPORTED:
-      case SINK_FORMAT_SUPPORTED_WITH_TRANSCODING:
-      default:
-        // Always prefer 16-bit PCM if the sink does not provide direct support for floating point.
+        @SinkFormatSupport
+        int formatSupport =
+                getSinkFormatSupport(
+                        Util.getPcmFormat(
+                                C.ENCODING_PCM_FLOAT, inputFormat.channelCount, inputFormat.sampleRate));
+        switch (formatSupport) {
+            case SINK_FORMAT_SUPPORTED_DIRECTLY:
+                // AC-3 is always 16-bit, so there's no point using floating point. Assume that it's worth
+                // using for all other formats.
+                return !MimeTypes.AUDIO_AC3.equals(inputFormat.sampleMimeType);
+            case SINK_FORMAT_UNSUPPORTED:
+            case SINK_FORMAT_SUPPORTED_WITH_TRANSCODING:
+            default:
+                // Always prefer 16-bit PCM if the sink does not provide direct support for floating point.
         return false;
     }
   }

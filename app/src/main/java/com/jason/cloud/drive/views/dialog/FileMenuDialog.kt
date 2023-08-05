@@ -16,13 +16,14 @@ import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.DirManager
 import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.PositionStore
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.openURL
 import com.jason.cloud.extension.toast
 import com.jason.cloud.media3.activity.VideoPlayActivity
-import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.model.Media3Item
 import java.io.Serializable
 
 class FileMenuDialog(val parent: FragmentActivity) :
@@ -122,8 +123,9 @@ fun FragmentActivity.viewVideos(list: List<FileEntity>, position: Int) {
     val hash = list[position].hash
     val videos = list.filter { FileType.isVideo(it.name) }
     val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
+    VideoPlayActivity.positionStore = PositionStore()
     VideoPlayActivity.open(this, videos.map {
-        Media3VideoItem.create(it.name, it.rawURL, true)
+        Media3Item.create(it.name, it.rawURL, true)
     }, videoIndex)
 }
 

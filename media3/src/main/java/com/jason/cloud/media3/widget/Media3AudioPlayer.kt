@@ -2,14 +2,16 @@ package com.jason.cloud.media3.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.jason.cloud.media3.interfaces.OnMediaItemTransitionListener
+import com.jason.cloud.media3.interfaces.OnPlayCompleteListener
 import com.jason.cloud.media3.interfaces.OnStateChangeListener
-import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.model.Media3Item
 import com.jason.cloud.media3.utils.FfmpegRenderersFactory
 import com.jason.cloud.media3.utils.Media3PlayState
 import com.jason.cloud.media3.utils.Media3SourceHelper
@@ -28,6 +30,7 @@ class Media3AudioPlayer(context: Context) {
     private var speedPlaybackParameters: PlaybackParameters? = null
     private var onPlayStateListeners = ArrayList<OnStateChangeListener>()
     private var onMediaItemTransitionListeners = ArrayList<OnMediaItemTransitionListener>()
+    private var onPlayCompleteListeners = ArrayList<OnPlayCompleteListener>()
 
     private val playerListener: Player.Listener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -57,12 +60,20 @@ class Media3AudioPlayer(context: Context) {
             onPlayStateListeners.forEach {
                 it.onStateChanged(playbackState)
             }
+            if (playbackState == Player.STATE_ENDED) {
+                onPlayCompleteListeners.forEach { it.onCompletion() }
+            }
         }
 
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             super.onMediaItemTransition(mediaItem, reason)
+            Log.e("AudioPlayer", "transition = ${internalPlayer.getCurrentMedia3Item()?.title}")
+            Log.e("AudioPlayer", "transition = $reason")
             onMediaItemTransitionListeners.forEach {
-                it.onTransition(internalPlayer.currentMediaItemIndex)
+                it.onTransition(
+                    internalPlayer.currentMediaItemIndex,
+                    internalPlayer.getCurrentMedia3Item()!!
+                )
             }
         }
     }
@@ -71,7 +82,7 @@ class Media3AudioPlayer(context: Context) {
         internalPlayer.addListener(playerListener)
     }
 
-    fun setDataSource(item: Media3VideoItem) {
+    fun setDataSource(item: Media3Item) {
         internalPlayer.setMediaSource(mediaSourceHelper.getMediaSource(item))
     }
 
@@ -83,12 +94,12 @@ class Media3AudioPlayer(context: Context) {
         internalPlayer.setMediaSource(mediaSourceHelper.getMediaSource(path, headers, false))
     }
 
-    fun addDataSource(itemList: List<Media3VideoItem>) {
-        internalPlayer.addMediaSources(mediaSourceHelper.getMediaSource(itemList))
+    fun addDataSource(itemList: List<Media3Item>) {
+        internalPlayer.addMediaSource(mediaSourceHelper.getMediaSource(itemList))
     }
 
-    fun setDataSource(itemList: List<Media3VideoItem>) {
-        internalPlayer.setMediaSources(mediaSourceHelper.getMediaSource(itemList))
+    fun setDataSource(itemList: List<Media3Item>) {
+        internalPlayer.setMediaSource(mediaSourceHelper.getMediaSource(itemList))
     }
 
     fun start() {
@@ -132,6 +143,10 @@ class Media3AudioPlayer(context: Context) {
 
     fun seekTo(time: Long) {
         internalPlayer.seekTo(time)
+    }
+
+    fun seekToDefaultPosition(mediaItemIndex: Int) {
+        internalPlayer.seekToDefaultPosition(mediaItemIndex)
     }
 
     fun seekToItem(mediaItemIndex: Int, positionMs: Long) {
@@ -184,6 +199,10 @@ class Media3AudioPlayer(context: Context) {
         return internalPlayer.mediaItemCount
     }
 
+    fun getCurrentMedia3Item(): Media3Item? {
+        return internalPlayer.getCurrentMedia3Item()
+    }
+
     fun hasNextMediaItem(): Boolean {
         return internalPlayer.hasNextMediaItem()
     }
@@ -222,5 +241,17 @@ class Media3AudioPlayer(context: Context) {
 
     fun clearOnMediaItemTransitionListener() {
         this.onMediaItemTransitionListeners.clear()
+    }
+
+    fun clearOnPlayCompleteListener() {
+        this.onPlayCompleteListeners.clear()
+    }
+
+    fun removeOnPlayCompleteListener(listener: OnPlayCompleteListener) {
+        this.onPlayCompleteListeners.remove(listener)
+    }
+
+    fun addOnPlayCompleteListener(listener: OnPlayCompleteListener) {
+        this.onPlayCompleteListeners.add(listener)
     }
 }

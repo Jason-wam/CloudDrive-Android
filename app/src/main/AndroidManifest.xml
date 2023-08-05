@@ -32,6 +32,9 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:theme"
         tools:targetApi="31">
+        <activity
+            android:name=".views.activity.FolderBrowseActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="ScopedStorage"
@@ -63,7 +66,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".views.activity.SearchFilesActivity"
             android:exported="false" />

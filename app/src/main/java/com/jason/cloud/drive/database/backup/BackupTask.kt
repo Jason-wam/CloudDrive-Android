@@ -26,7 +26,7 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
     var speedBytes: Long = 0
     var progress: Int = 0
     var status = Status.QUEUE
-    private var fileName: String = ""
+    var fileName: String = ""
 
     enum class Status {
         QUEUE, UPLOADING, FAILED, SUCCEED, FLASH_UPLOADED, CONNECTING
@@ -72,13 +72,11 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
         scopeNet {
             //校验文件完成，开始上传文件
             status = Status.UPLOADING
-            //尝试闪传文件
-            if (flashTransfer()) {
-                status = Status.FLASH_UPLOADED
-                Log.e("Uploader", "$fileName >> 闪传成功！")
+            status = if (flashTransfer()) {
+                Status.FLASH_UPLOADED
             } else {
                 //闪传失败，开始上传文件
-                status = if (upload()) {
+                if (upload()) {
                     Log.e("Uploader", "$fileName >> 上传成功！")
                     Status.SUCCEED
                 } else {
@@ -112,9 +110,9 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
         try {
             Net.get("${Configure.hostURL}/flashBackup") {
                 setId(id)
-                addQuery("fileName", fileName)
-                addQuery("fileHash", fileHash)
-                addQuery("deviceName", getDeviceName())
+                param("fileName", fileName)
+                param("fileHash", fileHash)
+                param("deviceName", getDeviceName())
                 setClient {
                     callTimeout(1800, TimeUnit.SECONDS)
                     readTimeout(1800, TimeUnit.SECONDS)
@@ -132,9 +130,9 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
         Net.post("${Configure.hostURL}/backup") {
             setId(id)
             param("file", uri)
-            addQuery("fileName", fileName)
-            addQuery("fileHash", fileHash)
-            addQuery("deviceName", getDeviceName())
+            param("fileName", fileName)
+            param("fileHash", fileHash)
+            param("deviceName", getDeviceName())
             setClient {
                 callTimeout(1800, TimeUnit.SECONDS)
                 readTimeout(1800, TimeUnit.SECONDS)

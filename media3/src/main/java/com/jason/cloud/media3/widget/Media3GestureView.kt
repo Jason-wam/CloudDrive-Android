@@ -10,7 +10,7 @@ import android.view.GestureDetector.OnGestureListener
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
-import com.jason.cloud.media3.utils.Media3PlayerUtils
+import com.jason.cloud.media3.utils.PlayerUtils
 import com.jason.cloud.media3.utils.VibratorUtil
 import kotlin.math.abs
 
@@ -58,7 +58,7 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
         isChangeVolume = false
         streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         brightness =
-            Media3PlayerUtils.scanForActivity(context)?.window?.attributes?.screenBrightness ?: 0f
+            PlayerUtils.scanForActivity(context)?.window?.attributes?.screenBrightness ?: 0f
         return true
     }
 
@@ -72,7 +72,7 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, dx: Float, dy: Float): Boolean {
         if (playerView.isPlaying().not()) return true
-        if (Media3PlayerUtils.isEdge(context, e1)) return true
+        if (PlayerUtils.isEdge(context, e1)) return true
         if (playerView.isLocked) return true
 
         if (isFirstTouch) {
@@ -139,7 +139,7 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
     }
 
     private fun slideToChangeBrightness(deltaY: Float) {
-        val activity = Media3PlayerUtils.scanForActivity(context) ?: return
+        val activity = PlayerUtils.scanForActivity(context) ?: return
         val window = activity.window
         val attributes = window.attributes
         val height = measuredHeight
@@ -218,10 +218,23 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
-        if (playerView.isPlaying()) {
-            playerView.pause()
-        } else {
-            playerView.start()
+        if (e.x < playerView.measuredWidth * 0.33f) {
+            if (playerView.isPlaying().not()) return true
+            playerView.onSeekBackward(10 * 1000)
+            VibratorUtil(context).vibrateTo(60, 255)
+        }
+        if (e.x > playerView.measuredWidth * 0.33f * 2) {
+            if (playerView.isPlaying().not()) return true
+            playerView.onSeekForward(10 * 1000)
+            VibratorUtil(context).vibrateTo(60, 255)
+        }
+        if (e.x in (playerView.measuredWidth * 0.33f..playerView.measuredWidth * 0.33f * 2)) {
+            VibratorUtil(context).vibrateTo(60, 255)
+            if (playerView.isPlaying()) {
+                playerView.pause()
+            } else {
+                playerView.start()
+            }
         }
         return true
     }

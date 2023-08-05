@@ -8,13 +8,14 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutVideoDetailDialogBinding
 import com.jason.cloud.drive.model.FileEntity
+import com.jason.cloud.drive.utils.PositionStore
 import com.jason.cloud.drive.utils.UrlBuilder
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
 import com.jason.cloud.media3.activity.VideoPlayActivity
-import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.model.Media3Item
 import java.io.Serializable
 
 class VideoDetailDialog :
@@ -55,8 +56,9 @@ class VideoDetailDialog :
             }
 
             binding.btnPlay.setOnClickListener {
+                VideoPlayActivity.positionStore = PositionStore()
                 VideoPlayActivity.open(requireContext(), fileList.map {
-                    Media3VideoItem.create(it.name, it.rawURL, true)
+                    Media3Item.create(it.name, it.rawURL, true)
                 }, position)
                 dismiss()
             }

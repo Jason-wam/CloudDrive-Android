@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
@@ -32,14 +33,16 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.jason.cloud.media3.R
 import com.jason.cloud.media3.interfaces.OnControlViewVisibleListener
 import com.jason.cloud.media3.interfaces.OnMediaItemTransitionListener
+import com.jason.cloud.media3.interfaces.OnPlayCompleteListener
 import com.jason.cloud.media3.interfaces.OnStateChangeListener
-import com.jason.cloud.media3.model.Media3VideoItem
+import com.jason.cloud.media3.model.Media3Item
 import com.jason.cloud.media3.utils.FfmpegRenderersFactory
 import com.jason.cloud.media3.utils.Media3PlayState
-import com.jason.cloud.media3.utils.Media3PlayerUtils
 import com.jason.cloud.media3.utils.Media3SourceHelper
-import com.jason.cloud.media3.utils.Media3VideoScaleModel
-import com.jason.cloud.media3.utils.Media3VideoScaleModel.*
+import com.jason.cloud.media3.utils.Media3VideoScaleMode
+import com.jason.cloud.media3.utils.Media3VideoScaleMode.*
+import com.jason.cloud.media3.utils.MediaPositionStore
+import com.jason.cloud.media3.utils.PlayerUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -60,6 +63,10 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private lateinit var bufferingView: CircularProgressIndicator
     private lateinit var bufferingMessage: TextView
     private lateinit var bufferingLayout: LinearLayout
+    private lateinit var completionLayout: LinearLayout
+    private lateinit var completionMessage: TextView
+    private lateinit var completionStatusBtn: TextView
+
     private lateinit var indicatorSlideVolume: CircularProgressIndicator
     private lateinit var tvSlideVolume: TextView
     private lateinit var slideVolume: LinearLayout
@@ -70,6 +77,11 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private lateinit var tvSlidePosition: TextView
     private lateinit var slidePosition: LinearLayout
     private lateinit var doubleSpeedPlaying: TextView
+
+    private lateinit var doubleClickLayout: LinearLayout
+    private lateinit var doubleClickLeft: View
+    private lateinit var doubleClickRight: View
+
     private lateinit var rootContainer: FrameLayout
     private lateinit var rootView: FrameLayout
     private lateinit var surfaceView: View
@@ -81,6 +93,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         ExoPlayer.Builder(context)
             .setAudioAttributes(AudioAttributes.DEFAULT, true)
             .setRenderersFactory(FfmpegRenderersFactory(context))
+            .setUseLazyPreparation(false)
             .build()
     }
 
@@ -95,7 +108,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private var onControlViewVisibleListener: OnControlViewVisibleListener? = null
     private var onPlayStateListeners = ArrayList<OnStateChangeListener>()
     private var onMediaItemTransitionListeners = ArrayList<OnMediaItemTransitionListener>()
-    private var onBackPressedListener: (() -> Unit)? = null
+    private var onPlayCompleteListeners = ArrayList<OnPlayCompleteListener>()
     private var onRequestScreenOrientationListener: ((isFullScreen: Boolean) -> Unit)? = null
 
     init {
@@ -124,20 +137,12 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 )
             )
 
-            internalPlayer.addAnalyticsListener(EventLogger("Media3Player"))
+            internalPlayer.addAnalyticsListener(EventLogger("ExoPlayer"))
             internalPlayer.setVideoSurfaceView(surfaceView as SurfaceView)
             internalPlayer.setWakeMode(C.WAKE_MODE_LOCAL)
             internalPlayer.addListener(playerListener)
             controlView.attachPlayerView(this)
             gestureView.attachPlayerView(this)
-
-            controlView.onBackPressed {
-                if (isInFullscreen) {
-                    cancelFullScreen()
-                } else {
-                    onBackPressedListener?.invoke()
-                }
-            }
         }
     }
 
@@ -153,6 +158,9 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         bufferingView = findViewById(R.id.media3_buffering)
         bufferingMessage = findViewById(R.id.media3_buffering_message)
         bufferingLayout = findViewById(R.id.media3_buffering_layout)
+        completionMessage = findViewById(R.id.media3_completion_message)
+        completionStatusBtn = findViewById(R.id.media3_completion_status_btn)
+        completionLayout = findViewById(R.id.media3_completion_layout)
         indicatorSlideVolume = findViewById(R.id.media3_indicator_slide_volume)
         tvSlideVolume = findViewById(R.id.media3_tv_slide_volume)
         slideVolume = findViewById(R.id.media3_slide_volume)
@@ -163,6 +171,11 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         tvSlidePosition = findViewById(R.id.media3_tv_slide_position)
         slidePosition = findViewById(R.id.media3_slide_position)
         doubleSpeedPlaying = findViewById(R.id.media3_double_speed_playing)
+
+        doubleClickLayout = findViewById(R.id.media3_double_click_layout)
+        doubleClickLeft = findViewById(R.id.media3_double_click_left)
+        doubleClickRight = findViewById(R.id.media3_double_click_right)
+
         rootContainer = findViewById(R.id.root_container)
         rootView = findViewById(R.id.root_view)
 
@@ -173,7 +186,6 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         playerListener = object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 super.onIsPlayingChanged(isPlaying)
-                //相当于暂停继续
                 surfaceView.keepScreenOn = isPlaying
                 if (isPlaying) {
                     startHideControlViewJob()
@@ -209,14 +221,29 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 }
             }
 
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                super.onMediaItemTransition(mediaItem, reason)
+                Log.e("PlayerView", "transition = ${internalPlayer.getCurrentMedia3Item()?.title}")
+                Log.e("PlayerView", "transition = $reason")
+                if (reason == ExoPlayer.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
+                    //自动切换说明上一个item播放完毕，清除上一个进度
+                    if (internalPlayer.hasPreviousMediaItem()) {
+                        clearPosition(internalPlayer.getMedia3ItemAt(internalPlayer.previousMediaItemIndex))
+                    }
+                }
+            }
+
             @SuppressLint("SetTextI18n")
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
+
+                Log.e("PlayerView", "playbackState = $playbackState")
+                bufferingLayout.isVisible = false
+                completionLayout.isVisible = false
                 onPlayStateListeners.forEach {
                     it.onStateChanged(playbackState)
                 }
-                bufferingLayout.isVisible = false
-                Log.e("PlayerView", "playbackState = $playbackState")
+
                 when (playbackState) {
                     Player.STATE_READY -> {
                         currentPlayState = Media3PlayState.STATE_PREPARED
@@ -224,7 +251,18 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                     }
 
                     Player.STATE_ENDED -> {
+                        clearPosition()
+                        controlView.hide()
                         currentPlayState = Media3PlayState.STATE_ENDED
+                        completionLayout.isVisible = true
+                        completionStatusBtn.setOnClickListener {
+                            seekToItem(0, 0)
+                            prepare()
+                            start()
+                        }
+                        onPlayCompleteListeners.forEach {
+                            it.onCompletion()
+                        }
                     }
 
                     Player.STATE_IDLE -> {
@@ -233,7 +271,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                         if (error != null) {
                             currentPlayState = Media3PlayState.STATE_ERROR
                             errorLayout.isVisible = true
-                            errorMessage.text = "${error.errorCode} : ${error.errorCodeName}"
+                            errorMessage.text = error.toMessage()
                             errorStatusBtn.setOnClickListener {
                                 retryPlayback()
                             }
@@ -255,7 +293,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         return controlView.statusView
     }
 
-    fun getScaleModel(): Media3VideoScaleModel {
+    fun getScaleMode(): Media3VideoScaleMode {
         return when (ratioContentFrame.resizeMode) {
             AspectRatioFrameLayout.RESIZE_MODE_FIT -> FIT
             AspectRatioFrameLayout.RESIZE_MODE_FILL -> FILL
@@ -266,8 +304,8 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         }
     }
 
-    fun setScaleModel(scaleModel: Media3VideoScaleModel) {
-        when (scaleModel) {
+    fun setScaleMode(scaleMode: Media3VideoScaleMode) {
+        when (scaleMode) {
             FIT -> ratioContentFrame.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
             FILL -> ratioContentFrame.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
             ZOOM -> ratioContentFrame.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
@@ -282,8 +320,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         }
     }
 
-
-    fun setDataSource(item: Media3VideoItem) {
+    fun setDataSource(item: Media3Item) {
         internalPlayer.setMediaSource(mediaSourceHelper.getMediaSource(item))
     }
 
@@ -295,12 +332,12 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         internalPlayer.setMediaSource(mediaSourceHelper.getMediaSource(path, headers, false))
     }
 
-    fun addDataSource(itemList: List<Media3VideoItem>) {
-        internalPlayer.addMediaSources(mediaSourceHelper.getMediaSource(itemList))
+    fun addDataSource(itemList: List<Media3Item>) {
+        internalPlayer.addMediaSource(mediaSourceHelper.getMediaSource(itemList))
     }
 
-    fun setDataSource(itemList: List<Media3VideoItem>) {
-        internalPlayer.setMediaSources(mediaSourceHelper.getMediaSource(itemList))
+    fun setDataSource(itemList: List<Media3Item>) {
+        internalPlayer.setMediaSource(mediaSourceHelper.getMediaSource(itemList))
     }
 
     fun start() {
@@ -308,10 +345,12 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     }
 
     fun pause() {
+        savePosition()
         internalPlayer.playWhenReady = false
     }
 
     fun stop() {
+        savePosition()
         internalPlayer.stop()
     }
 
@@ -322,6 +361,10 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
 
     fun prepare() {
         internalPlayer.prepare()
+        val position = getPosition()
+        if (position > 0L) {
+            internalPlayer.seekTo(position)
+        }
         bufferingMessage.text = context.getString(R.string.media3_on_opening_media)
         bufferingView.isIndeterminate = true
         bufferingLayout.isVisible = true
@@ -347,9 +390,15 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
 
     fun seekTo(time: Long) {
         internalPlayer.seekTo(time)
+        internalPlayer.playWhenReady = true
+    }
+
+    fun seekToDefaultPosition(mediaItemIndex: Int) {
+        internalPlayer.seekToDefaultPosition(mediaItemIndex)
     }
 
     fun seekToItem(mediaItemIndex: Int, positionMs: Long) {
+        savePosition()
         internalPlayer.seekTo(mediaItemIndex, positionMs)
     }
 
@@ -385,6 +434,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     }
 
     fun release() {
+        savePosition()
         hideControlViewJob?.cancel()
         surfaceView.keepScreenOn = false
         internalPlayer.removeListener(playerListener)
@@ -404,11 +454,21 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     }
 
     fun seekToNext() {
-        internalPlayer.seekToNext()
+        if (internalPlayer.hasNextMediaItem()) {
+            val nextIndex = internalPlayer.currentMediaItemIndex + 1
+            val next = internalPlayer.getMedia3ItemAt(nextIndex)
+            val position = if (next == null) 0L else getPosition(next)
+            seekToItem(nextIndex, position)
+        }
     }
 
     fun seekToPrevious() {
-        internalPlayer.seekToPrevious()
+        if (internalPlayer.hasPreviousMediaItem()) {
+            val prevIndex = internalPlayer.currentMediaItemIndex - 1
+            val next = internalPlayer.getMedia3ItemAt(prevIndex)
+            val position = if (next == null) 0L else getPosition(next)
+            seekToItem(prevIndex, position)
+        }
     }
 
     fun addOnStateChangeListener(listener: OnStateChangeListener) {
@@ -433,6 +493,144 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
 
     fun clearOnMediaItemTransitionListener() {
         this.onMediaItemTransitionListeners.clear()
+    }
+
+    fun clearOnPlayCompleteListener() {
+        this.onPlayCompleteListeners.clear()
+    }
+
+    fun removeOnPlayCompleteListener(listener: OnPlayCompleteListener) {
+        this.onPlayCompleteListeners.remove(listener)
+    }
+
+    fun addOnPlayCompleteListener(listener: OnPlayCompleteListener) {
+        this.onPlayCompleteListeners.add(listener)
+    }
+
+    /**********************进度管理器*********************************/
+    private var positionStore: MediaPositionStore? = null
+
+    fun setPositionStore(store: MediaPositionStore?) {
+        this.positionStore = store
+    }
+
+    private fun getPosition(item: Media3Item?): Long {
+        item ?: return 0
+        return positionStore?.get(item.url) ?: 0L
+    }
+
+    private fun getPosition(url: String?): Long {
+        url ?: return 0
+        return positionStore?.get(url) ?: 0L
+    }
+
+    private fun getPosition(): Long {
+        val url = internalPlayer.getCurrentMedia3Item()?.url ?: return 0L
+        return getPosition(url)
+    }
+
+    private fun savePosition() {
+        internalPlayer.currentMediaItem ?: return
+        if (internalPlayer.currentPosition >= internalPlayer.duration) {
+            clearPosition()
+        } else {
+            val url = internalPlayer.getCurrentMedia3Item()?.url
+            if (url != null) {
+                positionStore?.save(url, internalPlayer.currentPosition)
+            }
+        }
+    }
+
+    private fun clearPosition(item: Media3Item?) {
+        item ?: return
+        clearPosition(item.url)
+    }
+
+    private fun clearPosition(url: String?) {
+        if (url != null) {
+            positionStore?.remove(url)
+        }
+    }
+
+    private fun clearPosition() {
+        val url = internalPlayer.getCurrentMedia3Item()?.url
+        if (url != null) {
+            clearPosition(url)
+        }
+    }
+
+    /**********************双击Seek布局*********************************/
+    fun onDoubleSpeedPlaying(speed: Float) {
+        doubleSpeedPlaying.isVisible = true
+        doubleSpeedPlaying.text = context.getString(
+            R.string.media3_double_speed_playing,
+            speed
+        )
+    }
+
+    fun onSeekForward(value: Long) {
+        val position = internalPlayer.currentPosition + value
+        if (position < internalPlayer.duration) {
+            internalPlayer.seekTo(position)
+            showSeekForward()
+        }
+    }
+
+    fun onSeekBackward(value: Long) {
+        var position = internalPlayer.currentPosition - value
+        if (position < 0) position = 0
+        internalPlayer.seekTo(position)
+        showSeekBackward()
+    }
+
+    private var isInDoubleClickAnimation = false
+    private var hideDoubleClickLayoutJob: Job? = null
+
+    private fun showSeekForward() {
+        doubleClickLayout.alpha = 0f
+        doubleClickLayout.isVisible = true
+
+        doubleClickLeft.visibility = View.INVISIBLE
+        doubleClickRight.visibility = View.VISIBLE
+
+        if (isInDoubleClickAnimation.not()) {
+            isInDoubleClickAnimation = true
+            doubleClickLayout.animate().alpha(1f).setDuration(200).withEndAction {
+                isInDoubleClickAnimation = false
+                hideDoubleClickLayout()
+            }
+        }
+    }
+
+    private fun showSeekBackward() {
+        doubleClickLayout.alpha = 0f
+        doubleClickLayout.isVisible = true
+
+        doubleClickLeft.visibility = View.VISIBLE
+        doubleClickRight.visibility = View.INVISIBLE
+
+        if (isInDoubleClickAnimation.not()) {
+            isInDoubleClickAnimation = true
+            doubleClickLayout.animate().alpha(1f).setDuration(200).withEndAction {
+                isInDoubleClickAnimation = false
+                hideDoubleClickLayout()
+            }
+        }
+    }
+
+    private fun hideDoubleClickLayout() {
+        hideDoubleClickLayoutJob?.cancel()
+        hideDoubleClickLayoutJob = scope.launch {
+            if (isActive) {
+                if (doubleClickLayout.isVisible) {
+                    doubleClickLayout.animate().alpha(0f).setDuration(200).withEndAction {
+                        doubleClickLayout.isVisible = false
+                        doubleClickLeft.isVisible = false
+                        doubleClickRight.isVisible = false
+                    }
+                }
+            }
+        }
     }
 
     /**********************ControlView*********************************/
@@ -489,23 +687,19 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         indicatorSlidePosition.progress = percent
         tvSlidePosition.text = context.getString(
             R.string.media3_slide_position,
-            Media3PlayerUtils.stringForTime(position),
-            Media3PlayerUtils.stringForTime(duration)
-        )
-    }
-
-    fun onDoubleSpeedPlaying(speed: Float) {
-        doubleSpeedPlaying.isVisible = true
-        doubleSpeedPlaying.text = context.getString(
-            R.string.media3_double_speed_playing,
-            speed
+            PlayerUtils.stringForTime(position),
+            PlayerUtils.stringForTime(duration)
         )
     }
 
     fun onBackPressed(listener: () -> Unit) {
-        this.onBackPressedListener = listener
+        controlView.onBackPressed(listener)
     }
 
+    /**
+     * 切换全屏时必须用SCREEN_ORIENTATION_LANDSCAPE否则无法判断刘海方向
+     * 默认情况下刘海应该在左侧
+     */
     fun onRequestScreenOrientationListener(listener: (fullScreen: Boolean) -> Unit) {
         this.onRequestScreenOrientationListener = listener
     }
@@ -548,7 +742,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
 
     fun startFullScreen() {
         hideBars()
-        Media3PlayerUtils.scanForActivity(context)?.let { activity ->
+        PlayerUtils.scanForActivity(context)?.let { activity ->
             onRequestScreenOrientationListener?.invoke(true)
             rootView.removeView(rootContainer)
             val decorView = activity.window.decorView as ViewGroup
@@ -562,7 +756,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
         if (controlView.isVisible) {
             showBars()
         }
-        Media3PlayerUtils.scanForActivity(context)?.let { activity ->
+        PlayerUtils.scanForActivity(context)?.let { activity ->
             onRequestScreenOrientationListener?.invoke(false)
             val decorView = activity.window.decorView as ViewGroup
             decorView.removeView(rootContainer)
@@ -572,7 +766,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     }
 
     private fun hideBars() {
-        Media3PlayerUtils.scanForActivity(context)?.let { activity ->
+        PlayerUtils.scanForActivity(context)?.let { activity ->
             WindowInsetsControllerCompat(activity.window, activity.window.decorView).also {
                 it.systemBarsBehavior =
                     WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -583,7 +777,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
 
     @SuppressLint("SourceLockedOrientationActivity")
     private fun showBars() {
-        Media3PlayerUtils.scanForActivity(context)?.let { activity ->
+        PlayerUtils.scanForActivity(context)?.let { activity ->
             WindowInsetsControllerCompat(activity.window, activity.window.decorView).also {
                 it.systemBarsBehavior =
                     WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE

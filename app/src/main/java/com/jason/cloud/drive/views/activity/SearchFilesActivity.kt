@@ -21,6 +21,7 @@ import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.ListSort
 import com.jason.cloud.drive.utils.extension.view.bindRvElevation
 import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
+import com.jason.cloud.drive.viewmodel.SearchFilesViewModel
 import com.jason.cloud.drive.views.dialog.showFileMenu
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.extension.toast
@@ -31,13 +32,14 @@ class SearchFilesActivity :
 
     private val stateLogo = "stateLogo"
     private val viewModel by lazy {
-        ViewModelProvider(this)[SearchFilesActivityViewModel::class.java]
+        ViewModelProvider(this)[SearchFilesViewModel::class.java]
     }
 
     private val adapter = CloudFileAdapter().apply {
         addOnClickObserver { position, item, _ ->
             if (item.isDirectory) {
                 toast("浏览目录：${item.path}")
+                FolderBrowseActivity.openFolder(context, item)
             } else {
                 showFileMenu(itemData, position) {
                     removeFileIndex(item)
@@ -75,15 +77,17 @@ class SearchFilesActivity :
         viewModel.onError.observe(this) {
             binding.refreshLayout.finishRefresh(false)
             binding.refreshLayout.finishLoadMore(false)
-            if (adapter.itemData.isEmpty()) {
-                binding.stateLayout.showError(it)
-            } else {
+            if (adapter.itemData.isNotEmpty()) {
                 toast(it)
+            } else {
+                binding.stateLayout.showError(it) {
+                    binding.stateLayout.showLoading()
+                    viewModel.refresh()
+                }
             }
         }
 
         viewModel.onSucceed.observe(this) {
-            it.hasMore
             binding.refreshLayout.finishRefresh(true)
             binding.refreshLayout.finishLoadMore(true)
             binding.refreshLayout.setNoMoreData(it.hasMore.not())

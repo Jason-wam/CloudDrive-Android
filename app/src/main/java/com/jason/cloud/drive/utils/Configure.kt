@@ -3,6 +3,11 @@ package com.jason.cloud.drive.utils
 import com.jason.cloud.utils.MMKVStore
 
 object Configure {
+    val hostURL: String
+        get() {
+            return "http://$host:$port"
+        }
+
     var host: String = ""
         set(value) {
             field = value
@@ -21,11 +26,6 @@ object Configure {
             return MMKVStore.with("Configure").getInt("port", 8820)
         }
 
-    val hostURL: String
-        get() {
-            return "http://$host:$port"
-        }
-
     object CloudFileConfigure {
         var sortModel: ListSort = ListSort.DATE_DESC
             set(value) {
@@ -39,14 +39,14 @@ object Configure {
                     }
             }
 
-        var showHidden: Boolean = true
+        var showHidden: Boolean = false
             set(value) {
                 field = value
                 MMKVStore.with("CloudFilesConfigure").put("showHidden", value)
             }
             get() {
                 return MMKVStore.with("CloudFilesConfigure")
-                    .getBool("showHidden", true)
+                    .getBool("showHidden", false)
             }
     }
 
@@ -63,14 +63,14 @@ object Configure {
                     }
             }
 
-        var showHidden: Boolean = true
+        var showHidden: Boolean = false
             set(value) {
                 field = value
                 MMKVStore.with("SearchFilesConfigure").put("showHidden", value)
             }
             get() {
                 return MMKVStore.with("SearchFilesConfigure")
-                    .getBool("showHidden", true)
+                    .getBool("showHidden", false)
             }
     }
 }

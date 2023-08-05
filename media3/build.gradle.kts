@@ -39,7 +39,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")
     implementation("com.google.android.material:material:${Dependencies.google_material}")
 
-    implementation("androidx.media3:media3-exoplayer:${Dependencies.media3}")
     // For media playback using ExoPlayer
     implementation("androidx.media3:media3-exoplayer:${Dependencies.media3}")
     // For DASH playback support with ExoPlayer

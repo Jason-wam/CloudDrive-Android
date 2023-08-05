@@ -50,10 +50,10 @@
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
 
                 <LinearLayout
-                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvPathIndicator"
@@ -83,14 +83,22 @@
                 app:state_error_view="@layout/layout_default_state_error"
                 app:state_load_view="@layout/layout_default_state_loading">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_data"
+                <com.scwang.smart.refresh.layout.SmartRefreshLayout
+                    android:id="@+id/refresh_layout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/colorWindowBackground"
-                    android:orientation="vertical"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_cloud_file" />
+                    app:srlEnableAutoLoadMore="false"
+                    app:srlEnableLoadMore="false">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_data"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/colorWindowBackground"
+                        android:orientation="vertical"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:listitem="@layout/item_cloud_file" />
+                </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
             </com.jason.cloud.drive.views.widgets.StateLayout>
 

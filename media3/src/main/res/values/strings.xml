@@ -21,4 +21,8 @@
     <string name="cancel">取消</string>
     <string name="confirm">确定</string>
     <string name="media3_select_play_speed">倍速播放</string>
+    <string name="media3_player_replay">重新播放</string>
+    <string name="media3_completion_message">媒体文件已全部播放完毕</string>
+    <string name="seek_back_10_seconds">后退10秒</string>
+    <string name="seek_forward_10_seconds">前进10秒</string>
 </resources>
