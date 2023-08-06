@@ -67,7 +67,6 @@ class AudioPlayDialog :
             }
         })
 
-
         val position = arguments?.getInt("position", 0) ?: 0
         val audioList = arguments?.getSerializableListExtraEx<FileEntity>("list")?.let {
             ArrayList<Media3Item>().apply {

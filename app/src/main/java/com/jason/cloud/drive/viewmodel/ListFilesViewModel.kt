@@ -45,6 +45,9 @@ class ListFilesViewModel(application: Application) : AndroidViewModel(applicatio
         refresh(histories[histories.lastIndex - 1].hash, true)
     }
 
+    /**
+     * 如果目标目录Hash为空则刷新当前目录，否则枚举指定目录文件
+     */
     fun refresh(hash: String? = null, isGoBack: Boolean, noneCache: Boolean = false) {
         isLoading = true
         scopeNetLife {

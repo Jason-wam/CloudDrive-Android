@@ -542,8 +542,8 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
                 add(TrackSelectEntity(Media3VideoScaleMode.FIT, "自适应"))
                 add(TrackSelectEntity(Media3VideoScaleMode.ZOOM, "居中裁剪"))
                 add(TrackSelectEntity(Media3VideoScaleMode.FILL, "填充屏幕"))
-                add(TrackSelectEntity(Media3VideoScaleMode.FIXED_WIDTH, "宽度自适应"))
-                add(TrackSelectEntity(Media3VideoScaleMode.FIXED_HEIGHT, "高度自适应"))
+                add(TrackSelectEntity(Media3VideoScaleMode.FIXED_WIDTH, "宽度固定"))
+                add(TrackSelectEntity(Media3VideoScaleMode.FIXED_HEIGHT, "高度固定"))
             }
 
             val selectedPosition = list.indexOfFirst {

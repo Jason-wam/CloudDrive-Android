@@ -20,10 +20,21 @@
             android:layout_marginTop="10dp"
             android:src="@drawable/selector_sheet_handler" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvTitle"
+            style="@style/DialogTitleTextBoldMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/file_detail"
+            android:textColor="@color/colorOnPrimary"
+            android:visibility="gone" />
+
         <androidx.core.widget.NestedScrollView
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="10dp"
             android:layout_weight="1">
 
             <LinearLayout
@@ -88,19 +99,43 @@
                     android:layout_marginStart="18dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="18dp"
-                    android:text="@string/file_info"
+                    android:text="@string/file_date"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tvInfo"
+                    android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
                     android:textColor="@color/colorOnSurface"
                     android:textSize="14sp"
-                    tools:text="945.8 MB / 2022-03-10" />
+                    tools:text="2022-03-10 01:45" />
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/file_size"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:textColor="@color/colorOnSurface"
+                    android:textSize="14sp"
+                    tools:text="945.8 MB" />
 
                 <android.widget.Space
                     android:layout_width="0dp"
@@ -112,85 +147,43 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
-                    app:cardBackgroundColor="@color/colorCardViewBackground"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/colorItemDecoration"
-                    app:strokeWidth="@dimen/itemDecorationSize">
+                    android:minHeight="180dp"
+                    app:cardBackgroundColor="@android:color/black"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    app:strokeWidth="0dp">
 
-                    <LinearLayout
+                    <com.jason.cloud.drive.views.widgets.RoundCornerImageView
+                        android:id="@+id/iv_image"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
+                        android:layout_gravity="center"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitXY" />
 
-                        <com.jason.cloud.drive.views.widgets.RoundCornerImageView
-                            android:id="@+id/iv_audio_cover"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:src="@drawable/ic_default_audio_cover"
-                            app:radius="8dp" />
+                    <LinearLayout
+                        android:id="@+id/progress_bar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ProgressBar
+                            android:layout_width="24dp"
+                            android:layout_height="24dp" />
 
                         <android.widget.Space
-                            android:layout_width="8dp"
-                            android:layout_height="0dp" />
-
-                        <LinearLayout
                             android:layout_width="0dp"
+                            android:layout_height="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_audio_name"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/colorOnSurface"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                tools:text="G.E.M. 邓紫棋 - 多远都要在一起.flac" />
-
-                            <TextView
-                                android:id="@+id/tv_audio_artist"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/colorOnSurfaceMedium"
-                                android:textSize="12sp"
-                                tools:text="邓紫棋 - 新的心跳" />
-                        </LinearLayout>
-
-                        <android.widget.Space
-                            android:layout_width="8dp"
-                            android:layout_height="0dp" />
-
-                        <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp">
-
-                            <ImageButton
-                                android:id="@+id/ib_pause"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/selector_audio_control_dark_background"
-                                android:src="@drawable/ic_round_play_arrow_24"
-                                app:tint="@color/colorOnSurface"
-                                tools:ignore="TouchTargetSizeCheck" />
-
-                            <ProgressBar
-                                android:id="@+id/progress_bar"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/selector_audio_control_dark_background"
-                                android:indeterminateTint="@color/colorOnSurface"
-                                android:padding="13dp"
-                                android:visibility="gone" />
-
-                        </FrameLayout>
+                            android:text="正在生成GIF预览图..."
+                            android:textColor="@android:color/white"
+                            android:textSize="13sp" />
                     </LinearLayout>
-
                 </com.google.android.material.card.MaterialCardView>
 
                 <android.widget.Space

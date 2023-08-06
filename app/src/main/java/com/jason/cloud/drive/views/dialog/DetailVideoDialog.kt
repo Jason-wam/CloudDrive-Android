@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
-import com.jason.cloud.drive.databinding.LayoutVideoDetailDialogBinding
+import com.jason.cloud.drive.databinding.LayoutDetailVideoDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.PositionStore
 import com.jason.cloud.drive.utils.UrlBuilder
@@ -18,8 +18,8 @@ import com.jason.cloud.media3.activity.VideoPlayActivity
 import com.jason.cloud.media3.model.Media3Item
 import java.io.Serializable
 
-class VideoDetailDialog :
-    BaseBindBottomSheetDialogFragment<LayoutVideoDetailDialogBinding>(R.layout.layout_video_detail_dialog) {
+class DetailVideoDialog :
+    BaseBindBottomSheetDialogFragment<LayoutDetailVideoDialogBinding>(R.layout.layout_detail_video_dialog) {
     @SuppressLint("SetTextI18n")
     override fun initView(view: View) {
         super.initView(view)
@@ -35,42 +35,39 @@ class VideoDetailDialog :
         })
 
         val position = arguments?.getInt("position") ?: 0
-        val fileList = arguments?.getSerializableListExtraEx<FileEntity>("list").orEmpty()
-        if (position in fileList.indices) {
-            val file = fileList[position]
-            binding.tvName.text = file.name
-            binding.tvURL.text = file.path
-            binding.tvInfo.text = file.size.toFileSizeString() + " / " +
-                    file.date.toDateMinuteString()
+        val fileList = arguments?.getSerializableListExtraEx<FileEntity>("list") ?: return
+        val file = fileList[position]
+        binding.tvName.text = file.name
+        binding.tvURL.text = file.path
+        binding.tvDate.text = file.date.toDateMinuteString()
+        binding.tvSize.text = file.size.toFileSizeString()
 
-            binding.cardImageView.post {
-                val width = binding.cardImageView.width
-                val imageURL = UrlBuilder(file.gifURL).param("size", width).build()
-                binding.cardImageView.minimumHeight = (width * (1080 / 1920f)).toInt()
-                binding.ivImage.loadIMG(imageURL) {
-                    timeout(60000)
-                    addListener { _, _ ->
-                        binding.progressBar.isVisible = false
-                    }
+        binding.cardImageView.post {
+            val width = binding.cardImageView.width
+            val imageURL = UrlBuilder(file.gifURL).param("size", width).build()
+            binding.cardImageView.minimumHeight = (width * (1080 / 1920f)).toInt()
+            binding.ivImage.loadIMG(imageURL) {
+                timeout(60000)
+                addListener { _, _ ->
+                    binding.progressBar.isVisible = false
                 }
-            }
-
-            binding.btnPlay.setOnClickListener {
-                VideoPlayActivity.positionStore = PositionStore()
-                VideoPlayActivity.open(requireContext(), fileList.map {
-                    Media3Item.create(it.name, it.rawURL, true)
-                }, position)
-                dismiss()
             }
         }
 
+        binding.btnPlay.setOnClickListener {
+            VideoPlayActivity.positionStore = PositionStore()
+            VideoPlayActivity.open(requireContext(), fileList.map {
+                Media3Item.create(it.name, it.rawURL, true)
+            }, position)
+            dismiss()
+        }
 
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
     }
 
-    fun setFileList(list: List<FileEntity>, position: Int): VideoDetailDialog {
+    fun setFileList(list: List<FileEntity>, position: Int): DetailVideoDialog {
         arguments?.putSerializable("list", list as Serializable)
         arguments?.putInt("position", position)
         return this

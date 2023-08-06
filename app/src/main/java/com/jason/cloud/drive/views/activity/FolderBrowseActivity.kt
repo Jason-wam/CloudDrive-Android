@@ -66,7 +66,7 @@ class FolderBrowseActivity :
         transaction.add(R.id.container, fragment, "fragment")
         transaction.commit()
 
-        fragment.onAppbarCallback {
+        fragment.setAppbarElevationCallback {
             if (it) {
                 showAppbarElevation()
             } else {

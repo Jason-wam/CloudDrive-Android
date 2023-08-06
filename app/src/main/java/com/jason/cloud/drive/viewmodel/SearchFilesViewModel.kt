@@ -20,9 +20,9 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
     var onError = MutableLiveData<String>()
     var onSucceed = MutableLiveData<SearchRespondEntity>()
 
-    fun refresh() {
+    fun refresh(noneCache: Boolean = true) {
         page = 1
-        doSearch(true)
+        doSearch(noneCache)
     }
 
     fun retry() {

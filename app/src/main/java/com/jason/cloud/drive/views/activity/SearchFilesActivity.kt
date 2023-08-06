@@ -23,6 +23,7 @@ import com.jason.cloud.drive.utils.extension.view.bindRvElevation
 import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
 import com.jason.cloud.drive.viewmodel.SearchFilesViewModel
 import com.jason.cloud.drive.views.dialog.showFileMenu
+import com.jason.cloud.drive.views.dialog.showFolderMenu
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.extension.toast
 
@@ -38,14 +39,44 @@ class SearchFilesActivity :
     private val adapter = CloudFileAdapter().apply {
         addOnClickObserver { position, item, _ ->
             if (item.isDirectory) {
-                toast("浏览目录：${item.path}")
                 FolderBrowseActivity.openFolder(context, item)
             } else {
-                showFileMenu(itemData, position) {
+                showFileMenu(itemData, position, onDelete = {
                     removeFileIndex(item)
-                }
+                }, onRenamed = {
+                    binding.stateLayout.showLoading()
+                    viewModel.refresh(noneCache = true)
+                })
             }
         }
+
+        addOnLongClickObserver { position, item, _ ->
+            if (item.isDirectory) {
+                showFolderMenu(
+                    item,
+                    onDelete = {
+                        removeFileIndex(item)
+                    },
+                    onRenamed = {
+                        binding.stateLayout.showLoading()
+                        viewModel.refresh(noneCache = true)
+                    }
+                )
+            } else {
+                showFileMenu(
+                    itemData,
+                    position,
+                    onDelete = {
+                        removeFileIndex(item)
+                    },
+                    onRenamed = {
+                        binding.stateLayout.showLoading()
+                        viewModel.refresh(noneCache = true)
+                    }
+                )
+            }
+        }
+
     }
 
     private fun removeFileIndex(item: FileEntity) {
@@ -62,6 +93,7 @@ class SearchFilesActivity :
     @SuppressLint("NotifyDataSetChanged")
     override fun initView() {
         MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
+        binding.toolbar.setNavigationOnClickListener { finish() }
         binding.toolbar.setOnMenuItemClickListener(this)
 
         binding.stateLayout.bindView(stateLogo, R.layout.layout_state_logo)

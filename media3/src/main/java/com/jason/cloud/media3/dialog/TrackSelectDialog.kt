@@ -62,8 +62,9 @@ class TrackSelectDialog(context: Context) : Dialog(context, R.style.Media3Dialog
     }
 
     fun setSelectedPosition(position: Int): TrackSelectDialog {
-        adapter.setSelectedPosition(position)
         lastSelection = position
+        adapter.setSelectedPosition(position)
+        rvSelection.scrollToPosition(position)
         return this
     }
 

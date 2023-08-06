@@ -7,6 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.jason.cloud.media3.R
 import com.jason.cloud.media3.interfaces.OnStateChangeListener
@@ -143,6 +145,21 @@ class VideoPlayActivity : AppCompatActivity() {
             playerView.seekToDefaultPosition(position)
             playerView.start()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (playerView.isLocked) {
+                    Toast.makeText(this@VideoPlayActivity, "请先解锁播放器", Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+                if (playerView.isInFullscreen) {
+                    playerView.cancelFullScreen()
+                    return
+                }
+                callBackPressed()
+            }
+        })
     }
 
     override fun onStart() {
@@ -164,5 +181,20 @@ class VideoPlayActivity : AppCompatActivity() {
         super.onDestroy()
         playerView.release()
         positionStore = null
+    }
+
+    private var exitTime: Long = 0
+
+    private fun callBackPressed() {
+        if (!playerView.isPlaying()) {
+            finish()
+        } else {
+            if (System.currentTimeMillis() - exitTime > 2000) {
+                exitTime = System.currentTimeMillis()
+                Toast.makeText(this, "再按一次退出播放", Toast.LENGTH_SHORT).show()
+            } else {
+                finish()
+            }
+        }
     }
 }

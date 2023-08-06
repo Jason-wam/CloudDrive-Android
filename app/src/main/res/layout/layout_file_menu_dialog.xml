@@ -103,6 +103,20 @@
             app:iconTint="#00897B" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_rename"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="@string/file_rename"
+            app:icon="@drawable/ic_round_edit_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="14dp"
+            app:iconTint="#039BE5" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete"
             style="@style/MaterialButtonStyle"
             android:layout_width="match_parent"

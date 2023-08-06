@@ -9,7 +9,7 @@ import com.drake.net.utils.scopeNetLife
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
-import com.jason.cloud.drive.databinding.LayoutAudioDetailDialogBinding
+import com.jason.cloud.drive.databinding.LayoutDetailAudioDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.glide.loadIMG
@@ -23,12 +23,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.Serializable
 
-class AudioDetailDialog :
-    BaseBindBottomSheetDialogFragment<LayoutAudioDetailDialogBinding>(R.layout.layout_audio_detail_dialog),
+class DetailAudioDialog :
+    BaseBindBottomSheetDialogFragment<LayoutDetailAudioDialogBinding>(R.layout.layout_detail_audio_dialog),
     OnStateChangeListener {
     private val videoView by lazy { Media3AudioPlayer(requireContext()) }
 
-    fun setFileList(list: List<FileEntity>, position: Int): AudioDetailDialog {
+    fun setFileList(list: List<FileEntity>, position: Int): DetailAudioDialog {
         arguments?.putSerializable("list", list as Serializable)
         arguments?.putInt("position", position)
         return this
@@ -49,38 +49,38 @@ class AudioDetailDialog :
         })
 
         val position = arguments?.getInt("position") ?: 0
-        val fileList = arguments?.getSerializableListExtraEx<FileEntity>("list").orEmpty()
-        if (position in fileList.indices) {
-            val file = fileList[position]
-            videoView.addOnStateChangeListener(this)
-            videoView.setDataSource(file.rawURL)
+        val fileList = arguments?.getSerializableListExtraEx<FileEntity>("list") ?: return
+        val file = fileList[position]
 
-            loadMediaInfo(file)
-            addOnDismissListener {
-                videoView.release()
-            }
+        videoView.addOnStateChangeListener(this)
+        videoView.setDataSource(file.rawURL)
 
-            binding.tvName.text = file.name
-            binding.tvURL.text = file.path
-            binding.tvInfo.text = file.size.toFileSizeString() + " / " +
-                    file.date.toDateMinuteString()
+        loadMediaInfo(file)
+        addOnDismissListener {
+            videoView.release()
+        }
 
-            binding.ivAudioCover.loadIMG(file.thumbnailURL) {
-                timeout(60000)
-                placeholder(R.drawable.ic_default_audio_cover)
-                addListener { _, _ ->
-                    binding.progressBar.isVisible = false
-                }
+        binding.ivAudioCover.loadIMG(file.thumbnailURL) {
+            timeout(60000)
+            placeholder(R.drawable.ic_default_audio_cover)
+            addListener { _, _ ->
+                binding.progressBar.isVisible = false
             }
+        }
 
-            binding.ibPause.setOnClickListener {
-                videoView.prepare()
-                videoView.start()
-            }
-            binding.btnPlay.setOnClickListener {
-                videoView.prepare()
-                videoView.start()
-            }
+        binding.tvName.text = file.name
+        binding.tvURL.text = file.path
+        binding.tvDate.text = file.date.toDateMinuteString()
+        binding.tvSize.text = file.size.toFileSizeString()
+
+        binding.ibPause.setOnClickListener {
+            videoView.prepare()
+            videoView.start()
+        }
+
+        binding.btnPlay.setOnClickListener {
+            videoView.prepare()
+            videoView.start()
         }
 
         binding.btnCancel.setOnClickListener {

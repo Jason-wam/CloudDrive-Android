@@ -57,12 +57,19 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    packaging {
+        resources.excludes.add("META-INF/beans.xml")
+        resources.excludes.add("META-INF/LICENSE.txt")
+        resources.excludes.add("about_files/**")
+    }
 }
 
 dependencies {
     implementation(project(mapOf("path" to ":theme")))
     implementation(project(mapOf("path" to ":extension")))
     implementation(project(mapOf("path" to ":media3")))
+    implementation(project(mapOf("path" to ":cling")))
 
     implementation("androidx.core:core-ktx:${Dependencies.androidx_core_ktx}")
     implementation("androidx.appcompat:appcompat:${Dependencies.androidx_appcompat}")

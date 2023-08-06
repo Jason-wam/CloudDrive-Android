@@ -58,12 +58,8 @@ class DownloadService : Service() {
         Serializable
 
     companion object {
-        /**
-         * 上传文件到指定文件夹
-         * @param dir 要下载到的目标文件夹
-         * @param list 本地文件URI列表
-         */
         fun launchWith(context: Context, params: List<DownloadParam>, block: (() -> Unit)? = null) {
+            if (params.isEmpty()) return
             fun start() {
                 val service = Intent(context, DownloadService::class.java).apply {
                     putSerializableListExtra("params", params)

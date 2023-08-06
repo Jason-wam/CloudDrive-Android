@@ -32,9 +32,9 @@
             android:visibility="gone" />
 
         <androidx.core.widget.NestedScrollView
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="1">
 
             <LinearLayout
@@ -99,81 +99,99 @@
                     android:layout_marginStart="18dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="18dp"
-                    android:text="@string/file_info"
+                    android:text="@string/file_date"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tvInfo"
+                    android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
                     android:textColor="@color/colorOnSurface"
                     android:textSize="14sp"
-                    tools:text="945.8 MB / 2022-03-10" />
+                    tools:text="2022-03-10 01:45" />
 
                 <android.widget.Space
                     android:layout_width="0dp"
-                    android:layout_height="16dp" />
+                    android:layout_height="8dp" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardImageView"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    android:text="@string/file_size"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_size"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
-                    android:minHeight="180dp"
-                    app:cardBackgroundColor="@android:color/black"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp"
-                    app:strokeWidth="0dp">
+                    android:textColor="@color/colorOnSurface"
+                    android:textSize="14sp"
+                    tools:text="945.8 MB" />
 
-                    <com.jason.cloud.drive.views.widgets.RoundCornerImageView
-                        android:id="@+id/iv_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitXY" />
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp" />
 
-                    <LinearLayout
-                        android:id="@+id/progress_bar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/attach_progress"
+                    android:textColor="@color/material_on_surface_emphasis_medium"
+                    android:textSize="12sp" />
 
-                        <ProgressBar
-                            android:layout_width="24dp"
-                            android:layout_height="24dp" />
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/indicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    app:indicatorColor="@color/colorSecondary"
+                    app:trackCornerRadius="50dp"
+                    app:trackThickness="3dp"
+                    tools:progress="50" />
 
-                        <android.widget.Space
-                            android:layout_width="0dp"
-                            android:layout_height="4dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="正在生成GIF预览图..."
-                            android:textColor="@android:color/white"
-                            android:textSize="13sp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_speed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="18dp"
+                    android:ellipsize="end"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    tools:text="0 B/s"
+                    android:textColor="@color/material_on_surface_emphasis_medium"
+                    android:textSize="12sp" />
 
                 <android.widget.Space
                     android:layout_width="0dp"
                     android:layout_height="10dp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_play"
+                    android:id="@+id/btn_open"
                     style="@style/MaterialButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
-                    android:text="@string/play_now"
+                    tools:text="打开文件"
                     android:textColor="@color/colorSecondary" />
 
                 <com.google.android.material.button.MaterialButton
@@ -183,7 +201,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
-                    android:text="@string/confirm" />
+                    android:text="@string/cancel" />
 
                 <android.widget.Space
                     android:layout_width="0dp"

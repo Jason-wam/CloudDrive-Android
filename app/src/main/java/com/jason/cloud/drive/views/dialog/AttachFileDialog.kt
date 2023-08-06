@@ -8,7 +8,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.database.downloader.DownloadTask
-import com.jason.cloud.drive.databinding.LayoutAttachFileDialogBinding
+import com.jason.cloud.drive.databinding.LayoutFileAttachDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.DirManager
 import com.jason.cloud.extension.getSerializableEx
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AttachFileDialog :
-    BaseBindBottomSheetDialogFragment<LayoutAttachFileDialogBinding>(R.layout.layout_attach_file_dialog) {
+    BaseBindBottomSheetDialogFragment<LayoutFileAttachDialogBinding>(R.layout.layout_file_attach_dialog) {
     private var downloadTask: DownloadTask? = null
     private var progressJob: Job? = null
 
@@ -47,7 +47,8 @@ class AttachFileDialog :
         arguments?.getSerializableEx("file", FileEntity::class.java)?.let {
             binding.tvName.text = it.name
             binding.tvURL.text = it.path
-            binding.tvInfo.text = it.size.toFileSizeString() + " / " + it.date.toDateMinuteString()
+            binding.tvDate.text = it.date.toDateMinuteString()
+            binding.tvSize.text = it.size.toFileSizeString()
             binding.indicator.progress = 0
             binding.tvSpeed.text = "0 B/s"
             attachFile(it)

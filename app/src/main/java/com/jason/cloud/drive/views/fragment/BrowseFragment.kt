@@ -16,6 +16,7 @@ import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.service.BackupService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.ListSort
+import com.jason.cloud.drive.utils.extension.view.setTitleFont
 import com.jason.cloud.drive.views.activity.SearchFilesActivity
 import com.jason.cloud.extension.startActivity
 import com.jason.cloud.extension.toast
@@ -38,6 +39,7 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
     @SuppressLint("NotifyDataSetChanged")
     override fun initView(context: Context) {
         MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
+        binding.toolbar.setTitleFont("fonts/AaJianHaoTi.ttf")
         binding.toolbar.setOnMenuItemClickListener(this)
         updateSortMenu()
 
@@ -45,7 +47,7 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
         transaction.add(R.id.container, fragment, "fragment")
         transaction.commit()
 
-        fragment.onAppbarCallback {
+        fragment.setAppbarElevationCallback {
             if (it) {
                 showAppbarElevation()
             } else {

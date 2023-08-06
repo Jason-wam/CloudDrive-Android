@@ -20,17 +20,6 @@
             android:layout_marginTop="10dp"
             android:src="@drawable/selector_sheet_handler" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvTitle"
-            style="@style/DialogTitleTextBoldMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/file_detail"
-            android:textColor="@color/colorOnPrimary"
-            android:visibility="gone" />
-
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -99,75 +88,147 @@
                     android:layout_marginStart="18dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="18dp"
-                    android:text="@string/file_info"
+                    android:text="@string/file_date"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tvInfo"
+                    android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
                     android:textColor="@color/colorOnSurface"
                     android:textSize="14sp"
-                    tools:text="945.8 MB / 2022-03-10" />
+                    tools:text="2022-03-10 01:45" />
 
                 <android.widget.Space
                     android:layout_width="0dp"
                     android:layout_height="8dp" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="18dp"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="@string/attach_progress"
-                    android:textColor="@color/material_on_surface_emphasis_medium"
+                    android:text="@string/file_size"
+                    android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="12sp" />
 
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/indicator"
+                <TextView
+                    android:id="@+id/tv_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:textColor="@color/colorOnSurface"
+                    android:textSize="14sp"
+                    tools:text="945.8 MB" />
+
+                <android.widget.Space
+                    android:layout_width="0dp"
+                    android:layout_height="16dp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardImageView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
-                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="18dp"
-                    app:indicatorColor="@color/colorSecondary"
-                    app:trackCornerRadius="50dp"
-                    app:trackThickness="3dp"
-                    tools:progress="50" />
+                    app:cardBackgroundColor="@color/colorCardViewBackground"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/colorItemDecoration"
+                    app:strokeWidth="@dimen/itemDecorationSize">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_speed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="18dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="18dp"
-                    android:ellipsize="end"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:text="12 MB/s"
-                    android:textColor="@color/material_on_surface_emphasis_medium"
-                    android:textSize="12sp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <com.jason.cloud.drive.views.widgets.RoundCornerImageView
+                            android:id="@+id/iv_audio_cover"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/ic_default_audio_cover"
+                            app:radius="8dp" />
+
+                        <android.widget.Space
+                            android:layout_width="8dp"
+                            android:layout_height="0dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_audio_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorOnSurface"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                tools:text="G.E.M. 邓紫棋 - 多远都要在一起.flac" />
+
+                            <TextView
+                                android:id="@+id/tv_audio_artist"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorOnSurfaceMedium"
+                                android:textSize="12sp"
+                                tools:text="邓紫棋 - 新的心跳" />
+                        </LinearLayout>
+
+                        <android.widget.Space
+                            android:layout_width="8dp"
+                            android:layout_height="0dp" />
+
+                        <FrameLayout
+                            android:layout_width="40dp"
+                            android:layout_height="40dp">
+
+                            <ImageButton
+                                android:id="@+id/ib_pause"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/selector_audio_control_dark_background"
+                                android:src="@drawable/ic_round_play_arrow_24"
+                                app:tint="@color/colorOnSurface"
+                                tools:ignore="TouchTargetSizeCheck" />
+
+                            <ProgressBar
+                                android:id="@+id/progress_bar"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/selector_audio_control_dark_background"
+                                android:indeterminateTint="@color/colorOnSurface"
+                                android:padding="13dp"
+                                android:visibility="gone" />
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
 
                 <android.widget.Space
                     android:layout_width="0dp"
                     android:layout_height="10dp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_open"
+                    android:id="@+id/btn_play"
                     style="@style/MaterialButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
-                    android:text="文件加载中(20%).."
+                    android:text="@string/play_now"
                     android:textColor="@color/colorSecondary" />
 
                 <com.google.android.material.button.MaterialButton
@@ -177,7 +238,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp"
-                    android:text="@string/cancel" />
+                    android:text="@string/confirm" />
 
                 <android.widget.Space
                     android:layout_width="0dp"

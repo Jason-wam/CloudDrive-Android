@@ -14,8 +14,6 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.drake.net.Get
-import com.drake.net.utils.scopeDialog
 import com.drake.net.utils.scopeNetLife
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.adapter.CloudFileAdapter
@@ -27,15 +25,12 @@ import com.jason.cloud.drive.databinding.FragmentFileListBinding
 import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.service.UploadService
-import com.jason.cloud.drive.utils.Configure
-import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.viewmodel.ListFilesViewModel
-import com.jason.cloud.drive.views.dialog.LoadDialog
-import com.jason.cloud.drive.views.dialog.TextEditDialog
+import com.jason.cloud.drive.views.dialog.showCreateFolderDialog
 import com.jason.cloud.drive.views.dialog.showFileMenu
+import com.jason.cloud.drive.views.dialog.showFolderMenu
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.FilePathIndicatorDecoration
-import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.getSerializableEx
 import com.jason.cloud.extension.toast
 import kotlinx.coroutines.delay
@@ -49,7 +44,10 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
         @JvmStatic
         fun newInstance() = FileListFragment()
 
-
+        /**
+         * 浏览指定文件夹
+         * @param file 目标文件夹
+         */
         @JvmStatic
         fun newInstance(file: FileEntity) = FileListFragment().apply {
             arguments = Bundle().apply {
@@ -69,11 +67,47 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
     private val adapter = CloudFileAdapter().apply {
         addOnClickObserver { position, item, _ ->
             if (item.isDirectory) {
-                openFolder(item)
+                binding.stateLayout.showLoading()
+                viewModel.getList(item)
             } else {
-                activity?.showFileMenu(itemData, position) {
-                    removeFileIndex(item)
-                }
+                activity?.showFileMenu(
+                    itemData,
+                    position,
+                    onDelete = {
+                        removeFileIndex(item)
+                    },
+                    onRenamed = {
+                        binding.stateLayout.showLoading()
+                        viewModel.refresh(isGoBack = false, noneCache = true)
+                    }
+                )
+            }
+        }
+
+        addOnLongClickObserver { position, item, _ ->
+            if (item.isDirectory) {
+                activity?.showFolderMenu(
+                    item,
+                    onDelete = {
+                        removeFileIndex(item)
+                    },
+                    onRenamed = {
+                        binding.stateLayout.showLoading()
+                        viewModel.refresh(isGoBack = false, noneCache = true)
+                    }
+                )
+            } else {
+                activity?.showFileMenu(
+                    itemData,
+                    position,
+                    onDelete = {
+                        removeFileIndex(item)
+                    },
+                    onRenamed = {
+                        binding.stateLayout.showLoading()
+                        viewModel.refresh(isGoBack = false, noneCache = true)
+                    }
+                )
             }
         }
     }
@@ -86,6 +120,9 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
             adapter.removeData(index)
             adapter.notifyItemRemoved(index)
             adapter.notifyItemRangeChanged(index, adapter.itemCount)
+        }
+        if (adapter.itemCount == 0) {
+            binding.stateLayout.showEmpty(R.string.state_view_nothing_here)
         }
     }
 
@@ -127,11 +164,6 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
         viewModel.refresh(isGoBack = isGoBack)
     }
 
-    private fun openFolder(item: FileEntity) {
-        binding.stateLayout.showLoading()
-        viewModel.getList(item)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fileSelectLauncher = registerForActivityResult(SelectFilesContract()) { uriList ->
@@ -171,8 +203,8 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
 
     private var appbarCallback: ((show: Boolean) -> Unit)? = null
 
-    fun onAppbarCallback(call: (show: Boolean) -> Unit) {
-        this.appbarCallback = call
+    fun setAppbarElevationCallback(call: (show: Boolean) -> Unit) {
+        appbarCallback = call
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -263,8 +295,9 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
         }
 
         val file = arguments?.getSerializableEx("file", FileEntity::class.java)
-        if (file != null) {
-            openFolder(file)
+        if (file != null) { //如果未设置目标文件夹则浏览根目录
+            binding.stateLayout.showLoading()
+            viewModel.getList(file)
             arguments?.clear()
         } else {
             val hash = arguments?.getString("hash").orEmpty()
@@ -299,39 +332,8 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
     }
 
     fun createNewFolder() {
-        fun create(name: String) {
-            val dialog = LoadDialog(requireContext()).setMessage("正在创建文件夹...")
-            scopeDialog(dialog, cancelable = true) {
-                Get<String>("${Configure.hostURL}/createFolder") {
-                    param("hash", viewModel.current())
-                    param("name", name)
-                }.await().asJSONObject().also {
-                    if (it.optInt("code") == 200) {
-                        toast("文件夹创建成功！")
-                        viewModel.refresh(isGoBack = false)
-                    } else {
-                        toast(it.getString("message"))
-                    }
-                }
-            }.catch {
-                toast(it.toMessage())
-            }
-        }
-
-        TextEditDialog(requireContext()).apply {
-            setTitle("新建文件夹")
-            setHintText("请输入文件夹名称...")
-            onNegative("取消")
-            onPositive {
-                if (it.isNullOrBlank()) {
-                    toast("请输入文件夹名称！")
-                    false
-                } else {
-                    create(it.trim())
-                    true
-                }
-            }
-            show()
+        activity?.showCreateFolderDialog(viewModel.current()) {
+            viewModel.refresh(isGoBack = false)
         }
     }
 }

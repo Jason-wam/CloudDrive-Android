@@ -271,7 +271,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                         if (error != null) {
                             currentPlayState = Media3PlayState.STATE_ERROR
                             errorLayout.isVisible = true
-                            errorMessage.text = error.toMessage()
+                            errorMessage.text = error.toZhMessage()
                             errorStatusBtn.setOnClickListener {
                                 retryPlayback()
                             }

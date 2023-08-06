@@ -25,7 +25,7 @@
                 app:contentInsetStartWithNavigation="0dp"
                 app:logo="@drawable/ic_cloud_six_24"
                 app:logoScaleType="centerInside"
-                app:menu="@menu/menu_cloud_files_fragment_tool_bar"
+                app:menu="@menu/menu_files_list_tool_bar"
                 app:subtitleTextAppearance="@style/SubtitleTextAppearance"
                 app:subtitleTextColor="@color/colorOnPrimaryMedium"
                 app:title="@string/app_name"
