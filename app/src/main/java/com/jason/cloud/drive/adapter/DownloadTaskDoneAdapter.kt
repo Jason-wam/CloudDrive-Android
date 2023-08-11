@@ -2,6 +2,7 @@ package com.jason.cloud.drive.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
 import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
@@ -9,10 +10,46 @@ import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.databinding.ItemDownloadTaskDoneBinding
 import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.FileType.Media.*
+import com.jason.cloud.drive.utils.ItemSelector
 import com.jason.cloud.extension.toFileSizeString
 
+@SuppressLint("NotifyDataSetChanged")
 class DownloadTaskDoneAdapter :
     BaseBindRvAdapter<DownloadTaskEntity, ItemDownloadTaskDoneBinding>(R.layout.item_download_task_done) {
+    val selector = ItemSelector<DownloadTaskEntity>().apply {
+        addOnSelectListener(object : ItemSelector.OnSelectListener<DownloadTaskEntity> {
+            override fun onSelectStart() {
+
+            }
+
+            override fun onSelectCanceled() {
+                notifyDataSetChanged()
+            }
+
+            override fun onSelectChanged(selects: List<DownloadTaskEntity>) {
+
+            }
+        })
+    }
+
+    init {
+        addOnClickObserver { position, item, _ ->
+            if (selector.isInSelectMode) {
+                selector.reverseSelect(item)
+                notifyItemChanged(position)
+            }
+        }
+
+        addOnLongClickObserver { position, item, _ ->
+            if (selector.isInSelectMode.not()) {
+                selector.startSelect()
+                selector.reverseSelect(item)
+                notifyItemChanged(position)
+                notifyDataSetChanged()
+            }
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(
         context: Context,
@@ -25,6 +62,15 @@ class DownloadTaskDoneAdapter :
         holder.binding.indicator.progress = item.progress
         holder.binding.tvStatus.text = item.getStatusText()
         holder.binding.tvSize.text = item.downloadedBytes.toFileSizeString()
+        holder.binding.btnControl.isVisible = selector.isInSelectMode.not()
+        holder.binding.checkbox.isVisible = selector.isInSelectMode
+        holder.binding.checkbox.isChecked = selector.isSelected(item)
+        holder.binding.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                selector.serSelected(item, isChecked)
+                notifyItemChanged(position)
+            }
+        }
     }
 
     private fun getFileIcon(name: String): Int {

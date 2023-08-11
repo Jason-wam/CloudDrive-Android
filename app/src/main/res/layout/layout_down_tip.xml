@@ -47,7 +47,7 @@
             android:layout_marginStart="14dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="14dp"
-            android:textColor="@color/material_on_surface_emphasis_medium"
+            android:textColor="@color/colorOnSurfaceMedium"
             android:textSize="13sp"
             tools:text="点击此按钮可以切换上传或取回任务页面。" />
 

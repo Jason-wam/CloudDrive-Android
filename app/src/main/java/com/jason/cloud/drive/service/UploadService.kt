@@ -111,13 +111,26 @@ class UploadService : Service() {
         notificationManager = NotificationManagerCompat.from(this)
         notificationBuilder = NotificationCompat.Builder(this, channelId)
         showNotification()
+        UploadQueue.instance.threadSize(3)
+        UploadQueue.instance.onTaskStart {
+            startObserveTask(it)
+        }
+        UploadQueue.instance.onTaskListDone {
+            taskObserver?.cancel()
+            toast("全部上传任务完成！")
+            stopSelf()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val hash = intent?.getStringExtra("hash")
         val uriList = intent?.getParcelableArrayListEx("uriList", Uri::class.java) ?: emptyList()
         if (!hash.isNullOrBlank() && uriList.isNotEmpty()) {
-            startUploads(uriList, hash)
+            UploadQueue.instance.addTaskAndStart(ArrayList<UploadTask>().apply {
+                uriList.forEach { uri ->
+                    add(UploadTask(uri, hash))
+                }
+            })
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -152,24 +165,6 @@ class UploadService : Service() {
         if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
-    }
-
-    private fun startUploads(uriList: List<Uri>, hash: String) {
-        UploadQueue.instance.threadSize(3)
-        UploadQueue.instance.onTaskStart {
-            startObserveTask(it)
-        }
-        UploadQueue.instance.onTaskListDone {
-            taskObserver?.cancel()
-            toast("全部上传任务完成！")
-            stopSelf()
-        }
-        UploadQueue.instance.addTask(ArrayList<UploadTask>().apply {
-            uriList.forEach { uri ->
-                add(UploadTask(uri, hash))
-            }
-        })
-        UploadQueue.instance.start()
     }
 
     private fun startObserveTask(task: UploadTask) {

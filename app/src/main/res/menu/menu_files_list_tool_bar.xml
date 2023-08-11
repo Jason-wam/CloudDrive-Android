@@ -10,7 +10,24 @@
         app:iconTint="@color/colorOnPrimary"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,UnusedAttribute" />
-
+    <item
+        android:id="@+id/upload"
+        android:icon="@drawable/ic_upload_22"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/task_upload"
+        android:visible="false"
+        app:iconTint="@color/colorOnPrimary"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction,UnusedAttribute" />
+    <item
+        android:id="@+id/download"
+        android:icon="@drawable/ic_download_22"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/task_download"
+        android:visible="false"
+        app:iconTint="@color/colorOnPrimary"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction,UnusedAttribute" />
     <item
         android:id="@+id/more"
         android:icon="@drawable/ic_round_more_vert_24"

@@ -10,7 +10,7 @@ import com.jason.cloud.drive.adapter.UploadTaskDoneAdapter
 import com.jason.cloud.drive.base.BaseBindFragment
 import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.databinding.FragmentUploadDoneBinding
-import com.jason.cloud.drive.interfaces.CallMainActivity
+import com.jason.cloud.drive.views.activity.FileBrowserActivity
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 
 class UploadDoneFragment :
@@ -23,10 +23,7 @@ class UploadDoneFragment :
 
     private val adapter = UploadTaskDoneAdapter().apply {
         addOnClickObserver { _, item, _ ->
-            if (activity is CallMainActivity) {
-                val mainActivity = activity as CallMainActivity
-                mainActivity.locateFileLocation(item.hash, item.fileHash)
-            }
+            FileBrowserActivity.locationTargetFile(requireContext(), item.hash, item.fileHash)
         }
     }
 

@@ -1,7 +1,6 @@
 package com.jason.cloud.drive.database.backup
 
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.drake.net.Net
@@ -110,9 +109,9 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
         try {
             Net.get("${Configure.hostURL}/flashBackup") {
                 setId(id)
-                param("fileName", fileName)
                 param("fileHash", fileHash)
-                param("deviceName", getDeviceName())
+                param("fileName", fileName)
+                param("deviceName", Configure.deviceName)
                 setClient {
                     callTimeout(1800, TimeUnit.SECONDS)
                     readTimeout(1800, TimeUnit.SECONDS)
@@ -130,9 +129,9 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
         Net.post("${Configure.hostURL}/backup") {
             setId(id)
             param("file", uri)
-            param("fileName", fileName)
-            param("fileHash", fileHash)
-            param("deviceName", getDeviceName())
+            addQuery("fileName", fileName)
+            addQuery("fileHash", fileHash)
+            addQuery("deviceName", Configure.deviceName)
             setClient {
                 callTimeout(1800, TimeUnit.SECONDS)
                 readTimeout(1800, TimeUnit.SECONDS)
@@ -150,9 +149,5 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
         }.execute<String>().asJSONObject().let {
             it.optInt("code") == 200
         }
-    }
-
-    private fun getDeviceName(): String {
-        return (Build.BRAND + " - " + Build.MODEL).uppercase()
     }
 }

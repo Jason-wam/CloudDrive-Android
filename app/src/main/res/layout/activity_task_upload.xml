@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".views.activity.TaskUploadActivity">
+
+        <View
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:stateListAnimator="@animator/appbar_layout_elevation">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentInsetStartWithNavigation="0dp"
+                app:menu="@menu/menu_activity_task_upload"
+                app:navigationIcon="@drawable/ic_round_keyboard_backspace_24"
+                app:navigationIconTint="@color/colorOnPrimary"
+                app:title="上传任务管理"
+                app:titleCentered="false"
+                app:titleTextAppearance="@style/TitleTextBoldAppearance"
+                app:titleTextColor="@color/colorOnPrimary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <com.jason.cloud.drive.views.widgets.StateLayout
+            android:id="@+id/state_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/app_bar_layout">
+
+                <androidx.core.widget.NestedScrollView
+                    android:id="@+id/nested_scroll_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_task"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:paddingTop="10dp"
+                            android:text="@string/uploading_task"
+                            android:textColor="@color/colorOnSurfaceMedium"
+                            android:textSize="12sp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_task"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:overScrollMode="never"
+                            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tv_task"
+                            app:spanCount="1"
+                            tools:itemCount="1"
+                            tools:listitem="@layout/item_upload_task" />
+
+                        <TextView
+                            android:id="@+id/tv_task_done"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:paddingTop="10dp"
+                            android:text="@string/upload_task_done"
+                            android:textColor="@color/colorOnSurfaceMedium"
+                            android:textSize="12sp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/rv_task" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_task_done"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="100dp"
+                            android:overScrollMode="never"
+                            android:paddingBottom="10dp"
+                            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/tv_task_done"
+                            app:spanCount="1"
+                            tools:listitem="@layout/item_upload_task_done" />
+
+                        <View
+                            android:id="@+id/rv_task_overly"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="@id/rv_task"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:visibility="visible" />
+
+                        <View
+                            android:id="@+id/rv_task_done_overly"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:minHeight="100dp"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/rv_task"
+                            tools:background="#10000000"
+                            tools:visibility="gone" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.core.widget.NestedScrollView>
+
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btn_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="24dp"
+                    android:contentDescription="@string/delete"
+                    android:src="@drawable/ic_baseline_delete_outline_24"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/colorSecondary"
+                    app:layout_behavior=".utils.ScrollAwareFabBehavior"
+                    app:rippleColor="@color/colorSecondaryVariant"
+                    app:tint="@color/colorOnSecondary"
+                    tools:visibility="visible" />
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </com.jason.cloud.drive.views.widgets.StateLayout>
+    </LinearLayout>
+</layout>

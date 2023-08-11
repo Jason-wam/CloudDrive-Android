@@ -109,12 +109,32 @@ class DownloadService : Service() {
         notificationManager = NotificationManagerCompat.from(this)
         notificationBuilder = NotificationCompat.Builder(this, channelId)
         showNotification()
+        DownloadQueue.instance.onTaskStart {
+            scope.launch(Dispatchers.IO) {
+                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
+                startObserveTask(it)
+            }
+        }
+        DownloadQueue.instance.onTaskDone {
+            scope.launch(Dispatchers.IO) {
+                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
+            }
+        }
+        DownloadQueue.instance.onTaskListDone {
+            taskObserver?.cancel()
+            toast("全部取回任务完成！")
+            stopSelf()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val params = intent?.getSerializableListExtraEx<DownloadParam>("params") ?: emptyList()
         if (params.isNotEmpty()) {
-            startDownloads(params)
+            DownloadQueue.instance.addTaskAndStart(ArrayList<DownloadTask>().apply {
+                params.forEach { param ->
+                    add(DownloadTask(param.name, param.url, param.hash, param.dir))
+                }
+            })
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -138,7 +158,6 @@ class DownloadService : Service() {
         startForeground(notificationId, notificationBuilder.build())
     }
 
-
     private fun update() {
         val hasPermission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true else {
             PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(
@@ -149,31 +168,6 @@ class DownloadService : Service() {
         if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
-    }
-
-    private fun startDownloads(params: List<DownloadParam>) {
-        DownloadQueue.instance.onTaskStart {
-            scope.launch(Dispatchers.IO) {
-                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
-                startObserveTask(it)
-            }
-        }
-        DownloadQueue.instance.onTaskDone {
-            scope.launch(Dispatchers.IO) {
-                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
-            }
-        }
-        DownloadQueue.instance.onTaskListDone {
-            taskObserver?.cancel()
-            toast("全部取回任务完成！")
-            stopSelf()
-        }
-        DownloadQueue.instance.addTask(ArrayList<DownloadTask>().apply {
-            params.forEach { param ->
-                add(DownloadTask(param.name, param.url, param.hash, param.dir))
-            }
-        })
-        DownloadQueue.instance.start()
     }
 
     private fun startObserveTask(task: DownloadTask) {

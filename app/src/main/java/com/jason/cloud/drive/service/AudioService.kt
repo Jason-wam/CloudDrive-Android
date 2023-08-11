@@ -245,8 +245,7 @@ class AudioService : Service(), OnStateChangeListener {
                 notificationBuilder.setLargeIcon(bitmap?.squared)
                 updateIfInteractive()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (ignore: Exception) {
             withContext(Dispatchers.Main) {
                 notificationBuilder.setLargeIcon(
                     ContextCompat.getDrawable(
@@ -263,7 +262,11 @@ class AudioService : Service(), OnStateChangeListener {
         var artist = ""
         val retriever = MediaMetadataRetriever()
         try {
-            retriever.setDataSource(file.url, HashMap<String, String>())
+            if (file.url.startsWith("http")) {
+                retriever.setDataSource(file.url, HashMap<String, String>())
+            } else {
+                retriever.setDataSource(file.url)
+            }
             title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) ?: ""
             album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM) ?: ""
             artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: ""

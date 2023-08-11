@@ -19,11 +19,11 @@ import com.jason.cloud.drive.databinding.ActivitySearchFilesBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.ListSort
+import com.jason.cloud.drive.utils.actions.showFileMenu
+import com.jason.cloud.drive.utils.actions.showFolderMenu
 import com.jason.cloud.drive.utils.extension.view.bindRvElevation
 import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
 import com.jason.cloud.drive.viewmodel.SearchFilesViewModel
-import com.jason.cloud.drive.views.dialog.showFileMenu
-import com.jason.cloud.drive.views.dialog.showFolderMenu
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.extension.toast
 
@@ -39,13 +39,13 @@ class SearchFilesActivity :
     private val adapter = CloudFileAdapter().apply {
         addOnClickObserver { position, item, _ ->
             if (item.isDirectory) {
-                FolderBrowseActivity.openFolder(context, item)
+                FileBrowserActivity.openFolder(context, item)
             } else {
                 showFileMenu(itemData, position, onDelete = {
                     removeFileIndex(item)
                 }, onRenamed = {
                     binding.stateLayout.showLoading()
-                    viewModel.refresh(noneCache = true)
+                    viewModel.refresh()
                 })
             }
         }
@@ -59,7 +59,7 @@ class SearchFilesActivity :
                     },
                     onRenamed = {
                         binding.stateLayout.showLoading()
-                        viewModel.refresh(noneCache = true)
+                        viewModel.refresh()
                     }
                 )
             } else {
@@ -71,7 +71,7 @@ class SearchFilesActivity :
                     },
                     onRenamed = {
                         binding.stateLayout.showLoading()
-                        viewModel.refresh(noneCache = true)
+                        viewModel.refresh()
                     }
                 )
             }

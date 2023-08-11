@@ -1,5 +1,6 @@
 package com.jason.cloud.drive.utils
 
+import android.os.Build
 import com.jason.cloud.utils.MMKVStore
 
 object Configure {
@@ -25,6 +26,10 @@ object Configure {
         get() {
             return MMKVStore.with("Configure").getInt("port", 8820)
         }
+
+    val deviceName by lazy {
+        (Build.BRAND + " - " + Build.MODEL).uppercase()
+    }
 
     object CloudFileConfigure {
         var sortModel: ListSort = ListSort.DATE_DESC

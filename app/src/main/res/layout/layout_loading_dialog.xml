@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:includeFontPadding="false"
-                android:textColor="@color/material_on_surface_emphasis_medium"
+                android:textColor="@color/colorOnSurfaceMedium"
                 android:textSize="14sp"
                 android:visibility="gone"
                 tools:text="正在解析视频..."

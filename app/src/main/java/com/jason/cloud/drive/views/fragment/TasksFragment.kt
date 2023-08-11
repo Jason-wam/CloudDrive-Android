@@ -18,8 +18,6 @@ import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
 import com.jason.cloud.drive.utils.extension.view.onTabSelected
 import com.jason.cloud.drive.utils.extension.view.setTitleFont
 import com.jason.cloud.drive.views.dialog.TextDialog
-import com.jason.cloud.drive.views.fragment.tasks.DownloadDoneFragment
-import com.jason.cloud.drive.views.fragment.tasks.DownloadFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadDoneFragment
 import com.jason.cloud.drive.views.fragment.tasks.UploadFragment
 import com.jason.cloud.extension.toast
@@ -37,17 +35,9 @@ class TasksFragment : BaseBindFragment<FragmentTasksBinding>(R.layout.fragment_t
         binding.viewPager2.isUserInputEnabled = false
         binding.viewPager2.getChildAt(0)?.overScrollMode = View.OVER_SCROLL_NEVER
         binding.viewPager2.adapter = BaseViewPager2Adapter(this).apply {
-            addFragment("0", DownloadFragment.newInstance())
-            addFragment("1", DownloadDoneFragment.newInstance())
-
             addFragment("2", UploadFragment.newInstance())
             addFragment("3", UploadDoneFragment.newInstance())
-
-            addFragment("4", DownloadFragment.newInstance())
         }
-
-        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("取回任务"))
-        binding.tabLayout.addTab(binding.tabLayout.newTab().setText("取回完成任务"))
 
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("上传任务"))
         binding.tabLayout.addTab(binding.tabLayout.newTab().setText("上传完成任务"))

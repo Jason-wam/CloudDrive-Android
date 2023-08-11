@@ -9,6 +9,18 @@ import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutFileMenuDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.actions.castMedia
+import com.jason.cloud.drive.utils.actions.downloadFile
+import com.jason.cloud.drive.utils.actions.openWithOtherApplication
+import com.jason.cloud.drive.utils.actions.showDeleteDialog
+import com.jason.cloud.drive.utils.actions.showRenameDialog
+import com.jason.cloud.drive.utils.actions.viewAudioDetail
+import com.jason.cloud.drive.utils.actions.viewAudios
+import com.jason.cloud.drive.utils.actions.viewImages
+import com.jason.cloud.drive.utils.actions.viewOtherDetail
+import com.jason.cloud.drive.utils.actions.viewOthers
+import com.jason.cloud.drive.utils.actions.viewVideoDetail
+import com.jason.cloud.drive.utils.actions.viewVideos
 import com.jason.cloud.extension.getSerializableListExtraEx
 import java.io.Serializable
 

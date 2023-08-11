@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -86,7 +87,9 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private lateinit var rootView: FrameLayout
     private lateinit var surfaceView: View
 
-    private val mediaSourceHelper by lazy { Media3SourceHelper.getInstance(context) }
+    private val mediaSourceHelper by lazy {
+        Media3SourceHelper.newInstance(context.applicationContext)
+    }
 
     private var currentPlayState = Media3PlayState.STATE_IDLE
     internal val internalPlayer: ExoPlayer by lazy {
@@ -110,6 +113,8 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
     private var onMediaItemTransitionListeners = ArrayList<OnMediaItemTransitionListener>()
     private var onPlayCompleteListeners = ArrayList<OnPlayCompleteListener>()
     private var onRequestScreenOrientationListener: ((isFullScreen: Boolean) -> Unit)? = null
+
+    private var isFirstStart = true
 
     init {
         LayoutInflater.from(context).inflate(R.layout.media3_player_view, this)
@@ -225,6 +230,7 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 super.onMediaItemTransition(mediaItem, reason)
                 Log.e("PlayerView", "transition = ${internalPlayer.getCurrentMedia3Item()?.title}")
                 Log.e("PlayerView", "transition = $reason")
+                isFirstStart = true
                 if (reason == ExoPlayer.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
                     //自动切换说明上一个item播放完毕，清除上一个进度
                     if (internalPlayer.hasPreviousMediaItem()) {
@@ -248,6 +254,15 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                     Player.STATE_READY -> {
                         currentPlayState = Media3PlayState.STATE_PREPARED
                         startHideControlViewJob()
+
+                        if (isFirstStart) {//媒体首次加载成功，跳转到记忆位置
+                            isFirstStart = false
+                            val position = getPosition()
+                            if (position > 0L) {
+                                internalPlayer.seekTo(position)
+                                Log.e("PlayerView", "seekTo = $position")
+                            }
+                        }
                     }
 
                     Player.STATE_ENDED -> {
@@ -361,10 +376,6 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
 
     fun prepare() {
         internalPlayer.prepare()
-        val position = getPosition()
-        if (position > 0L) {
-            internalPlayer.seekTo(position)
-        }
         bufferingMessage.text = context.getString(R.string.media3_on_opening_media)
         bufferingView.isIndeterminate = true
         bufferingLayout.isVisible = true
@@ -782,6 +793,22 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 it.systemBarsBehavior =
                     WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 it.show(WindowInsetsCompat.Type.systemBars())
+            }
+        }
+    }
+
+    fun updateCutoutAreaWhenResume() {
+        PlayerUtils.scanForActivity(context)?.run {
+            window.decorView.post {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    window.decorView.rootWindowInsets?.displayCutout?.let {
+                        it.boundingRects.let { list ->
+                            if (list.isNotEmpty()) {
+                                controlView.setCutoutArea(list.first())
+                            }
+                        }
+                    }
+                }
             }
         }
     }

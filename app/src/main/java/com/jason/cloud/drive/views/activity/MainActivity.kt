@@ -1,6 +1,5 @@
 package com.jason.cloud.drive.views.activity
 
-import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -126,20 +125,6 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
                 }
             }
         )
-    }
-
-    override fun locateFileLocation(hash: String, fileHash: String) {
-        super.locateFileLocation(hash, fileHash)
-        binding.viewPager2.setCurrentItem(1, false)
-        viewPager2Adapter.findFragment(BrowseFragment::class.java)?.let {
-            it.arguments = Bundle().apply {
-                putString("hash", hash)
-                putString("fileHash", fileHash)
-            }
-            if (it.isCreated) {
-                it.refresh()
-            }
-        }
     }
 
     private var exitTime: Long = 0

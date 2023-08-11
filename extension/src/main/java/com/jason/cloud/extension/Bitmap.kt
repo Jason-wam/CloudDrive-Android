@@ -22,6 +22,7 @@ fun Canvas.drawBitmap(bitmap: Bitmap, rotate: Float, rectF: RectF, paint: Paint)
     matrix.postTranslate(rectF.left, rectF.top) // 平移变换（可选）
     drawBitmap(bitmap, matrix, paint)
 }
+
 /**
  * 将图片按指定度数旋转
  */
@@ -121,7 +122,11 @@ fun Bitmap.cutCircle(): Bitmap {
 }
 
 
-fun Bitmap?.saveToFile(file: File, format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG, quality: Int = 100): Boolean {
+fun Bitmap?.saveToFile(
+    file: File,
+    format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+    quality: Int = 100
+): Boolean {
     if (this == null) {
         return false
     }
@@ -145,12 +150,39 @@ fun Bitmap.saveToGallery(context: Context, fileName: String): Boolean {
     contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
     contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
     try {
-        val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues) ?: return false
+        val uri = context.contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        ) ?: return false
         context.contentResolver.openOutputStream(uri)?.use {
             if (compress(Bitmap.CompressFormat.JPEG, 100, it)) {
                 context.sendBroadcast(Intent("com.android.camera.NEW_PICTURE", uri))
                 return true
             }
+        }
+        return false
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return false
+    }
+}
+
+fun Context.saveToGallery(file: File): Boolean {
+    val contentValues = ContentValues()
+    contentValues.put(MediaStore.MediaColumns.TITLE, file.name)
+    contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+    contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/gif")
+    try {
+        val uri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        ) ?: return false
+        contentResolver.openOutputStream(uri)?.use {
+            file.inputStream().use { input ->
+                input.copyTo(it)
+            }
+            sendBroadcast(Intent("com.android.camera.NEW_PICTURE", uri))
+            return true
         }
         return false
     } catch (e: Exception) {

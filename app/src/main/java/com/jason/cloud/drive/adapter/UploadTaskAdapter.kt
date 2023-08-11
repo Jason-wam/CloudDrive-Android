@@ -2,6 +2,7 @@ package com.jason.cloud.drive.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindRvAdapter
 import com.jason.cloud.drive.database.uploader.UploadTask
@@ -9,10 +10,46 @@ import com.jason.cloud.drive.database.uploader.getStatusText
 import com.jason.cloud.drive.databinding.ItemUploadTaskBinding
 import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.FileType.Media.*
+import com.jason.cloud.drive.utils.ItemSelector
 import com.jason.cloud.extension.toFileSizeString
 
+@SuppressLint("NotifyDataSetChanged")
 class UploadTaskAdapter :
     BaseBindRvAdapter<UploadTask, ItemUploadTaskBinding>(R.layout.item_upload_task) {
+    val selector = ItemSelector<UploadTask>().apply {
+        addOnSelectListener(object : ItemSelector.OnSelectListener<UploadTask> {
+            override fun onSelectStart() {
+
+            }
+
+            override fun onSelectCanceled() {
+                notifyDataSetChanged()
+            }
+
+            override fun onSelectChanged(selects: List<UploadTask>) {
+
+            }
+        })
+    }
+
+    init {
+        addOnClickObserver { position, item, _ ->
+            if (selector.isInSelectMode) {
+                selector.reverseSelect(item)
+                notifyItemChanged(position)
+            }
+        }
+
+        addOnLongClickObserver { position, item, _ ->
+            if (selector.isInSelectMode.not()) {
+                selector.startSelect()
+                selector.reverseSelect(item)
+                notifyItemChanged(position)
+                notifyDataSetChanged()
+            }
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(
         context: Context,
@@ -25,6 +62,15 @@ class UploadTaskAdapter :
         holder.binding.tvStatus.text = item.getStatusText()
         holder.binding.tvSize.text =
             item.uploadedBytes.toFileSizeString() + " / " + item.totalBytes.toFileSizeString()
+        holder.binding.btnControl.isVisible = selector.isInSelectMode.not()
+        holder.binding.checkbox.isVisible = selector.isInSelectMode
+        holder.binding.checkbox.isChecked = selector.isSelected(item)
+        holder.binding.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                selector.serSelected(item, isChecked)
+                notifyItemChanged(position)
+            }
+        }
     }
 
     private fun getFileIcon(name: String): Int {

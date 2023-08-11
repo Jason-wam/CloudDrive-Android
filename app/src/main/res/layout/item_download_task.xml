@@ -16,9 +16,8 @@
 
         <ImageView
             android:id="@+id/iv_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_round_file_video_24" />
 
@@ -27,8 +26,9 @@
             android:layout_height="4dp" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
@@ -38,21 +38,13 @@
                 android:ellipsize="end"
                 android:maxLines="3"
                 android:textColor="@color/colorOnSurface"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="疾速追杀1.John.Wick.Chapter1.2014.Bluray.UHD.HDR.2160p.H265.10bit.AC3.5.1.mkv" />
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/indicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:max="100"
-                app:indicatorColor="#43A047"
-                app:trackCornerRadius="50dp"
-                app:trackThickness="2dp"
-                tools:progress="50" />
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="4dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -60,31 +52,71 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_status"
+                    android:id="@+id/tv_size"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
                     android:layout_weight="1"
-                    android:maxLines="1"
-                    android:textColor="@color/colorOnSurfaceMedium"
-                    android:textSize="11sp"
-                    tools:targetApi="m"
-                    tools:text="正在连接服务器，请稍候..." />
-
-                <Space
-                    android:layout_width="8dp"
-                    android:layout_height="wrap_content" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_size"
-                    android:layout_width="wrap_content"
-                    android:layout_height="16dp"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="11sp"
                     tools:targetApi="m"
                     tools:text="0B / 9.3 GB" />
 
+                <Space
+                    android:layout_width="8dp"
+                    android:layout_height="4dp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="11sp"
+                    tools:targetApi="m"
+                    tools:text="正在连接服务器，请稍候..." />
             </LinearLayout>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/indicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="100"
+                app:indicatorColor="#43A047"
+                app:trackCornerRadius="50dp"
+                app:trackThickness="2dp"
+                tools:progress="50" />
         </LinearLayout>
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="4dp" />
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_control"
+            style="@style/MaterialButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="暂停"
+            android:textSize="11sp"
+            app:cornerRadius="50dp"
+            app:icon="@drawable/ic_task_in_queue_24"
+            app:iconGravity="textStart"
+            app:iconPadding="2dp"
+            app:iconSize="14dp"
+            app:iconTint="@color/colorSecondary" />
     </LinearLayout>
 </layout>

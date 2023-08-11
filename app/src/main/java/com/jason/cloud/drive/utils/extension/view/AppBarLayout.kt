@@ -27,7 +27,8 @@ fun AppBarLayout.bindRvElevation(recyclerView: RecyclerView, animator: StateList
 
     stateListAnimator = animator
 
-    val animatorNil = AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation_nil)
+    val animatorNil =
+        AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation_nil)
 
     fun refreshShadow() {
         stateListAnimator = if (recyclerView.adapter?.itemCount == 0) {
@@ -82,8 +83,10 @@ fun AppBarLayout.bindRvElevation(recyclerView: RecyclerView, animator: StateList
 }
 
 fun AppBarLayout.setElevationIsVisible(isVisible: Boolean) {
-    val animator = AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation)
-    val animatorNil = AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation_nil)
+    val animator =
+        AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation)
+    val animatorNil =
+        AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation_nil)
     stateListAnimator = if (isVisible) {
         animator
     } else {
@@ -97,8 +100,12 @@ fun AppBarLayout.bindNestedScrollViewElevation(scrollView: NestedScrollView) {
     }
 }
 
-fun AppBarLayout.bindNestedScrollViewElevation(scrollView: NestedScrollView, animator: StateListAnimator) {
-    val animatorNil = AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation_nil)
+fun AppBarLayout.bindNestedScrollViewElevation(
+    scrollView: NestedScrollView,
+    animator: StateListAnimator
+) {
+    val animatorNil =
+        AnimatorInflater.loadStateListAnimator(context, R.animator.appbar_layout_elevation_nil)
 
     fun showShadowIsVisible(show: Boolean) {
         stateListAnimator = if (show) {

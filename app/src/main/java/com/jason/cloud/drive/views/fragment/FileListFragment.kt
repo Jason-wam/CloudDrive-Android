@@ -25,10 +25,10 @@ import com.jason.cloud.drive.databinding.FragmentFileListBinding
 import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.service.UploadService
+import com.jason.cloud.drive.utils.actions.showCreateFolderDialog
+import com.jason.cloud.drive.utils.actions.showFileMenu
+import com.jason.cloud.drive.utils.actions.showFolderMenu
 import com.jason.cloud.drive.viewmodel.ListFilesViewModel
-import com.jason.cloud.drive.views.dialog.showCreateFolderDialog
-import com.jason.cloud.drive.views.dialog.showFileMenu
-import com.jason.cloud.drive.views.dialog.showFolderMenu
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
 import com.jason.cloud.drive.views.widgets.decoration.FilePathIndicatorDecoration
 import com.jason.cloud.extension.getSerializableEx
@@ -51,7 +51,20 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
         @JvmStatic
         fun newInstance(file: FileEntity) = FileListFragment().apply {
             arguments = Bundle().apply {
-                putSerializable("file", file)
+                putSerializable("folder", file)
+            }
+        }
+
+        /**
+         * 定位到指定文件
+         * @param hash 目标文件夹
+         * @param fileHash 目标文件
+         */
+        @JvmStatic
+        fun newInstance(hash: String, fileHash: String) = FileListFragment().apply {
+            arguments = Bundle().apply {
+                putString("hash", hash)
+                putString("fileHash", fileHash)
             }
         }
     }
@@ -78,7 +91,7 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
                     },
                     onRenamed = {
                         binding.stateLayout.showLoading()
-                        viewModel.refresh(isGoBack = false, noneCache = true)
+                        viewModel.refresh(isGoBack = false)
                     }
                 )
             }
@@ -93,7 +106,7 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
                     },
                     onRenamed = {
                         binding.stateLayout.showLoading()
-                        viewModel.refresh(isGoBack = false, noneCache = true)
+                        viewModel.refresh(isGoBack = false)
                     }
                 )
             } else {
@@ -105,7 +118,7 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
                     },
                     onRenamed = {
                         binding.stateLayout.showLoading()
-                        viewModel.refresh(isGoBack = false, noneCache = true)
+                        viewModel.refresh(isGoBack = false)
                     }
                 )
             }
@@ -152,8 +165,8 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
 
     fun refresh() {
         val hash = arguments?.getString("hash").orEmpty()
-        arguments?.remove("hash")
         if (hash.isNotBlank()) {
+            arguments?.remove("hash")
             binding.stateLayout.showLoading()
             viewModel.refresh(hash, isGoBack = false)
         }
@@ -162,6 +175,14 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
     fun refresh(isGoBack: Boolean = false) {
         binding.stateLayout.showLoading()
         viewModel.refresh(isGoBack = isGoBack)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState != null) {
+            binding.stateLayout.showLoading()
+            viewModel.getList()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -239,7 +260,7 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
 
             binding.stateLayout.showError(it) {
                 binding.stateLayout.showLoading()
-                viewModel.refresh(isGoBack = false, noneCache = true)
+                viewModel.refresh(isGoBack = false)
             }
         }
 
@@ -273,13 +294,16 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
                 }
             } else {
                 val fileHash = arguments?.getString("fileHash").orEmpty()
-                arguments?.remove("fileHash")
-                val location = adapter.itemData.indexOfFirst { file -> file.hash == fileHash }
-                if (location == -1) {
-                    binding.rvData.scrollToPosition(0)
-                } else {
-                    binding.rvData.scrollToPosition(location)
-                    animateView(location)
+                if (fileHash.isNotBlank()) {
+                    arguments?.remove("fileHash")
+                    val location = adapter.itemData.indexOfFirst { file -> file.hash == fileHash }
+                    toast("定位文件 >> $location")
+                    if (location == -1) {
+                        binding.rvData.scrollToPosition(0)
+                    } else {
+                        binding.rvData.scrollToPosition(location)
+                        animateView(location)
+                    }
                 }
             }
         }
@@ -287,24 +311,29 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
         binding.refreshLayout.setOnRefreshListener {
             adapter.clear()
             adapter.notifyDataSetChanged()
-            viewModel.refresh(isGoBack = false, noneCache = true)
+            viewModel.refresh(isGoBack = false)
         }
 
         binding.fabUpload.setOnClickListener {
             fileSelectLauncher.launch("*/*")
         }
 
-        val file = arguments?.getSerializableEx("file", FileEntity::class.java)
+        val hash = arguments?.getString("hash").orEmpty()
+        if (hash.isNotBlank()) {
+            binding.stateLayout.showLoading()
+            viewModel.getList(hash)
+            return
+        }
+        val file = arguments?.getSerializableEx("folder", FileEntity::class.java)
         if (file != null) { //如果未设置目标文件夹则浏览根目录
             binding.stateLayout.showLoading()
             viewModel.getList(file)
-            arguments?.clear()
-        } else {
-            val hash = arguments?.getString("hash").orEmpty()
-            arguments?.clear()
-            binding.stateLayout.showLoading()
-            viewModel.refresh(hash, isGoBack = false)
+            return
         }
+
+        //没有任何附加参数，显示根目录
+        binding.stateLayout.showLoading()
+        viewModel.getList()
     }
 
     /**

@@ -18,7 +18,9 @@ import com.jason.cloud.media3.utils.Media3SourceHelper
 
 @SuppressLint("UnsafeOptInUsageError")
 class Media3AudioPlayer(context: Context) {
-    private val mediaSourceHelper by lazy { Media3SourceHelper.getInstance(context) }
+    private val mediaSourceHelper by lazy {
+        Media3SourceHelper.newInstance(context.applicationContext)
+    }
     internal val internalPlayer: ExoPlayer by lazy {
         ExoPlayer.Builder(context)
             .setAudioAttributes(AudioAttributes.DEFAULT, true)

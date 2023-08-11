@@ -9,6 +9,7 @@ import com.drake.net.component.Progress
 import com.drake.net.interfaces.ProgressListener
 import com.drake.net.utils.scopeNet
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.ItemSelector
 import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.createSketchedMD5String
@@ -17,8 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
-class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
-    var id: String = ""
+class UploadTask(val uri: Uri, val folderHash: String) : ItemSelector.SelectableItem,
+    TaskQueue.Task() {
+    var id: String = uri.toString().toMd5String()
     var totalBytes: Long = 0
     var uploadedBytes: Long = 0
     var speedBytes: Long = 0
@@ -27,12 +29,15 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
     var fileName: String = ""
     var fileHash: String = ""
 
+    override fun primaryKey(): Any {
+        return id
+    }
+
     enum class Status {
         QUEUE, CHECKING, UPLOADING, FAILED, SUCCEED, FLASH_UPLOADED, CONNECTING
     }
 
     init {
-        this.id = uri.toString().toMd5String()
         val file = DocumentFile.fromSingleUri(NetConfig.app, uri)
         this.fileName = file?.name ?: ""
         this.totalBytes = file?.length() ?: 0
@@ -51,7 +56,7 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
     }
 
     override fun getTaskId(): Any {
-        return uri.toString().toMd5String()
+        return id
     }
 
     override fun start(): UploadTask {
@@ -115,9 +120,9 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
         try {
             Net.get("${Configure.hostURL}/flashTransfer") {
                 setId(id)
-                addQuery("hash", hash)
-                addQuery("fileName", fileName)
-                addQuery("fileHash", fileHash)
+                param("hash", folderHash)
+                param("fileHash", fileHash)
+                param("fileName", fileName)
                 setClient {
                     callTimeout(1800, TimeUnit.SECONDS)
                     readTimeout(1800, TimeUnit.SECONDS)
@@ -135,7 +140,7 @@ class UploadTask(val uri: Uri, val hash: String) : TaskQueue.Task() {
         Net.post("${Configure.hostURL}/upload") {
             setId(id)
             param("file", uri)
-            addQuery("hash", hash)
+            addQuery("hash", folderHash)
             addQuery("fileHash", fileHash)
             setClient {
                 callTimeout(1800, TimeUnit.SECONDS)

@@ -3,10 +3,11 @@ package com.jason.cloud.drive.database.uploader
 import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.jason.cloud.drive.utils.ItemSelector
 
 @Keep
 @Entity(tableName = "uploader")
-class UploadTaskEntity {
+class UploadTaskEntity : ItemSelector.SelectableItem {
     @PrimaryKey
     var id: String = ""
     var uri: String = ""
@@ -18,4 +19,8 @@ class UploadTaskEntity {
     var uploadedBytes: Long = 0
     var timestamp: Long = 0
     var status: UploadTask.Status = UploadTask.Status.QUEUE
+
+    override fun primaryKey(): Any {
+        return id
+    }
 }

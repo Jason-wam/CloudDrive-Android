@@ -1,4 +1,4 @@
-package com.jason.cloud.drive.views.dialog
+package com.jason.cloud.drive.utils.actions
 
 import androidx.fragment.app.FragmentActivity
 import com.drake.net.Get
@@ -15,6 +15,16 @@ import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.PositionStore
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.views.activity.MediaCastActivity
+import com.jason.cloud.drive.views.dialog.AttachFileDialog
+import com.jason.cloud.drive.views.dialog.AudioPlayDialog
+import com.jason.cloud.drive.views.dialog.DetailAudioDialog
+import com.jason.cloud.drive.views.dialog.DetailOtherDialog
+import com.jason.cloud.drive.views.dialog.DetailVideoDialog
+import com.jason.cloud.drive.views.dialog.FileMenuDialog
+import com.jason.cloud.drive.views.dialog.FolderMenuDialog
+import com.jason.cloud.drive.views.dialog.LoadDialog
+import com.jason.cloud.drive.views.dialog.TextDialog
+import com.jason.cloud.drive.views.dialog.TextEditDialog
 import com.jason.cloud.extension.asJSONObject
 import com.jason.cloud.extension.openURL
 import com.jason.cloud.extension.toast
@@ -71,7 +81,7 @@ fun FragmentActivity.viewAudios(list: List<FileEntity>, position: Int) {
     val hash = list[position].hash
     val audioList = list.filter { FileType.isAudio(it.name) }
     val audioIndex = audioList.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-    AudioPlayDialog().setData(audioList, audioIndex)
+    AudioPlayDialog().setFileEntities(audioList, audioIndex)
         .showNow(supportFragmentManager, "audio")
 }
 
@@ -125,7 +135,7 @@ fun FragmentActivity.viewVideoDetail(list: List<FileEntity>, position: Int) {
     val hash = list[position].hash
     val videos = list.filter { FileType.isVideo(it.name) }
     val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-    DetailVideoDialog().setFileList(videos, videoIndex)
+    DetailVideoDialog(this).setFileList(videos, videoIndex)
         .showNow(supportFragmentManager, "detail")
 }
 
@@ -227,10 +237,11 @@ fun FragmentActivity.createFolder(
  * 显示重命名文件对话框
  */
 fun FragmentActivity.showRenameDialog(file: FileEntity, renamed: (() -> Unit)? = null) {
+    val defaultName = file.name.substringBeforeLast(".", file.name)
     TextEditDialog(this)
         .setTitle("重命名文件")
-        .setText(file.name.substringBefore(".", file.name))
-        .setHintText(file.name.substringBefore(".", file.name))
+        .setText(defaultName)
+        .setHintText(defaultName)
         .onNegative("取消")
         .onPositive("立即修改") {
             if (it.isNullOrBlank()) {

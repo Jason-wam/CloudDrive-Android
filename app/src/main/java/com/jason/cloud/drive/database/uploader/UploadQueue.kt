@@ -15,7 +15,7 @@ class UploadQueue : TaskQueue<UploadTask>() {
                 TaskDatabase.instance.getUploadDao().put(UploadTaskEntity().apply {
                     this.id = it.id
                     this.uri = it.uri.toString()
-                    this.hash = it.hash
+                    this.hash = it.folderHash
                     this.fileName = it.fileName
                     this.fileHash = it.fileHash
                     this.progress = it.progress

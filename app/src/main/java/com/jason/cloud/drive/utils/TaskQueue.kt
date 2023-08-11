@@ -82,10 +82,26 @@ open class TaskQueue<T : TaskQueue.Task> {
         return this
     }
 
+    open fun addTaskAndStart(task: T): TaskQueue<T> {
+        taskLock.lock()
+        taskList.add(task)
+        taskLock.unlock()
+        start()
+        return this
+    }
+
     open fun addTask(task: List<T>): TaskQueue<T> {
         taskLock.lock()
         taskList.addAll(task)
         taskLock.unlock()
+        return this
+    }
+
+    open fun addTaskAndStart(task: List<T>): TaskQueue<T> {
+        taskLock.lock()
+        taskList.addAll(task)
+        taskLock.unlock()
+        start()
         return this
     }
 
@@ -132,6 +148,12 @@ open class TaskQueue<T : TaskQueue.Task> {
             taskLock.lock()
             taskList.remove(foundTask)
             taskLock.unlock()
+        }
+    }
+
+    open fun cancel(tasks: List<T>) {
+        tasks.forEach { task ->
+            cancel(task)
         }
     }
 

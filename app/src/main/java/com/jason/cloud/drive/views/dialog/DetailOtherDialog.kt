@@ -11,12 +11,18 @@ import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.extension.getSerializableEx
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
+import java.io.File
 
 class DetailOtherDialog(val parent: FragmentActivity) :
     BaseBindBottomSheetDialogFragment<LayoutDetailOtherFileDialogBinding>(R.layout.layout_detail_other_file_dialog) {
 
-    fun setFile(file: FileEntity): DetailOtherDialog {
+    fun setFile(file: File): DetailOtherDialog {
         arguments?.putSerializable("file", file)
+        return this
+    }
+
+    fun setFile(file: FileEntity): DetailOtherDialog {
+        arguments?.putSerializable("fileEntity", file)
         return this
     }
 
@@ -34,12 +40,19 @@ class DetailOtherDialog(val parent: FragmentActivity) :
             }
         })
 
-        val file = arguments?.getSerializableEx("file", FileEntity::class.java) ?: return
+        arguments?.getSerializableEx("file", File::class.java)?.let {
+            binding.tvName.text = it.name
+            binding.tvURL.text = it.path
+            binding.tvDate.text = it.lastModified().toDateMinuteString()
+            binding.tvSize.text = it.length().toFileSizeString()
+        }
 
-        binding.tvName.text = file.name
-        binding.tvURL.text = file.path
-        binding.tvDate.text = file.date.toDateMinuteString()
-        binding.tvSize.text = file.size.toFileSizeString()
+        arguments?.getSerializableEx("fileEntity", FileEntity::class.java)?.let {
+            binding.tvName.text = it.name
+            binding.tvURL.text = it.path
+            binding.tvDate.text = it.date.toDateMinuteString()
+            binding.tvSize.text = it.size.toFileSizeString()
+        }
 
         binding.btnCancel.setOnClickListener {
             dismiss()

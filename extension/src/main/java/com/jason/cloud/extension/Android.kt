@@ -72,17 +72,6 @@ fun Context.getVersionName(): String {
     ).versionName
 }
 
-
-fun Context.browser(url: String) {
-    kotlin.runCatching {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        val chooser = Intent.createChooser(intent, "选择应用程序打开")
-        startActivity(chooser)
-    }.onFailure {
-        toast(it.toString())
-    }
-}
-
 fun Context.openURL(url: String) {
     try {
         val intent = Intent()
@@ -111,8 +100,8 @@ fun Context.openURL(url: String, mimeType: String) {
 
 fun Context.openFile(file: File) {
     val intent = Intent(Intent.ACTION_VIEW)
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val uri = FileProvider.getUriForFile(this, this.packageName + ".provider", file)
         intent.setDataAndType(uri, file.mimeType)
@@ -122,6 +111,20 @@ fun Context.openFile(file: File) {
     }
     val chooser = Intent.createChooser(intent, "选择应用程序打开")
     startActivity(chooser)
+}
+
+fun Context.sendFile(file: File) {
+    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        FileProvider.getUriForFile(this, "$packageName.provider", file)
+    } else {
+        Uri.fromFile(file)
+    }
+    val intent = Intent(Intent.ACTION_SEND)
+    intent.type = file.mimeType
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.putExtra(Intent.EXTRA_STREAM, uri)
+    startActivity(Intent.createChooser(intent, "发送文件到"))
 }
 
 /**
@@ -193,14 +196,14 @@ fun Context.installApk(filePath: String) {
     startActivity(intent)
 }
 
-fun Context?.sendText(text: String) {
+fun Context.sendText(text: String) {
     val intent = Intent("android.intent.action.SEND")
     intent.type = "text/plain"
     intent.putExtra(Intent.EXTRA_SUBJECT, "分享")
     intent.putExtra(Intent.EXTRA_TEXT, text)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
-    this?.startActivity(Intent.createChooser(intent, "选择发送到"))
+    startActivity(Intent.createChooser(intent, "发送文本到"))
 }
 
 fun Context.sendEmail(title: String, to: String, subject: String, body: String) {
@@ -212,7 +215,7 @@ fun Context.sendEmail(title: String, to: String, subject: String, body: String) 
     startActivity(Intent.createChooser(intent, title))
 }
 
-fun Context?.copy2Clipboard(text: String?): Boolean {
+fun Context?.copy2Clipboard(text: String): Boolean {
     return this?.getSystemService(Context.CLIPBOARD_SERVICE)?.let {
         it as ClipboardManager
         val clipData = ClipData.newPlainText(null, text)

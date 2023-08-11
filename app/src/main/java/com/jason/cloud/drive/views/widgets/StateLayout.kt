@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
@@ -14,8 +13,8 @@ import com.jason.cloud.drive.R
 
 class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context, attrs) {
     private val viewMap = HashMap<Any, View>()
-    private var retryId: Int = R.id.btnRetry
-    private val textViewId: Int = R.id.tvMsg
+    private var retryTag: String = "retry"
+    private val textViewTag: String = "msg"
 
     private var previewState: Int = -1
 
@@ -30,6 +29,7 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
         with(typedArray.getResourceId(R.styleable.StateLayout_state_error_view, errorViewId)) {
             if (this != -1) {
                 viewMap["error"] = View.inflate(context, this, null).apply {
+                    visibility = GONE
                     tag = "error"
                 }
             }
@@ -38,6 +38,7 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
         with(typedArray.getResourceId(R.styleable.StateLayout_state_empty_view, emptyViewId)) {
             if (this != -1) {
                 viewMap["empty"] = View.inflate(context, this, null).apply {
+                    visibility = GONE
                     tag = "empty"
                 }
             }
@@ -46,6 +47,7 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
         with(typedArray.getResourceId(R.styleable.StateLayout_state_load_view, loadingViewId)) {
             if (this != -1) {
                 viewMap["loading"] = View.inflate(context, this, null).apply {
+                    visibility = GONE
                     tag = "loading"
                 }
             }
@@ -57,23 +59,27 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
         //如果用户未设置状态布局则使用内置默认布局
         if (viewMap["error"] == null) {
             viewMap["error"] = View.inflate(context, R.layout.layout_default_state_error, null).apply {
+                visibility = GONE
                 tag = "error"
             }
         }
         if (viewMap["empty"] == null) {
             viewMap["empty"] = View.inflate(context, R.layout.layout_default_state_empty, null).apply {
+                visibility = GONE
                 tag = "empty"
             }
         }
         if (viewMap["loading"] == null) {
-            viewMap["loading"] = View.inflate(context, R.layout.layout_default_state_loading, null).apply {
-                tag = "loading"
-            }
+            viewMap["loading"] =
+                View.inflate(context, R.layout.layout_default_state_loading, null).apply {
+                    visibility = GONE
+                    tag = "loading"
+                }
         }
     }
 
-    fun setRetryId(@IdRes id: Int) {
-        this.retryId = id
+    fun setRetryButton(tag: String) {
+        this.retryTag = tag
     }
 
     fun bindView(tag: Any, view: View) {
@@ -108,14 +114,14 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
 
     fun showError(text: CharSequence? = null, retryCallBack: (() -> Unit)? = null) {
         switchView("error") { layoutView ->
-            layoutView.findViewById<View>(textViewId)?.let { textView ->
+            layoutView.findViewWithTag<View>(textViewTag)?.let { textView ->
                 if (textView is TextView) {
                     textView.text = text
                     textView.isVisible = text?.isNotBlank() == true
                 }
             }
 
-            val retryButton = layoutView.findViewById<View>(retryId)
+            val retryButton = layoutView.findViewWithTag<View>(retryTag)
             if (retryCallBack != null && retryButton != null) {
                 retryButton.isVisible = true
                 retryButton.setOnClickListener {
@@ -141,7 +147,7 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
     fun showEmpty(text: CharSequence? = null, layoutViewCallBack: ((view: View) -> Unit)? = null) {
         switchView("empty") { layoutView ->
             layoutViewCallBack?.invoke(layoutView)
-            layoutView.findViewById<View>(textViewId)?.let { textView ->
+            layoutView.findViewWithTag<View>(textViewTag)?.let { textView ->
                 if (textView is TextView) {
                     textView.text = text
                     textView.isVisible = text?.isNotBlank() == true
@@ -166,7 +172,7 @@ class StateLayout(context: Context, attrs: AttributeSet?) : FrameLayout(context,
     fun showLoading(text: CharSequence? = null, layoutViewCallBack: ((view: View) -> Unit)? = null) {
         switchView("loading") { layoutView ->
             layoutViewCallBack?.invoke(layoutView)
-            layoutView.findViewById<View>(textViewId)?.let { textView ->
+            layoutView.findViewWithTag<View>(textViewTag)?.let { textView ->
                 if (textView is TextView) {
                     textView.text = text
                     textView.isVisible = text?.isNotBlank() == true

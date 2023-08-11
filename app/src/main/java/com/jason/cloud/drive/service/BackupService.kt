@@ -50,6 +50,7 @@ class BackupService : Service() {
     }
 
     private val scope = CoroutineScope(Dispatchers.Main)
+    private var taskObserveJob: Job? = null
 
     companion object {
         fun launchWith(context: Context, block: (() -> Unit)? = null) {
@@ -169,13 +170,13 @@ class BackupService : Service() {
             startTaskObserve(it)
         }
         queue.onTaskListDone {
+            taskObserveJob?.cancel()
             toast("文件备份完毕！")
             stopSelf()
         }
         queue.start()
     }
 
-    private var taskObserveJob: Job? = null
     private fun startTaskObserve(task: BackupTask) {
         taskObserveJob?.cancel()
         taskObserveJob = scope.launch {
@@ -220,6 +221,10 @@ class BackupService : Service() {
                 }
             }
         }
+
+    private fun checkFileHashList(list: List<Pair<MediaEntity, String>>) {
+//        val
+    }
 
     private suspend fun Uri.hash(): String = withContext(Dispatchers.IO) {
         val file = DocumentFile.fromSingleUri(this@BackupService, this@hash)

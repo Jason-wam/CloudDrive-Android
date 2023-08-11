@@ -1,6 +1,7 @@
 package com.jason.cloud.drive.database.downloader
 
 import com.drake.net.NetConfig
+import com.jason.cloud.drive.utils.ItemSelector
 import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.extension.toFileSizeString
 import okhttp3.Call
@@ -17,6 +18,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 
 class DownloadTask(val name: String, val url: String, val hash: String, val dir: File) :
+    ItemSelector.SelectableItem,
     TaskQueue.Task() {
     val file = File(dir, name)
 
@@ -198,5 +200,9 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
                 }
             }
         }
+    }
+
+    override fun primaryKey(): Any {
+        return hash
     }
 }

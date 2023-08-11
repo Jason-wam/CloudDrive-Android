@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/more"
+        android:icon="@drawable/ic_round_more_vert_24"
+        android:iconTint="@color/colorOnPrimary"
+        android:title="@string/more"
+        app:iconTint="@color/colorOnPrimary"
+        app:showAsAction="always"
+        tools:ignore="UnusedAttribute">
+        <menu>
+            <item
+                android:id="@+id/clear_all_uploads"
+                android:title="@string/cancel_all_uploads" />
+
+            <item
+                android:id="@+id/clear_all_done_tasks"
+                android:title="@string/clear_all_upload_done_task" />
+
+            <item
+                android:id="@+id/cancel"
+                android:title="@string/cancel" />
+        </menu>
+    </item>
+</menu>

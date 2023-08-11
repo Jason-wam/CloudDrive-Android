@@ -32,6 +32,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.Serializable
 
 class AudioPlayDialog :
@@ -68,8 +69,19 @@ class AudioPlayDialog :
         })
 
         val position = arguments?.getInt("position", 0) ?: 0
-        val audioList = arguments?.getSerializableListExtraEx<FileEntity>("list")?.let {
-            ArrayList<Media3Item>().apply {
+        val audioList = arrayListOf<Media3Item>()
+        arguments?.getSerializableListExtraEx<File>("files")?.let {
+            audioList.addAll(ArrayList<Media3Item>().apply {
+                it.forEach {
+                    add(Media3Item().apply {
+                        this.url = it.absolutePath
+                        this.title = it.name
+                    })
+                }
+            })
+        }
+        arguments?.getSerializableListExtraEx<FileEntity>("list")?.let {
+            audioList.addAll(ArrayList<Media3Item>().apply {
                 it.forEach {
                     add(Media3Item().apply {
                         this.url = it.rawURL
@@ -77,13 +89,11 @@ class AudioPlayDialog :
                         this.image = it.thumbnailURL
                     })
                 }
-            }
+            })
         }
 
-        if (audioList != null) {
-            AudioService.launchWith(requireContext(), audioList, position) {
-                context?.bindService(this, serviceConnection, 0)
-            }
+        AudioService.launchWith(requireContext(), audioList, position) {
+            context?.bindService(this, serviceConnection, 0)
         }
 
         binding.btnCancel.setOnClickListener {
@@ -91,7 +101,13 @@ class AudioPlayDialog :
         }
     }
 
-    fun setData(audioList: List<FileEntity>, position: Int): AudioPlayDialog {
+    fun setFiles(audioList: List<File>, position: Int): AudioPlayDialog {
+        arguments?.putInt("position", position)
+        arguments?.putSerializable("files", audioList as Serializable)
+        return this
+    }
+
+    fun setFileEntities(audioList: List<FileEntity>, position: Int): AudioPlayDialog {
         arguments?.putInt("position", position)
         arguments?.putSerializable("list", audioList as Serializable)
         return this

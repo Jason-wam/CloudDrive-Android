@@ -162,6 +162,11 @@ class VideoPlayActivity : AppCompatActivity() {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        playerView.updateCutoutAreaWhenResume()
+    }
+
     override fun onStart() {
         super.onStart()
         if (pausedByUser.not()) {

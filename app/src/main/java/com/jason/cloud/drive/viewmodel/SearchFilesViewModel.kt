@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.scopeNetLife
 import com.drake.net.Get
 import com.drake.net.Net
-import com.drake.net.cache.CacheMode
 import com.jason.cloud.drive.model.SearchRespondEntity
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.UrlBuilder
@@ -20,13 +19,13 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
     var onError = MutableLiveData<String>()
     var onSucceed = MutableLiveData<SearchRespondEntity>()
 
-    fun refresh(noneCache: Boolean = true) {
+    fun refresh() {
         page = 1
-        doSearch(noneCache)
+        doSearch()
     }
 
     fun retry() {
-        doSearch(true)
+        doSearch()
     }
 
     fun nextPage() {
@@ -41,7 +40,7 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
         doSearch()
     }
 
-    private fun doSearch(noneCache: Boolean = false, block: (() -> Unit)? = null) {
+    private fun doSearch(block: (() -> Unit)? = null) {
         scopeNetLife {
             Get<String>(UrlBuilder(Configure.hostURL).path("/search").build()) {
                 setGroup("search")
@@ -49,11 +48,6 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
                 param("page", page)
                 param("sort", Configure.SearchConfigure.sortModel.name)
                 param("showHidden", Configure.SearchConfigure.showHidden)
-                if (noneCache) {
-                    setCacheMode(CacheMode.WRITE)
-                } else {
-                    setCacheMode(CacheMode.READ_THEN_REQUEST)
-                }
             }.await().asJSONObject().also { obj ->
                 if (obj.has("code")) {
                     onError.postValue(obj.getString("message"))

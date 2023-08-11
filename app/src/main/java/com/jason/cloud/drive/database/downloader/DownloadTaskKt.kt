@@ -7,6 +7,7 @@ import com.jason.cloud.drive.database.downloader.DownloadTask.Status.PAUSED
 import com.jason.cloud.drive.database.downloader.DownloadTask.Status.QUEUE
 import com.jason.cloud.drive.database.downloader.DownloadTask.Status.SUCCEED
 import com.jason.cloud.extension.toFileSizeString
+import java.io.File
 
 
 fun DownloadTask.getStatusText(): String {
@@ -14,17 +15,6 @@ fun DownloadTask.getStatusText(): String {
         QUEUE -> "排队等待..."
         CONNECTING -> "正在连接服务器..."
         DOWNLOADING -> "正在取回文件(${speedBytes.toFileSizeString()}/s)..."
-        PAUSED -> "任务已暂停"
-        SUCCEED -> "文件取回成功！"
-        FAILED -> "文件取回失败！"
-    }
-}
-
-fun DownloadTaskEntity.getStatusText(): String {
-    return when (status) {
-        QUEUE -> "排队等待..."
-        CONNECTING -> "正在连接服务器..."
-        DOWNLOADING -> "正在取回文件(?/s)..."
         PAUSED -> "任务已暂停"
         SUCCEED -> "文件取回成功！"
         FAILED -> "文件取回失败！"
@@ -43,5 +33,24 @@ fun DownloadTask.toTaskEntity(): DownloadTaskEntity {
         this.status = this@toTaskEntity.status
         this.timestamp = System.currentTimeMillis()
         this.progress = if (status == SUCCEED) 100 else this@toTaskEntity.progress
+    }
+}
+
+fun DownloadTask.taskFile(): File {
+    return File(dir, name)
+}
+
+fun DownloadTaskEntity.taskFile(): File {
+    return File(dir, name)
+}
+
+fun DownloadTaskEntity.getStatusText(): String {
+    return when (status) {
+        QUEUE -> "排队等待..."
+        CONNECTING -> "正在连接服务器..."
+        DOWNLOADING -> "正在取回文件(?/s)..."
+        PAUSED -> "任务已暂停"
+        SUCCEED -> "文件取回成功！"
+        FAILED -> "文件取回失败！"
     }
 }

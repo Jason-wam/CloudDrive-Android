@@ -94,14 +94,14 @@
 
     <style name="MyPopupMenuStyle" parent="@style/Widget.Material3.PopupMenu">
         <item name="android:popupBackground">@drawable/shape_popup_background</item>
-        <item name="android:textColor">@color/material_on_surface_emphasis_high_type</item>
-        <item name="textAppearanceLargePopupMenu">@color/material_on_surface_emphasis_high_type
+        <item name="android:textColor">@color/colorOnSurface</item>
+        <item name="textAppearanceLargePopupMenu">@color/colorOnSurface
         </item>
-        <item name="textAppearanceSmallPopupMenu">@color/material_on_surface_emphasis_medium</item>
+        <item name="textAppearanceSmallPopupMenu">@color/colorOnSurfaceMedium</item>
     </style>
 
     <style name="MyTextAppearanceLargePopupMenu">
-        <item name="android:textColor">@color/material_on_surface_emphasis_high_type</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
         <item name="android:textSize">15sp</item>
     </style>
 
@@ -111,7 +111,7 @@
     </style>
 
     <style name="MyTextAppearanceSmallPopupMenu">
-        <item name="android:textColor">@color/material_on_surface_emphasis_medium</item>
+        <item name="android:textColor">@color/colorOnSurfaceMedium</item>
         <item name="android:textSize">15sp</item>
     </style>
 
@@ -121,7 +121,7 @@
         <item name="backgroundTint">@color/colorMaterialButtonBackground</item>
         <item name="strokeColor">@color/colorMaterialButtonStroke</item>
         <item name="strokeWidth">@dimen/materialButtonStrokeWidth</item>
-        <item name="android:textColor">@color/material_on_surface_emphasis_medium</item>
+        <item name="android:textColor">@color/colorOnSurfaceMedium</item>
         <item name="android:textSize">13sp</item>
     </style>
 
@@ -149,7 +149,7 @@
 
     <style name="Slider.labelStyle.TextAppearance" parent="TextAppearance.MaterialComponents.Tooltip">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/material_on_surface_emphasis_high_type</item>
+        <item name="android:textColor">@color/colorOnSurface</item>
     </style>
 
 </resources>

@@ -32,9 +32,9 @@
             android:visibility="gone" />
 
         <androidx.core.widget.NestedScrollView
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="1">
 
             <LinearLayout
@@ -150,7 +150,7 @@
                     android:minHeight="180dp"
                     app:cardBackgroundColor="@android:color/black"
                     app:cardCornerRadius="12dp"
-                    app:cardElevation="1dp"
+                    app:cardElevation="0.5dp"
                     app:strokeWidth="0dp">
 
                     <com.jason.cloud.drive.views.widgets.RoundCornerImageView
@@ -160,6 +160,16 @@
                         android:layout_gravity="center"
                         android:adjustViewBounds="true"
                         android:scaleType="fitXY" />
+
+                    <TextView
+                        android:id="@+id/tv_error"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/gif_created_failed_retry_later"
+                        android:textColor="@android:color/white"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
 
                     <LinearLayout
                         android:id="@+id/progress_bar"
@@ -180,7 +190,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="正在生成GIF预览图..."
+                            android:text="@string/gif_creating"
                             android:textColor="@android:color/white"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -199,6 +209,17 @@
                     android:layout_marginEnd="18dp"
                     android:text="@string/play_now"
                     android:textColor="@color/colorSecondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save_gif"
+                    style="@style/MaterialButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:alpha="0.5"
+                    android:enabled="true"
+                    android:text="@string/save_gif" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_cancel"

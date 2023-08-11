@@ -9,8 +9,12 @@ import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuCompat
 import androidx.core.view.forEach
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import com.drake.net.utils.scopeNetLife
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindFragment
+import com.jason.cloud.drive.database.TaskDatabase
 import com.jason.cloud.drive.databinding.FragmentBrowseBinding
 import com.jason.cloud.drive.interfaces.CallFragment
 import com.jason.cloud.drive.service.BackupService
@@ -18,8 +22,12 @@ import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.ListSort
 import com.jason.cloud.drive.utils.extension.view.setTitleFont
 import com.jason.cloud.drive.views.activity.SearchFilesActivity
+import com.jason.cloud.drive.views.activity.TaskDownloadActivity
+import com.jason.cloud.drive.views.activity.TaskUploadActivity
 import com.jason.cloud.extension.startActivity
 import com.jason.cloud.extension.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment_browse),
     CallFragment, Toolbar.OnMenuItemClickListener {
@@ -28,12 +36,20 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
         fun newInstance() = BrowseFragment()
     }
 
-    var isCreated = false
+    private lateinit var fragment: FileListFragment
 
-    private val fragment by lazy { FileListFragment.newInstance() }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("isRestored", true)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isCreated = true
+        childFragmentManager.findFragmentByTag("fragment")?.let {
+            fragment = it as FileListFragment
+        } ?: let {
+            fragment = FileListFragment.newInstance()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -44,7 +60,7 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
         updateSortMenu()
 
         val transaction = childFragmentManager.beginTransaction()
-        transaction.add(R.id.container, fragment, "fragment")
+        transaction.replace(R.id.container, fragment, "fragment")
         transaction.commit()
 
         fragment.setAppbarElevationCallback {
@@ -53,6 +69,23 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
             } else {
                 hideAppbarElevation()
             }
+        }
+
+        scopeNetLife(dispatcher = Dispatchers.IO) {
+            TaskDatabase.instance.getUploadDao().list()
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    withContext(Dispatchers.Main) {
+                        binding.toolbar.menu.findItem(R.id.upload).isVisible = it.isNotEmpty()
+                    }
+                }
+            TaskDatabase.instance.getDownloadDao().list()
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect {
+                    withContext(Dispatchers.Main) {
+                        binding.toolbar.menu.findItem(R.id.download).isVisible = it.isNotEmpty()
+                    }
+                }
         }
     }
 
@@ -75,33 +108,6 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
             it as FileListFragment
             it.callBackPressed()
         } ?: super.callBackPressed()
-    }
-
-    override fun locateFileLocation(hash: String, fileHash: String) {
-        super.locateFileLocation(hash, fileHash)
-        childFragmentManager.findFragmentByTag("fragment")?.let {
-            it as FileListFragment
-            if (it.isVisible) {
-                it.arguments = Bundle().apply {
-                    putString("hash", hash)
-                    putString("fileHash", fileHash)
-                }
-                it.refresh()
-            }
-        }
-    }
-
-    fun refresh() {
-        val hash = arguments?.getString("hash").orEmpty()
-        childFragmentManager.findFragmentByTag("fragment")?.let {
-            it as FileListFragment
-            if (it.isVisible) {
-                it.arguments = Bundle().apply {
-                    putString("hash", hash)
-                }
-                it.refresh()
-            }
-        }
     }
 
     private fun updateSortMenu() {
@@ -133,7 +139,8 @@ class BrowseFragment : BaseBindFragment<FragmentBrowseBinding>(R.layout.fragment
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.search -> startActivity(SearchFilesActivity::class)
-
+            R.id.upload -> startActivity(TaskUploadActivity::class)
+            R.id.download -> startActivity(TaskDownloadActivity::class)
             R.id.folder -> fragment.createNewFolder()
 
             R.id.backup -> BackupService.launchWith(requireContext()) {

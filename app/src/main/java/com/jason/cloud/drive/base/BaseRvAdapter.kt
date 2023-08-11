@@ -5,11 +5,11 @@ import androidx.recyclerview.widget.RecyclerView
 
 abstract class BaseRvAdapter<ITEM, VH : RecyclerView.ViewHolder> :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    protected var onClickObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> =
+    protected var onClickObservers: ArrayList<((position: Int, item: ITEM, holder: VH) -> Unit)> =
         arrayListOf()
-    protected var onBindViewObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> =
+    protected var onBindViewObservers: ArrayList<((position: Int, item: ITEM, holder: VH) -> Unit)> =
         arrayListOf()
-    protected var onLongClickObservers: ArrayList<((position: Int, item: ITEM, viewHolder: VH) -> Unit)> =
+    protected var onLongClickObservers: ArrayList<((position: Int, item: ITEM, holder: VH) -> Unit)> =
         arrayListOf()
     open var itemData = ArrayList<ITEM>()
 
@@ -20,6 +20,7 @@ abstract class BaseRvAdapter<ITEM, VH : RecyclerView.ViewHolder> :
     @Suppress("UNCHECKED_CAST")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         onBindViewHolder(holder.itemView.context, holder as VH, position, getData(position))
+
         if (onBindViewObservers.isNotEmpty()) {
             onBindViewObservers.forEach {
                 it.invoke(position, getData(position), holder)
@@ -125,16 +126,21 @@ abstract class BaseRvAdapter<ITEM, VH : RecyclerView.ViewHolder> :
         this.onClickObservers.clear()
     }
 
-    open fun setOnClickObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun setOnClickObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onClickObservers.clear()
         this.onClickObservers.add(observer)
     }
 
-    open fun addOnClickObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun addOnClickObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onClickObservers.add(observer)
     }
 
-    open fun removeOnClickObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun onClick(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)): BaseRvAdapter<ITEM, VH> {
+        this.onClickObservers.add(observer)
+        return this
+    }
+
+    open fun removeOnClickObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onClickObservers.remove(observer)
     }
 
@@ -142,19 +148,29 @@ abstract class BaseRvAdapter<ITEM, VH : RecyclerView.ViewHolder> :
         this.onLongClickObservers.clear()
     }
 
-    open fun removeOnLongClickObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun removeOnLongClickObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onLongClickObservers.remove(observer)
     }
 
-    open fun addOnLongClickObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun onLongClick(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)): BaseRvAdapter<ITEM, VH> {
+        this.onLongClickObservers.add(observer)
+        return this
+    }
+
+    open fun addOnLongClickObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onLongClickObservers.add(observer)
     }
 
-    open fun addOnBindViewObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun addOnBindViewObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onBindViewObservers.add(observer)
     }
 
-    open fun removeOnBindViewObserver(observer: ((position: Int, item: ITEM, viewHolder: VH) -> Unit)) {
+    open fun onBind(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)): BaseRvAdapter<ITEM, VH> {
+        this.onBindViewObservers.add(observer)
+        return this
+    }
+
+    open fun removeOnBindViewObserver(observer: ((position: Int, item: ITEM, holder: VH) -> Unit)) {
         this.onBindViewObservers.remove(observer)
     }
 

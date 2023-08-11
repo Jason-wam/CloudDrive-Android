@@ -11,7 +11,7 @@ import androidx.core.view.MenuCompat
 import androidx.core.view.forEach
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindActivity
-import com.jason.cloud.drive.databinding.ActivityFolderBrowseBinding
+import com.jason.cloud.drive.databinding.ActivityFileBrowserBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.service.BackupService
 import com.jason.cloud.drive.utils.Configure
@@ -21,13 +21,25 @@ import com.jason.cloud.extension.getSerializableExtraEx
 import com.jason.cloud.extension.startActivity
 import com.jason.cloud.extension.toast
 
-class FolderBrowseActivity :
-    BaseBindActivity<ActivityFolderBrowseBinding>(R.layout.activity_folder_browse),
+class FileBrowserActivity :
+    BaseBindActivity<ActivityFileBrowserBinding>(R.layout.activity_file_browser),
     Toolbar.OnMenuItemClickListener {
     companion object {
         fun openFolder(context: Context, folder: FileEntity) {
-            context.startActivity(FolderBrowseActivity::class) {
+            context.startActivity(FileBrowserActivity::class) {
                 putExtra("folder", folder)
+            }
+        }
+
+        /**
+         * 定位到指定文件
+         * @param hash 目标文件夹
+         * @param fileHash 目标文件
+         */
+        fun locationTargetFile(context: Context, hash: String, fileHash: String) {
+            context.startActivity(FileBrowserActivity::class) {
+                putExtra("hash", hash)
+                putExtra("fileHash", fileHash)
             }
         }
     }
@@ -55,15 +67,20 @@ class FolderBrowseActivity :
         binding.toolbar.setOnMenuItemClickListener(this)
         updateSortMenu()
 
-        val folder = intent.getSerializableExtraEx("folder", FileEntity::class.java)
-        fragment = if (folder != null) {
-            FileListFragment.newInstance(folder)
+        if (intent.hasExtra("hash") && intent.hasExtra("fileHash")) {
+            val hash = intent.getStringExtra("hash")!!
+            val fileHash = intent.getStringExtra("fileHash")!!
+            fragment = FileListFragment.newInstance(hash, fileHash)
+        } else if (intent.hasExtra("folder")) {
+            val folder = intent.getSerializableExtraEx("folder", FileEntity::class.java)!!
+            fragment = FileListFragment.newInstance(folder)
         } else {
-            FileListFragment.newInstance()
+            fragment = FileListFragment.newInstance()
         }
 
+
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.container, fragment, "fragment")
+        transaction.replace(R.id.container, fragment, "fragment")
         transaction.commit()
 
         fragment.setAppbarElevationCallback {
@@ -112,7 +129,7 @@ class FolderBrowseActivity :
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.search -> startActivity(SearchFilesActivity::class)
-
+            R.id.download -> startActivity(TaskDownloadActivity::class)
             R.id.folder -> fragment.createNewFolder()
 
             R.id.backup -> BackupService.launchWith(context) {

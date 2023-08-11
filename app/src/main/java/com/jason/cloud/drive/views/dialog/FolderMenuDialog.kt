@@ -7,6 +7,9 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.databinding.LayoutFolderMenuDialogBinding
 import com.jason.cloud.drive.model.FileEntity
+import com.jason.cloud.drive.utils.actions.showDeleteFolderDialog
+import com.jason.cloud.drive.utils.actions.showRenameDialog
+import com.jason.cloud.drive.utils.actions.viewOtherDetail
 import com.jason.cloud.extension.getSerializableEx
 import com.jason.cloud.extension.toast
 

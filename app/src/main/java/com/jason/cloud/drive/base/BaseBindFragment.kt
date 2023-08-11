@@ -22,14 +22,15 @@ abstract class BaseBindFragment<VB : ViewDataBinding>(@LayoutRes val contentLayo
         viewContext = binding.root.context
         return binding.root
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         if (!lazyLoad) {
             hasLoaded = true
             initView(viewContext)
         }
     }
-    
+
     override fun onResume() {
         super.onResume()
         if (lazyLoad && !hasLoaded) {

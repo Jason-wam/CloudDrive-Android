@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.scopeNetLife
 import com.drake.net.Get
-import com.drake.net.cache.CacheMode
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.model.FileListRespondEntity
 import com.jason.cloud.drive.model.FileNavigationEntity
@@ -24,6 +23,10 @@ class ListFilesViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun current(): String {
         return if (histories.isEmpty()) "%root" else histories.last().hash
+    }
+
+    fun getList() {
+        refresh(isGoBack = false)
     }
 
     fun getList(file: FileEntity) {
@@ -48,7 +51,7 @@ class ListFilesViewModel(application: Application) : AndroidViewModel(applicatio
     /**
      * 如果目标目录Hash为空则刷新当前目录，否则枚举指定目录文件
      */
-    fun refresh(hash: String? = null, isGoBack: Boolean, noneCache: Boolean = false) {
+    fun refresh(hash: String? = null, isGoBack: Boolean) {
         isLoading = true
         scopeNetLife {
             val url = UrlBuilder(Configure.hostURL).path("/list").build()
@@ -56,15 +59,6 @@ class ListFilesViewModel(application: Application) : AndroidViewModel(applicatio
                 param("hash", hash ?: current())
                 param("sort", Configure.CloudFileConfigure.sortModel.name)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
-                if (noneCache) {//强制刷新，不读缓存
-                    setCacheMode(CacheMode.WRITE)
-                } else {
-                    if (isGoBack) { //如果是返回则读取缓存
-                        setCacheMode(CacheMode.READ_THEN_REQUEST)
-                    } else {
-                        setCacheMode(CacheMode.REQUEST_THEN_READ)
-                    }
-                }
             }.await().asJSONObject().also {
                 if (it.has("code")) {
                     onError.postValue(it.getString("message"))

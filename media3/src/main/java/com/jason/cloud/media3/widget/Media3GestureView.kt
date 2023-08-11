@@ -172,7 +172,7 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
         if (!gestureDetector.onTouchEvent(event)) {
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
-                    onStopSlide()
+                    playerView.onStopSlide()
                     if (seekPosition >= 0) {
                         playerView.seekTo(seekPosition)
                         seekPosition = -1
@@ -180,16 +180,12 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
-                    onStopSlide()
+                    playerView.onStopSlide()
                     seekPosition = -1
                 }
             }
         }
         return super.onTouchEvent(event)
-    }
-
-    private fun onStopSlide() {
-        playerView.onStopSlide()
     }
 
     override fun onLongPress(e: MotionEvent) {
@@ -200,7 +196,7 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
             inDoubleSpeedPlaying = true
             playerView.setSpeed(doubleSpeedValue)
             playerView.onDoubleSpeedPlaying(doubleSpeedValue)
-            VibratorUtil(context).vibrateTo(60, 255)
+            VibratorUtil(context).vibrateTo(20, 255)
         }
     }
 
@@ -218,18 +214,21 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
     }
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
+        if (playerView.isLocked) return true
+        if (playerView.isPlaying().not()) return true
+        if (playerView.getDuration() <= 0) return true
         if (e.x < playerView.measuredWidth * 0.33f) {
             if (playerView.isPlaying().not()) return true
             playerView.onSeekBackward(10 * 1000)
-            VibratorUtil(context).vibrateTo(60, 255)
+            VibratorUtil(context).vibrateTo(20, 255)
         }
         if (e.x > playerView.measuredWidth * 0.33f * 2) {
             if (playerView.isPlaying().not()) return true
             playerView.onSeekForward(10 * 1000)
-            VibratorUtil(context).vibrateTo(60, 255)
+            VibratorUtil(context).vibrateTo(20, 255)
         }
         if (e.x in (playerView.measuredWidth * 0.33f..playerView.measuredWidth * 0.33f * 2)) {
-            VibratorUtil(context).vibrateTo(60, 255)
+            VibratorUtil(context).vibrateTo(20, 255)
             if (playerView.isPlaying()) {
                 playerView.pause()
             } else {

@@ -151,7 +151,7 @@
                     android:includeFontPadding="false"
                     android:maxLines="1"
                     android:text="@string/attach_progress"
-                    android:textColor="@color/material_on_surface_emphasis_medium"
+                    android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="12sp" />
 
                 <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -177,7 +177,7 @@
                     android:includeFontPadding="false"
                     android:maxLines="1"
                     tools:text="0 B/s"
-                    android:textColor="@color/material_on_surface_emphasis_medium"
+                    android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="12sp" />
 
                 <android.widget.Space
