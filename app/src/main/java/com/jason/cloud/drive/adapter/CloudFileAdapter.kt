@@ -1,5 +1,6 @@
 package com.jason.cloud.drive.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.core.view.isVisible
 import com.jason.cloud.drive.R
@@ -7,22 +8,7 @@ import com.jason.cloud.drive.base.BaseBindRvAdapter
 import com.jason.cloud.drive.databinding.ItemCloudFileBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.FileType
-import com.jason.cloud.drive.utils.FileType.Media.APPLICATION
-import com.jason.cloud.drive.utils.FileType.Media.AUDIO
-import com.jason.cloud.drive.utils.FileType.Media.COMPRESS
-import com.jason.cloud.drive.utils.FileType.Media.DATABASE
-import com.jason.cloud.drive.utils.FileType.Media.EXCEL
-import com.jason.cloud.drive.utils.FileType.Media.EXE
-import com.jason.cloud.drive.utils.FileType.Media.FOLDER
-import com.jason.cloud.drive.utils.FileType.Media.FONT
-import com.jason.cloud.drive.utils.FileType.Media.IMAGE
-import com.jason.cloud.drive.utils.FileType.Media.PPT
-import com.jason.cloud.drive.utils.FileType.Media.TEXT
-import com.jason.cloud.drive.utils.FileType.Media.TORRENT
-import com.jason.cloud.drive.utils.FileType.Media.UNKNOWN
-import com.jason.cloud.drive.utils.FileType.Media.VIDEO
-import com.jason.cloud.drive.utils.FileType.Media.WEB
-import com.jason.cloud.drive.utils.FileType.Media.WORD
+import com.jason.cloud.drive.utils.FileType.Media.*
 import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
@@ -30,6 +16,7 @@ import com.jason.cloud.extension.toFileSizeString
 class CloudFileAdapter :
     BaseBindRvAdapter<FileEntity, ItemCloudFileBinding>(R.layout.item_cloud_file) {
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(
         context: Context,
         holder: ViewHolder<ItemCloudFileBinding>,
@@ -84,11 +71,11 @@ class CloudFileAdapter :
         holder.binding.tvName.text = item.name
         holder.binding.icVirtual.isVisible = item.isVirtual
         holder.binding.tvDate.text = item.date.toDateMinuteString()
-        holder.binding.tvSize.text = if (item.isDirectory) {
-            "${item.childCount} 个项目"
-        } else {
-            item.size.toFileSizeString()
-        }
+        holder.binding.tvChildrenCount.isVisible = item.isDirectory
+        holder.binding.tvChildrenCount.text = "${item.childCount} 个项目"
+
+        holder.binding.tvSize.text =
+            if (item.isVirtual) "符号链接" else item.size.toFileSizeString()
     }
 
     private fun getFileIcon(name: String): Int = getFileIcon(FileType.getMediaType(name))
@@ -111,6 +98,7 @@ class CloudFileAdapter :
             FONT -> R.drawable.ic_round_file_fonts_24
             FOLDER -> R.drawable.ic_round_file_folder_24
             UNKNOWN -> R.drawable.ic_round_file_unknown_24
+            DOCUMENTS -> R.drawable.ic_round_file_text_24
         }
     }
 }

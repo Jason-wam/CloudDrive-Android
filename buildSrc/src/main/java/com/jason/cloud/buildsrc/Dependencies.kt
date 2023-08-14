@@ -30,4 +30,6 @@ object Dependencies {
     const val androidx_espresso_core = "3.5.1"
     const val exo = "2.19.0"
     const val media3 = "1.1.0"
+
+    const val multiType = "4.3.0"
 }

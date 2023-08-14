@@ -18,6 +18,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.jason.cloud.drive.R
+import com.jason.cloud.drive.database.backup.BackupQueue
 import com.jason.cloud.drive.database.backup.BackupTask
 import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.drive.utils.extension.MediaEntity
@@ -53,13 +54,16 @@ class BackupService : Service() {
     private var taskObserveJob: Job? = null
 
     companion object {
-        fun launchWith(context: Context, block: (() -> Unit)? = null) {
+        var isRunning = false
+        fun launchWith(context: Context, folderHash: String, block: (() -> Unit)? = null) {
             fun start() {
                 val service = Intent(context, BackupService::class.java)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    service.putExtra("folderHash", folderHash)
                     context.startForegroundService(service)
                     block?.invoke()
                 } else {
+                    service.putExtra("folderHash", folderHash)
                     context.startService(service)
                     block?.invoke()
                 }
@@ -105,6 +109,7 @@ class BackupService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         notificationManager = NotificationManagerCompat.from(this)
         notificationBuilder = NotificationCompat.Builder(this, channelId)
         notificationManager.createNotificationChannel(channel)
@@ -125,11 +130,13 @@ class BackupService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startBackup()
+        intent?.getStringExtra("folderHash")?.let {
+            startBackup(it)
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun startBackup() {
+    private fun startBackup(folderHash: String) {
         scope.launch(Dispatchers.IO) {
             val files = listFiles {
                 withContext(Dispatchers.Main) {
@@ -143,38 +150,41 @@ class BackupService : Service() {
                 notificationBuilder.setProgress(files.size, 0, false)
                 updateNow()
             }
-            startBackupQueue(files)
+            startBackupQueue(files, folderHash)
         }
     }
 
-    private fun startBackupQueue(list: List<Pair<MediaEntity, String>>) {
+    private fun startBackupQueue(list: List<Pair<MediaEntity, String>>, folderHash: String) {
         var count = 0
-        val queue = TaskQueue<BackupTask>().apply { //threadSize(3)
-            list.distinctBy {
-                it.second
-            }.also {
-                it.forEachIndexed { index, pair ->
-                    addTask(BackupTask(pair.first.uri, pair.second))
-                    notificationBuilder.setContentText("正在准备任务 ${index + 1}/${it.size}...")
-                    notificationBuilder.setProgress(it.size, index + 1, false)
-                    update()
-                }
+        list.distinctBy {
+            it.second
+        }.also {
+            it.forEachIndexed { index, pair ->
+                BackupQueue.instance.addTask(BackupTask(pair.first.uri, pair.second, folderHash))
+                notificationBuilder.setContentText("正在准备任务 ${index + 1}/${it.size}...")
+                notificationBuilder.setProgress(it.size, index + 1, false)
+                update()
             }
         }
-        queue.onTaskStart {
-            count += 1
-            notificationBuilder.setSubText("$count/${list.size}")
-            notificationBuilder.setContentText("正在备份文件: ${it.fileName} ..")
-            notificationBuilder.setProgress(list.size, count, false)
-            update()
-            startTaskObserve(it)
-        }
-        queue.onTaskListDone {
-            taskObserveJob?.cancel()
-            toast("文件备份完毕！")
-            stopSelf()
-        }
-        queue.start()
+        BackupQueue.instance.onTaskStart(object : TaskQueue.OnTaskStartListener<BackupTask> {
+            override fun onTaskStart(task: BackupTask) {
+                count += 1
+                notificationBuilder.setSubText("$count/${list.size}")
+                notificationBuilder.setContentText("正在备份文件: ${task.fileName} ..")
+                notificationBuilder.setProgress(list.size, count, false)
+                update()
+                startTaskObserve(task)
+            }
+        })
+
+        BackupQueue.instance.onTaskListDone(object : TaskQueue.OnTaskListDoneListener {
+            override fun onTaskListDone() {
+                taskObserveJob?.cancel()
+                toast("文件备份完毕！")
+                stopSelf()
+            }
+        })
+        BackupQueue.instance.start()
     }
 
     private fun startTaskObserve(task: BackupTask) {
@@ -222,10 +232,6 @@ class BackupService : Service() {
             }
         }
 
-    private fun checkFileHashList(list: List<Pair<MediaEntity, String>>) {
-//        val
-    }
-
     private suspend fun Uri.hash(): String = withContext(Dispatchers.IO) {
         val file = DocumentFile.fromSingleUri(this@BackupService, this@hash)
         val length = file?.length() ?: 0
@@ -256,5 +262,10 @@ class BackupService : Service() {
         if (hasPermission) {
             notificationManager.notify(notificationId, notificationBuilder.build())
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        BackupQueue.instance.release()
     }
 }

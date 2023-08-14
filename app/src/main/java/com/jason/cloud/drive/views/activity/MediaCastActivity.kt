@@ -16,9 +16,9 @@ import com.jason.cloud.drive.adapter.MediaCastDeviceAdapter
 import com.jason.cloud.drive.base.BaseBindActivity
 import com.jason.cloud.drive.databinding.ActivityMediaCastBinding
 import com.jason.cloud.drive.model.FileEntity
+import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.startActivity
-import com.jason.cloud.extension.toMessage
 import com.jason.cloud.extension.toast
 import org.fourthline.cling.model.meta.RemoteDevice
 
@@ -153,7 +153,7 @@ class MediaCastActivity : BaseBindActivity<ActivityMediaCastBinding>(R.layout.ac
 
     private fun showVideoSelectMenu(anchor: View) {
         PopupMenu(context, anchor).apply {
-            MenuCompat.setGroupDividerEnabled(this.menu, true)
+            MenuCompat.setGroupDividerEnabled(menu, true)
             videoDataList.forEachIndexed { index, extendVideoData ->
                 val item = menu.add(0, index, index, extendVideoData.name)
                 item.isCheckable = true

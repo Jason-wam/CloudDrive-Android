@@ -97,6 +97,7 @@ dependencies {
     implementation("com.github.bumptech.glide:okhttp3-integration:${Dependencies.glide}")
 
     implementation("com.github.getActivity:XXPermissions:${Dependencies.xx_permissions}")
+    implementation("com.drakeet.multitype:multitype:${Dependencies.multiType}")
 
     //状态栏工具
     implementation("com.geyifeng.immersionbar:immersionbar:${Dependencies.immersionbar}")

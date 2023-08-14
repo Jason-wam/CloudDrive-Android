@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
-        android:background="?selectableItemBackground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground">
 
         <TextView
             android:id="@+id/animation_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:background="@color/colorSecondary" />
+            android:background="@color/colorSecondary"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -137,21 +137,24 @@
                         tools:text="9.3 GB" />
 
                     <Space
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                        android:layout_width="8dp"
+                        android:layout_height="wrap_content" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/tv_local"
+                        android:id="@+id/tv_children_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:text="@string/exist_at_local"
                         android:textColor="@color/colorOnSurfaceMedium"
                         android:textSize="11sp"
                         android:visibility="gone"
                         tools:targetApi="m"
-                        tools:visibility="visible" />
+                        tools:text="共 1 个项目" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
                 </LinearLayout>
             </LinearLayout>
 

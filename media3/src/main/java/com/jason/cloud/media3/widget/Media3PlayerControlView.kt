@@ -87,6 +87,7 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
     private var isBatteryReceiverRegister = false
     private var onBackPressedListener: (() -> Unit)? = null
     private var cutoutArea: CutoutArea = CutoutArea.UNKNOWN
+    internal var isDragging = false
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
@@ -381,7 +382,6 @@ class Media3PlayerControlView(context: Context, attrs: AttributeSet?) : FrameLay
             }
         }
 
-        var isDragging = false
         val formatBuilder = StringBuilder()
         val formatter = Formatter(formatBuilder, Locale.getDefault())
         if (isPlaying.not()) {

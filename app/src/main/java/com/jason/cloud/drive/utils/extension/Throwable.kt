@@ -16,7 +16,6 @@ import com.drake.net.exception.ServerResponseException
 import com.drake.net.exception.URLParseException
 import okio.EOFException
 import okio.FileNotFoundException
-import okio.IOException
 import org.json.JSONException
 import java.net.BindException
 import java.net.ConnectException
@@ -84,7 +83,6 @@ fun Throwable?.toMessage(): String {
         is FileSystemException -> "文件系统异常"
         is EOFException -> "意外达到文件末尾异常"
         is BindException -> message.toString()
-        is IOException -> "输入输出错误"
         is ClassNotFoundException -> "未找到类异常"
         is ReflectiveOperationException -> "反射操作异常"
         is UninitializedPropertyAccessException -> "未初始化的属性访问异常"

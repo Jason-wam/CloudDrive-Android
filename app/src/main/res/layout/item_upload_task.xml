@@ -8,6 +8,7 @@
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
         android:gravity="center_vertical"
+        android:minHeight="56dp"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="10dp"
@@ -43,18 +44,6 @@
                 android:textStyle="bold"
                 tools:text="疾速追杀1.John.Wick.Chapter1.2014.Bluray.UHD.HDR.2160p.H265.10bit.AC3.5.1.mkv" />
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/indicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:max="100"
-                app:indicatorColor="#43A047"
-                app:trackCornerRadius="50dp"
-                app:trackThickness="2dp"
-                tools:progress="50" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,17 +63,28 @@
 
                 <Space
                     android:layout_width="8dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="0dp" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_size"
                     android:layout_width="wrap_content"
-                    android:layout_height="16dp"
+                    android:layout_height="wrap_content"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="11sp"
                     tools:targetApi="m"
                     tools:text="0B / 9.3 GB" />
             </LinearLayout>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/indicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="100"
+                app:indicatorColor="#43A047"
+                app:trackCornerRadius="50dp"
+                app:trackThickness="2dp"
+                tools:progress="50" />
         </LinearLayout>
 
         <Space
@@ -114,7 +114,7 @@
             app:icon="@drawable/ic_round_close_24"
             app:iconGravity="textStart"
             app:iconPadding="2dp"
-            app:iconSize="14dp"
+            app:iconSize="13dp"
             app:iconTint="@color/colorSecondary" />
     </LinearLayout>
 </layout>

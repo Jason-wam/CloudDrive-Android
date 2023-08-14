@@ -65,14 +65,14 @@ class TaskUploadActivity :
 
     private val adapterDone = UploadTaskDoneAdapter().apply {
         addOnClickObserver { _, item, _ ->
-            FileBrowserActivity.locationTargetFile(context, item.hash, item.fileHash)
+            FileBrowserActivity.openFolder(context, item.hash, item.fileHash)
         }
         addOnBindViewObserver { _, item, holder ->
             if (item.status == UploadTask.Status.SUCCEED) {
                 holder.binding.btnControl.setIconResource(R.drawable.ic_round_open_in_new_24)
                 holder.binding.btnControl.text = "跳转"
                 holder.binding.btnControl.setOnClickListener {
-                    FileBrowserActivity.locationTargetFile(context, item.hash, item.fileHash)
+                    FileBrowserActivity.openFolder(context, item.hash, item.fileHash)
                 }
             }
             if (item.status == UploadTask.Status.FAILED) {

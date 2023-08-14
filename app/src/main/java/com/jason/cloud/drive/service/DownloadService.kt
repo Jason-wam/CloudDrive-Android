@@ -23,6 +23,7 @@ import com.jason.cloud.drive.database.downloader.DownloadQueue
 import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.database.downloader.getStatusText
 import com.jason.cloud.drive.database.downloader.toTaskEntity
+import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.putSerializableListExtra
@@ -109,22 +110,29 @@ class DownloadService : Service() {
         notificationManager = NotificationManagerCompat.from(this)
         notificationBuilder = NotificationCompat.Builder(this, channelId)
         showNotification()
-        DownloadQueue.instance.onTaskStart {
-            scope.launch(Dispatchers.IO) {
-                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
-                startObserveTask(it)
+
+        DownloadQueue.instance.onTaskStart(object : TaskQueue.OnTaskStartListener<DownloadTask> {
+            override fun onTaskStart(task: DownloadTask) {
+                scope.launch(Dispatchers.IO) {
+                    TaskDatabase.instance.getDownloadDao().put(task.toTaskEntity())
+                    startObserveTask(task)
+                }
             }
-        }
-        DownloadQueue.instance.onTaskDone {
-            scope.launch(Dispatchers.IO) {
-                TaskDatabase.instance.getDownloadDao().put(it.toTaskEntity())
+        })
+        DownloadQueue.instance.onTaskDone(object : TaskQueue.OnTaskDoneListener<DownloadTask> {
+            override fun onTaskDone(task: DownloadTask) {
+                scope.launch(Dispatchers.IO) {
+                    TaskDatabase.instance.getDownloadDao().put(task.toTaskEntity())
+                }
             }
-        }
-        DownloadQueue.instance.onTaskListDone {
-            taskObserver?.cancel()
-            toast("全部取回任务完成！")
-            stopSelf()
-        }
+        })
+        DownloadQueue.instance.onTaskListDone(object : TaskQueue.OnTaskListDoneListener {
+            override fun onTaskListDone() {
+                taskObserver?.cancel()
+                toast("全部取回任务完成！")
+                stopSelf()
+            }
+        })
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -217,5 +225,10 @@ class DownloadService : Service() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        DownloadQueue.instance.release()
     }
 }

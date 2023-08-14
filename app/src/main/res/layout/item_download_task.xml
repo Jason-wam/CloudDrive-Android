@@ -8,6 +8,7 @@
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
         android:gravity="center_vertical"
+        android:minHeight="56dp"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="10dp"
@@ -18,6 +19,7 @@
             android:id="@+id/iv_icon"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_round_file_video_24" />
 
@@ -42,39 +44,35 @@
                 android:textStyle="bold"
                 tools:text="疾速追杀1.John.Wick.Chapter1.2014.Bluray.UHD.HDR.2160p.H265.10bit.AC3.5.1.mkv" />
 
-            <Space
-                android:layout_width="8dp"
-                android:layout_height="4dp" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_size"
+                    android:id="@+id/tv_status"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/colorOnSurfaceMedium"
-                    android:textSize="11sp"
-                    tools:targetApi="m"
-                    tools:text="0B / 9.3 GB" />
-
-                <Space
-                    android:layout_width="8dp"
-                    android:layout_height="4dp" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="@color/colorOnSurfaceMedium"
                     android:textSize="11sp"
                     tools:targetApi="m"
                     tools:text="正在连接服务器，请稍候..." />
+
+                <Space
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="11sp"
+                    tools:targetApi="m"
+                    tools:text="0B / 9.3 GB" />
             </LinearLayout>
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -113,10 +111,10 @@
             android:text="暂停"
             android:textSize="11sp"
             app:cornerRadius="50dp"
-            app:icon="@drawable/ic_task_in_queue_24"
+            app:icon="@drawable/ic_round_pause_24"
             app:iconGravity="textStart"
             app:iconPadding="2dp"
-            app:iconSize="14dp"
+            app:iconSize="13dp"
             app:iconTint="@color/colorSecondary" />
     </LinearLayout>
 </layout>

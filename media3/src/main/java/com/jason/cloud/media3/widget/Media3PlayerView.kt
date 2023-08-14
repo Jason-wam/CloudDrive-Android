@@ -723,27 +723,19 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                 delay(1000)
                 timeCount += 1
                 if (timeCount > 4) {
-                    if (internalPlayer.isPlaying) {
-                        if (controlView.isVisible) {
-                            hideBars()
-                            controlView.hide()
-                            onControlViewVisibleListener?.onVisibleChanged(
-                                false,
-                                isInFullscreen
-                            )
-                        }
+                    if (controlView.isVisible.not()) {
                         break
-                    } else {
-                        if (controlView.isVisible.not()) {
-                            if (isInFullscreen.not()) {
-                                showBars()
-                            }
-                            controlView.show()
-                            onControlViewVisibleListener?.onVisibleChanged(
-                                true,
-                                isInFullscreen
-                            )
-                        }
+                    }
+                    if (controlView.isDragging) {
+                        break
+                    }
+                    if (internalPlayer.isPlaying) {
+                        hideBars()
+                        controlView.hide()
+                        onControlViewVisibleListener?.onVisibleChanged(
+                            false,
+                            isInFullscreen
+                        )
                         break
                     }
                 }

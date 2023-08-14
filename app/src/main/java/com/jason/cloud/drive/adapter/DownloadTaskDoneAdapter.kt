@@ -91,6 +91,7 @@ class DownloadTaskDoneAdapter :
             FONT -> R.drawable.ic_round_file_fonts_24
             UNKNOWN -> R.drawable.ic_round_file_unknown_24
             FOLDER -> R.drawable.ic_round_file_folder_24
+            DOCUMENTS -> R.drawable.ic_round_file_text_24
         }
     }
 }

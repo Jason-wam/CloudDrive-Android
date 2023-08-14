@@ -110,13 +110,13 @@ fun InputStream.createMD5String(block: ((bytesRead: Long) -> Unit)? = null): Str
 /**
  * 因为大文件校验过慢，所以可以选择读取文件开头和结尾
  */
-fun File.createSketchedMD5String(blockSize: Long = 2.MB): String {
+fun File.createSketchedMD5String(blockSize: Long = 200.KB): String {
     return inputStream().use {
         it.createSketchedMD5String(length(), blockSize)
     }
 }
 
-fun InputStream.createSketchedMD5String(fileLength: Long, blockSize: Long = 2.MB): String {
+fun InputStream.createSketchedMD5String(fileLength: Long, blockSize: Long = 200.KB): String {
     if (blockSize >= fileLength) return createMD5String()
     val messageDigest = MessageDigest.getInstance("MD5")
     var readPoint = readBlock(blockSize) { buffer ->

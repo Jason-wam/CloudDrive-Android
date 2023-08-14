@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="storageTrackColor">#50009C8A</color>
+    <color name="storageUsedTrackColor">#009C8A</color>
+    <color name="storageDriveUsedTrackColor">#7CB342</color>
+</resources>

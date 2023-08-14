@@ -12,34 +12,24 @@ import androidx.core.view.forEach
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindActivity
 import com.jason.cloud.drive.databinding.ActivityFileBrowserBinding
-import com.jason.cloud.drive.model.FileEntity
-import com.jason.cloud.drive.service.BackupService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.ListSort
 import com.jason.cloud.drive.views.fragment.FileListFragment
-import com.jason.cloud.extension.getSerializableExtraEx
 import com.jason.cloud.extension.startActivity
-import com.jason.cloud.extension.toast
 
 class FileBrowserActivity :
     BaseBindActivity<ActivityFileBrowserBinding>(R.layout.activity_file_browser),
     Toolbar.OnMenuItemClickListener {
     companion object {
-        fun openFolder(context: Context, folder: FileEntity) {
-            context.startActivity(FileBrowserActivity::class) {
-                putExtra("folder", folder)
-            }
-        }
-
         /**
          * 定位到指定文件
-         * @param hash 目标文件夹
+         * @param folderHash 目标文件夹
          * @param fileHash 目标文件
          */
-        fun locationTargetFile(context: Context, hash: String, fileHash: String) {
+        fun openFolder(context: Context, folderHash: String, fileHash: String? = null) {
             context.startActivity(FileBrowserActivity::class) {
-                putExtra("hash", hash)
                 putExtra("fileHash", fileHash)
+                putExtra("folderHash", folderHash)
             }
         }
     }
@@ -67,17 +57,13 @@ class FileBrowserActivity :
         binding.toolbar.setOnMenuItemClickListener(this)
         updateSortMenu()
 
-        if (intent.hasExtra("hash") && intent.hasExtra("fileHash")) {
-            val hash = intent.getStringExtra("hash")!!
-            val fileHash = intent.getStringExtra("fileHash")!!
-            fragment = FileListFragment.newInstance(hash, fileHash)
-        } else if (intent.hasExtra("folder")) {
-            val folder = intent.getSerializableExtraEx("folder", FileEntity::class.java)!!
-            fragment = FileListFragment.newInstance(folder)
+        fragment = if (intent.hasExtra("folderHash")) {
+            val fileHash = intent.getStringExtra("fileHash")
+            val folderHash = intent.getStringExtra("folderHash")!!
+            FileListFragment.newInstance(folderHash, fileHash)
         } else {
-            fragment = FileListFragment.newInstance()
+            FileListFragment.newInstance()
         }
-
 
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.container, fragment, "fragment")
@@ -120,6 +106,9 @@ class FileBrowserActivity :
             this@children.forEach { child ->
                 add(child)
                 if (child.hasSubMenu()) {
+                    child.subMenu?.let {
+                        MenuCompat.setGroupDividerEnabled(it, true)
+                    }
                     addAll(child.subMenu?.children().orEmpty())
                 }
             }
@@ -131,10 +120,6 @@ class FileBrowserActivity :
             R.id.search -> startActivity(SearchFilesActivity::class)
             R.id.download -> startActivity(TaskDownloadActivity::class)
             R.id.folder -> fragment.createNewFolder()
-
-            R.id.backup -> BackupService.launchWith(context) {
-                toast("正在后台备份文件..")
-            }
 
             R.id.name -> {
                 Configure.CloudFileConfigure.sortModel = ListSort.NAME

@@ -22,7 +22,6 @@
         tools:ignore="AlwaysShowAction,UnusedAttribute" />
 
     <item
-        android:id="@+id/more"
         android:icon="@drawable/ic_round_more_vert_24"
         android:iconTint="@color/colorOnPrimary"
         android:title="@string/more"
@@ -32,15 +31,13 @@
         <menu>
             <item
                 android:id="@+id/clear_all_downloads"
-                android:title="@string/clear_all_downloads" />
+                android:title="@string/cancel_all_downloads" />
 
             <item
                 android:id="@+id/clear_all_done_tasks"
                 android:title="@string/clear_all_done_tasks" />
 
-            <item
-                android:id="@+id/cancel"
-                android:title="@string/cancel" />
+            <item android:title="@string/cancel" />
         </menu>
     </item>
 </menu>

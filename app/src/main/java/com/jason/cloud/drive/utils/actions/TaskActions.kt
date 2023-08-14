@@ -83,10 +83,19 @@ fun FragmentActivity.deleteDownloadTask(
 ) {
     scopeNetLife(dispatcher = Dispatchers.IO) {
         DownloadQueue.instance.cancel(task)
-        TaskDatabase.instance.getDownloadDao().delete(task.hash)
-        if (keepFile.not()) {
-            task.taskFile().delete()
+        if (keepFile) {
+            TaskDatabase.instance.getDownloadDao().delete(task.hash)
+        } else {
+            val file = task.taskFile()
+            if (file.exists().not()) {
+                TaskDatabase.instance.getDownloadDao().delete(task.hash)
+            } else {
+                if (file.delete()) {
+                    TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                }
+            }
         }
+
         withContext(Dispatchers.Main) {
             onDeleted?.invoke()
             toast("已删除任务！")
@@ -101,10 +110,18 @@ fun FragmentActivity.deleteDownloadTasks(
 ) {
     scopeNetLife(dispatcher = Dispatchers.IO) {
         DownloadQueue.instance.cancel(tasks)
-        tasks.forEach {
-            TaskDatabase.instance.getDownloadDao().delete(it.hash)
-            if (keepFile.not()) {
-                it.taskFile().delete()
+        tasks.forEach { task ->
+            if (keepFile) {
+                TaskDatabase.instance.getDownloadDao().delete(task.hash)
+            } else {
+                val file = task.taskFile()
+                if (file.exists().not()) {
+                    TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                } else {
+                    if (file.delete()) {
+                        TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                    }
+                }
             }
         }
         withContext(Dispatchers.Main) {
@@ -152,8 +169,17 @@ fun FragmentActivity.deleteDownloadDoneTask(
 ) {
     scopeNetLife(dispatcher = Dispatchers.IO) {
         TaskDatabase.instance.getDownloadDao().delete(task)
-        if (keepFile.not()) {
-            File(task.dir, task.name).delete()
+        if (keepFile) {
+            TaskDatabase.instance.getDownloadDao().delete(task)
+        } else {
+            val file = task.taskFile()
+            if (file.exists().not()) {
+                TaskDatabase.instance.getDownloadDao().delete(task)
+            } else {
+                if (file.delete()) {
+                    TaskDatabase.instance.getDownloadDao().delete(task)
+                }
+            }
         }
         withContext(Dispatchers.Main) {
             onDeleted?.invoke()
@@ -168,12 +194,17 @@ fun FragmentActivity.deleteDownloadDoneTasks(
     onDeleted: (() -> Unit)? = null
 ) {
     scopeNetLife(dispatcher = Dispatchers.IO) {
-        tasks.forEach {
+        tasks.forEach { task ->
             if (keepFile) {
-                TaskDatabase.instance.getDownloadDao().delete(it)
+                TaskDatabase.instance.getDownloadDao().delete(task)
             } else {
-                if (it.taskFile().delete()) {
-                    TaskDatabase.instance.getDownloadDao().delete(it)
+                val file = task.taskFile()
+                if (file.exists().not()) {
+                    TaskDatabase.instance.getDownloadDao().delete(task)
+                } else {
+                    if (file.delete()) {
+                        TaskDatabase.instance.getDownloadDao().delete(task)
+                    }
                 }
             }
         }
@@ -199,14 +230,17 @@ fun FragmentActivity.clearAllDownloadTasks(keepFile: Boolean) {
     scopeNetLife(dispatcher = Dispatchers.IO) {
         DownloadQueue.instance.cancelAll()
         TaskDatabase.instance.getDownloadDao().list().collectLatest {
-            it.filter { task ->
-                task.status != DownloadTask.Status.SUCCEED && task.status != DownloadTask.Status.PAUSED
-            }.forEach { task ->
+            it.forEach { task ->
                 if (keepFile) {
                     TaskDatabase.instance.getDownloadDao().delete(it)
                 } else {
-                    if (task.taskFile().delete()) {
-                        TaskDatabase.instance.getDownloadDao().delete(it)
+                    val file = task.taskFile()
+                    if (file.exists().not()) {
+                        TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                    } else {
+                        if (file.delete()) {
+                            TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                        }
                     }
                 }
             }
@@ -233,10 +267,15 @@ fun FragmentActivity.clearDownloadDoneTasks(keepFile: Boolean) {
         TaskDatabase.instance.getDownloadDao().list().collectLatest {
             it.forEach { task ->
                 if (keepFile) {
-                    TaskDatabase.instance.getDownloadDao().delete(it)
+                    TaskDatabase.instance.getDownloadDao().delete(task)
                 } else {
-                    if (task.taskFile().delete()) {
-                        TaskDatabase.instance.getDownloadDao().delete(it)
+                    val file = task.taskFile()
+                    if (file.exists().not()) {
+                        TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                    } else {
+                        if (file.delete()) {
+                            TaskDatabase.instance.getDownloadDao().delete(task.hash)
+                        }
                     }
                 }
             }

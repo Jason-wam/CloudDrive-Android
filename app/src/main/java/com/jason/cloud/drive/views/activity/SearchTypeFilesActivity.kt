@@ -1,39 +1,36 @@
 package com.jason.cloud.drive.views.activity
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuCompat
 import androidx.core.view.forEach
 import androidx.lifecycle.ViewModelProvider
-import com.drake.softinput.hasSoftInput
-import com.drake.softinput.hideSoftInput
-import com.drake.softinput.setWindowSoftInput
-import com.drake.softinput.showSoftInput
 import com.jason.cloud.drive.R
 import com.jason.cloud.drive.adapter.CloudFileAdapter
 import com.jason.cloud.drive.base.BaseBindActivity
-import com.jason.cloud.drive.databinding.ActivitySearchFilesBinding
+import com.jason.cloud.drive.databinding.ActivitySearchTypeFilesBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.FileType
+import com.jason.cloud.drive.utils.FileType.Media.*
 import com.jason.cloud.drive.utils.ListSort
 import com.jason.cloud.drive.utils.actions.showFileMenu
 import com.jason.cloud.drive.utils.actions.showFolderMenu
 import com.jason.cloud.drive.utils.extension.view.bindRvElevation
-import com.jason.cloud.drive.utils.extension.view.onMenuItemClickListener
-import com.jason.cloud.drive.viewmodel.SearchFilesViewModel
+import com.jason.cloud.drive.viewmodel.SearchTypeFilesViewModel
 import com.jason.cloud.drive.views.widgets.decoration.FileListDecoration
+import com.jason.cloud.extension.startActivity
 import com.jason.cloud.extension.toast
 
-class SearchFilesActivity :
-    BaseBindActivity<ActivitySearchFilesBinding>(R.layout.activity_search_files),
+class SearchTypeFilesActivity :
+    BaseBindActivity<ActivitySearchTypeFilesBinding>(R.layout.activity_search_type_files),
     Toolbar.OnMenuItemClickListener {
 
-    private val stateLogo = "stateLogo"
     private val viewModel by lazy {
-        ViewModelProvider(this)[SearchFilesViewModel::class.java]
+        ViewModelProvider(this)[SearchTypeFilesViewModel::class.java]
     }
 
     private val adapter = CloudFileAdapter().apply {
@@ -89,21 +86,25 @@ class SearchFilesActivity :
         }
     }
 
+    companion object {
+        fun search(context: Context, type: FileType.Media) {
+            context.startActivity(SearchTypeFilesActivity::class) {
+                putExtra("type", type.name)
+            }
+        }
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun initView() {
         MenuCompat.setGroupDividerEnabled(binding.toolbar.menu, true)
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.toolbar.setOnMenuItemClickListener(this)
 
-        binding.stateLayout.bindView(stateLogo, R.layout.layout_state_logo)
-        binding.stateLayout.switchView(stateLogo)
-
         binding.rvData.adapter = adapter
         binding.rvData.addItemDecoration(FileListDecoration(this))
         binding.appBarLayout.bindRvElevation(binding.rvData)
 
         updateSortMenu()
-        initSearchView()
 
         viewModel.onError.observe(this) {
             binding.refreshLayout.finishRefresh(false)
@@ -141,6 +142,32 @@ class SearchFilesActivity :
         binding.refreshLayout.setOnLoadMoreListener {
             viewModel.nextPage()
         }
+
+        val type = intent.getStringExtra("type")?.let { valueOf(it) } ?: return
+        updateTitle(type)
+        search(type)
+    }
+
+    private fun updateTitle(type: FileType.Media) {
+        binding.toolbar.title = when (type) {
+            VIDEO -> getString(R.string.video)
+            IMAGE -> getString(R.string.image)
+            AUDIO -> getString(R.string.audio)
+            COMPRESS -> getString(R.string.compress)
+            DOCUMENTS -> getString(R.string.documents)
+            PPT -> getString(R.string.ppt)
+            TEXT -> getString(R.string.text)
+            WORD -> getString(R.string.word)
+            EXCEL -> getString(R.string.excel)
+            APPLICATION -> getString(R.string.application)
+            DATABASE -> getString(R.string.database)
+            TORRENT -> getString(R.string.torrent)
+            EXE -> getString(R.string.exe)
+            WEB -> getString(R.string.web)
+            FONT -> getString(R.string.font)
+            FOLDER -> getString(R.string.folder)
+            UNKNOWN -> getString(R.string.unknown)
+        }
     }
 
     private fun updateSortMenu() {
@@ -172,91 +199,12 @@ class SearchFilesActivity :
         }
     }
 
-    private fun initSearchView() {
-        fun showDimView() {
-            binding.dimView.alpha = 0f
-            binding.dimView.visibility = View.VISIBLE
-            binding.dimView.animate().alphaBy(0f).alpha(1f).duration = 300
-            binding.dimView.setOnClickListener {
-                it.isEnabled = false
-                it.animate().alphaBy(1f).alpha(0f).setDuration(300).withEndAction {
-                    it.isEnabled = true
-                    it.visibility = View.GONE
-                    binding.searchView.hideSoftInput()
-                }
-            }
-        }
-
-        fun hideDimView() {
-            binding.dimView.animate().alphaBy(1f).alpha(0f).setDuration(300).withEndAction {
-                binding.dimView.visibility = View.GONE
-            }
-            binding.dimView.setOnClickListener {
-                it.isEnabled = false
-                it.animate().alphaBy(1f).alpha(0f).setDuration(300).withEndAction {
-                    it.isEnabled = true
-                    it.visibility = View.GONE
-                    binding.searchView.hideSoftInput()
-                }
-            }
-        }
-
-        setWindowSoftInput(float = binding.searchBar,
-            editText = binding.searchView,
-            setPadding = true,
-            onChanged = {
-                if (hasSoftInput()) {
-                    showDimView()
-                    viewModel.cancel()
-                    binding.searchBar.setNavigationIcon(R.drawable.ic_round_keyboard_hide_24)
-                    binding.searchBar.setNavigationOnClickListener {
-                        binding.searchView.hideSoftInput()
-                    }
-                } else {
-                    hideDimView()
-                    binding.searchBar.setNavigationIcon(R.drawable.ic_round_keyboard_24)
-                    binding.searchBar.setNavigationOnClickListener {
-                        binding.searchView.showSoftInput()
-                    }
-                }
-            }
-        )
-
-        binding.searchBar.addOnScrollStateChangedListener { _, _ ->
-            if (binding.searchBar.isScrolledDown) {
-                binding.searchView.hideSoftInput()
-                hideDimView()
-            }
-        }
-
-        binding.searchBar.setNavigationOnClickListener {
-            binding.searchView.showSoftInput()
-        }
-
-        binding.searchBar.onMenuItemClickListener(R.id.search) {
-            val text = binding.searchView.text
-            if (text?.isNotBlank() == true) {
-                search(text.toString())
-            } else {
-                toast(R.string.please_input_search_keywords)
-            }
-        }
-
-        binding.searchView.onSearchListener {
-            if (it.isNotBlank()) {
-                search(it)
-            } else {
-                toast(R.string.please_input_search_keywords)
-            }
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
-    private fun search(text: String) {
+    private fun search(type: FileType.Media) {
         adapter.clear()
         adapter.notifyDataSetChanged()
         binding.stateLayout.showLoading()
-        viewModel.search(text)
+        viewModel.search(type)
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {

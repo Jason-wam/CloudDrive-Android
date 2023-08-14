@@ -22,6 +22,7 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.database.uploader.UploadQueue
 import com.jason.cloud.drive.database.uploader.UploadTask
 import com.jason.cloud.drive.database.uploader.getStatusText
+import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.drive.views.dialog.TextDialog
 import com.jason.cloud.extension.getParcelableArrayListEx
 import com.jason.cloud.extension.toast
@@ -112,14 +113,19 @@ class UploadService : Service() {
         notificationBuilder = NotificationCompat.Builder(this, channelId)
         showNotification()
         UploadQueue.instance.threadSize(3)
-        UploadQueue.instance.onTaskStart {
-            startObserveTask(it)
-        }
-        UploadQueue.instance.onTaskListDone {
-            taskObserver?.cancel()
-            toast("全部上传任务完成！")
-            stopSelf()
-        }
+        UploadQueue.instance.onTaskStart(object : TaskQueue.OnTaskStartListener<UploadTask> {
+            override fun onTaskStart(task: UploadTask) {
+                startObserveTask(task)
+            }
+        })
+
+        UploadQueue.instance.onTaskListDone(object : TaskQueue.OnTaskListDoneListener {
+            override fun onTaskListDone() {
+                taskObserver?.cancel()
+                toast("全部上传任务完成！")
+                stopSelf()
+            }
+        })
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -190,5 +196,10 @@ class UploadService : Service() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        UploadQueue.instance.release()
     }
 }

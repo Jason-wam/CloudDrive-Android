@@ -37,7 +37,7 @@
                     app:dividerColor="@color/colorItemDecoration"
                     app:dividerInsetEnd="16dp"
                     app:dividerInsetStart="16dp"
-                    app:dividerThickness="0.8dp" />
+                    app:dividerThickness="@dimen/itemDecorationSize" />
             </LinearLayout>
         </com.google.android.material.appbar.AppBarLayout>
 

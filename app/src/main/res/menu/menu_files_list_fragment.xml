@@ -29,7 +29,6 @@
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction,UnusedAttribute" />
     <item
-        android:id="@+id/more"
         android:icon="@drawable/ic_round_more_vert_24"
         android:iconTint="@color/colorOnPrimary"
         android:title="@string/more"
@@ -37,13 +36,9 @@
         app:showAsAction="always"
         tools:ignore="UnusedAttribute">
         <menu>
-            <item
-                android:id="@+id/sort"
-                android:title="@string/sort_mode">
+            <item android:title="@string/sort_mode">
                 <menu>
-                    <group
-                        android:id="@+id/group1"
-                        android:checkableBehavior="single">
+                    <group android:checkableBehavior="single">
                         <item
                             android:id="@+id/name"
                             android:checkable="true"
@@ -53,9 +48,7 @@
                             android:checkable="true"
                             android:title="@string/sort_by_name_desc" />
                     </group>
-                    <group
-                        android:id="@+id/group2"
-                        android:checkableBehavior="single">
+                    <group android:checkableBehavior="single">
                         <item
                             android:id="@+id/date"
                             android:checkable="true"
@@ -65,9 +58,7 @@
                             android:checkable="true"
                             android:title="@string/sort_by_date_desc" />
                     </group>
-                    <group
-                        android:id="@+id/group3"
-                        android:checkableBehavior="single">
+                    <group android:checkableBehavior="single">
                         <item
                             android:id="@+id/size"
                             android:checkable="true"
@@ -77,9 +68,7 @@
                             android:checkable="true"
                             android:title="@string/sort_by_size_desc" />
                     </group>
-                    <group
-                        android:id="@+id/group4"
-                        android:checkableBehavior="single">
+                    <group android:checkableBehavior="single">
                         <item
                             android:id="@+id/show_hidden"
                             android:checkable="true"
@@ -91,12 +80,7 @@
             <item
                 android:id="@+id/folder"
                 android:title="@string/create_new_folder" />
-            <item
-                android:id="@+id/backup"
-                android:title="@string/backup_files" />
-            <item
-                android:id="@+id/cancel"
-                android:title="@string/cancel" />
+            <item android:title="@string/cancel" />
         </menu>
     </item>
 </menu>

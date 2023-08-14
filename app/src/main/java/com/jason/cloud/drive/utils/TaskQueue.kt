@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -14,19 +15,26 @@ import java.util.concurrent.locks.ReentrantLock
 
 open class TaskQueue<T : TaskQueue.Task> {
     val taskList = arrayListOf<T>()
-    val clonedTaskList: List<Task>
-        get() {
-            return ArrayList(taskList)
-        }
-
     private var threadSize = 1
     private val taskLock = ReentrantLock()
-    private var onTaskDoneListener: ((T) -> Unit)? = null
-    private var onTaskStartListener: ((T) -> Unit)? = null
-    private var onTaskListDoneListener: (() -> Unit)? = null
+    private var onTaskDoneListeners = arrayListOf<OnTaskDoneListener<T>>()
+    private var onTaskStartListeners = arrayListOf<OnTaskStartListener<T>>()
+    private var onTaskListDoneListeners = arrayListOf<OnTaskListDoneListener>()
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private var queueMonitor: Job? = null
+
+    interface OnTaskDoneListener<T> {
+        fun onTaskDone(task: T)
+    }
+
+    interface OnTaskStartListener<T> {
+        fun onTaskStart(task: T)
+    }
+
+    interface OnTaskListDoneListener {
+        fun onTaskListDone()
+    }
 
     abstract class Task {
         abstract fun start(): Task
@@ -48,26 +56,32 @@ open class TaskQueue<T : TaskQueue.Task> {
         }
     }
 
+    val taskSizeFlow: Flow<Int> by lazy {
+        flow {
+            emit(taskList.size)
+        }.distinctUntilChanged()
+    }
+
     fun threadSize(size: Int): TaskQueue<T> {
         this.threadSize = size
         return this
     }
 
-    open fun onTaskDone(listener: (T) -> Unit): TaskQueue<T> {
-        this.onTaskDoneListener = listener
+    open fun onTaskDone(listener: OnTaskDoneListener<T>): TaskQueue<T> {
+        this.onTaskDoneListeners.add(listener)
         return this
     }
 
     /**
      * 任务队列执行完毕
      */
-    open fun onTaskListDone(listener: () -> Unit): TaskQueue<T> {
-        this.onTaskListDoneListener = listener
+    open fun onTaskListDone(listener: OnTaskListDoneListener): TaskQueue<T> {
+        this.onTaskListDoneListeners.add(listener)
         return this
     }
 
-    open fun onTaskStart(listener: (T) -> Unit): TaskQueue<T> {
-        this.onTaskStartListener = listener
+    open fun onTaskStart(listener: OnTaskStartListener<T>): TaskQueue<T> {
+        this.onTaskStartListeners.add(listener)
         return this
     }
 
@@ -176,7 +190,7 @@ open class TaskQueue<T : TaskQueue.Task> {
                     if (taskList.isEmpty()) {
                         println("结束轮循器...")
                         withContext(Dispatchers.Main) {
-                            onTaskListDoneListener?.invoke()
+                            onTaskListDoneListeners.forEach { it.onTaskListDone() }
                         }
                         break
                     } else {
@@ -200,7 +214,7 @@ open class TaskQueue<T : TaskQueue.Task> {
         taskLock.unlock()
         println("完成任务：${task.getTaskId()}")
         withContext(Dispatchers.Main) {
-            onTaskDoneListener?.invoke(task)
+            onTaskDoneListeners.forEach { it.onTaskDone(task) }
         }
     }
 
@@ -211,7 +225,7 @@ open class TaskQueue<T : TaskQueue.Task> {
             if (index < threadSize) {
                 println("启动任务：${t.getTaskId()}")
                 withContext(Dispatchers.Main) {
-                    onTaskStartListener?.invoke(t)
+                    onTaskStartListeners.forEach { it.onTaskStart(t) }
                 }
                 t.start()
             }
@@ -227,8 +241,8 @@ open class TaskQueue<T : TaskQueue.Task> {
         queueMonitor = null
         scope.cancel()
 
-        onTaskDoneListener = null
-        onTaskListDoneListener = null
-        onTaskStartListener = null
+        onTaskDoneListeners.clear()
+        onTaskListDoneListeners.clear()
+        onTaskStartListeners.clear()
     }
 }

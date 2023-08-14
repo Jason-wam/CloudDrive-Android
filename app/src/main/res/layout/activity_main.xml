@@ -14,21 +14,313 @@
             android:layout_width="match_parent"
             android:layout_height="0dp" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager2"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="0dp" />
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation_view"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:backgroundTint="@color/colorPrimary"
-            app:itemIconSize="22dp"
-            app:itemIconTint="@color/bottom_navigation_bar_item_tint"
-            app:itemTextColor="@color/bottom_navigation_bar_item_tint"
-            app:labelVisibilityMode="labeled"
-            app:menu="@menu/menu_main_activity_bottom_navigation" />
+            android:background="@color/colorPrimary"
+            android:stateListAnimator="@animator/appbar_layout_elevation_nil">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:contentInsetStart="16dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:logo="@drawable/ic_cloud_six_24"
+                app:logoScaleType="centerInside"
+                app:menu="@menu/menu_home_fragment"
+                app:subtitleTextAppearance="@style/SubtitleTextAppearance"
+                app:subtitleTextColor="@color/colorOnPrimaryMedium"
+                app:title="@string/app_name"
+                app:titleCentered="false"
+                app:titleMarginStart="24dp"
+                app:titleTextAppearance="@style/TitleTextBoldAppearance"
+                app:titleTextColor="@color/colorOnPrimary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srlEnableAutoLoadMore="false"
+            app:srlEnableLoadMore="false">
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/nested_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_search"
+                        style="@style/MaterialButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="5dp"
+                        android:minWidth="0dp"
+                        android:minHeight="48dp"
+                        android:paddingStart="15dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="15dp"
+                        android:paddingBottom="10dp"
+                        android:text="@string/search_file_from_cloud_drive"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/colorOnSurfaceMedium"
+                        android:textSize="14sp"
+                        app:icon="@drawable/ic_round_search_24"
+                        app:iconGravity="end"
+                        app:iconPadding="8dp"
+                        app:iconSize="24dp"
+                        app:iconTint="@color/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_video"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:minWidth="0dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="@string/video"
+                            android:textColor="@color/colorOnSurface"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_round_file_video_24"
+                            app:iconGravity="textTop"
+                            app:iconPadding="8dp"
+                            app:iconSize="30dp"
+                            app:iconTint="@null" />
+
+                        <Space
+                            android:layout_width="10dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_image"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:minWidth="0dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="@string/image"
+                            android:textColor="@color/colorOnSurface"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_round_file_image_24"
+                            app:iconGravity="textTop"
+                            app:iconPadding="8dp"
+                            app:iconSize="30dp"
+                            app:iconTint="@null" />
+
+                        <Space
+                            android:layout_width="10dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_document"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:minWidth="0dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="@string/documents"
+                            android:textColor="@color/colorOnSurface"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_round_file_text_24"
+                            app:iconGravity="textTop"
+                            app:iconPadding="8dp"
+                            app:iconSize="30dp"
+                            app:iconTint="@null" />
+
+                        <Space
+                            android:layout_width="10dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_audio"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:minWidth="0dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="@string/audio"
+                            android:textColor="@color/colorOnSurface"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_round_file_audio_24"
+                            app:iconGravity="textTop"
+                            app:iconPadding="8dp"
+                            app:iconSize="30dp"
+                            app:iconTint="@null" />
+
+                        <Space
+                            android:layout_width="10dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_commpress"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:minWidth="0dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:text="@string/compress"
+                            android:textColor="@color/colorOnSurface"
+                            android:textSize="13sp"
+                            app:icon="@drawable/ic_round_file_compress_24"
+                            app:iconGravity="textTop"
+                            app:iconPadding="8dp"
+                            app:iconSize="30dp"
+                            app:iconTint="@null" />
+
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="0dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_uploads"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/upload_task_formatter"
+                            app:icon="@drawable/ic_upload_22"
+                            app:iconGravity="textStart"
+                            app:iconPadding="5dp"
+                            app:iconSize="13sp"
+                            app:iconTint="@color/colorSecondary" />
+
+                        <Space
+                            android:layout_width="8dp"
+                            android:layout_height="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_downloads"
+                            style="@style/MaterialButtonStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/download_task_formatter"
+                            app:icon="@drawable/ic_download_22"
+                            app:iconGravity="textStart"
+                            app:iconPadding="5dp"
+                            app:iconSize="13sp"
+                            app:iconTint="@color/colorSecondary" />
+
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="0dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_backup"
+                        style="@style/MaterialButtonStyle"
+                        android:visibility="gone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/backup_files" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_mounted_dirs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="never"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="1"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/item_mounted_dir" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_recent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/colorCardViewBackground"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/colorMaterialButtonStroke"
+                        app:strokeWidth="@dimen/materialButtonStrokeWidth"
+                        tools:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginTop="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginBottom="8dp"
+                                android:text="@string/recent_files"
+                                android:textColor="@color/colorOnSurfaceMedium"
+                                android:textSize="13sp" />
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_recent"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:overScrollMode="never"
+                                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                                app:spanCount="1"
+                                tools:listitem="@layout/item_cloud_file" />
+                        </LinearLayout>
+
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
     </LinearLayout>
 </layout>

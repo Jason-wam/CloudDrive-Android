@@ -10,22 +10,24 @@ class UploadQueue : TaskQueue<UploadTask>() {
     }
 
     init {
-        onTaskDone {
-            thread {
-                TaskDatabase.instance.getUploadDao().put(UploadTaskEntity().apply {
-                    this.id = it.id
-                    this.uri = it.uri.toString()
-                    this.hash = it.folderHash
-                    this.fileName = it.fileName
-                    this.fileHash = it.fileHash
-                    this.progress = it.progress
-                    this.totalBytes = it.totalBytes
-                    this.uploadedBytes = it.uploadedBytes
-                    this.status = it.status
-                    this.timestamp = System.currentTimeMillis()
-                    this.progress = if (it.isSucceed()) 100 else it.progress
-                })
+        onTaskDone(object : OnTaskDoneListener<UploadTask> {
+            override fun onTaskDone(task: UploadTask) {
+                thread {
+                    TaskDatabase.instance.getUploadDao().put(UploadTaskEntity().apply {
+                        this.id = task.id
+                        this.uri = task.uri.toString()
+                        this.hash = task.folderHash
+                        this.fileName = task.fileName
+                        this.fileHash = task.fileHash
+                        this.progress = task.progress
+                        this.totalBytes = task.totalBytes
+                        this.uploadedBytes = task.uploadedBytes
+                        this.status = task.status
+                        this.timestamp = System.currentTimeMillis()
+                        this.progress = if (task.isSucceed()) 100 else task.progress
+                    })
+                }
             }
-        }
+        })
     }
 }

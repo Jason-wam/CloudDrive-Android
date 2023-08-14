@@ -8,13 +8,14 @@ import com.drake.net.Get
 import com.drake.net.Net
 import com.jason.cloud.drive.model.SearchRespondEntity
 import com.jason.cloud.drive.utils.Configure
+import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.UrlBuilder
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.asJSONObject
 
-class SearchFilesViewModel(application: Application) : AndroidViewModel(application) {
+class SearchTypeFilesViewModel(application: Application) : AndroidViewModel(application) {
     private var page = 1
-    private var searchWords = ""
+    private var searchType: FileType.Media? = null
 
     var onError = MutableLiveData<String>()
     var onSucceed = MutableLiveData<SearchRespondEntity>()
@@ -37,17 +38,18 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun search(kw: String) {
+    fun search(type: FileType.Media) {
         page = 1
-        searchWords = kw
+        searchType = type
         doSearch()
     }
 
     private fun doSearch(block: ((succeed: Boolean) -> Unit)? = null) {
         scopeNetLife {
-            Get<String>(UrlBuilder(Configure.hostURL).path("/search").build()) {
+            searchType ?: throw Exception("Type can't be null !")
+            Get<String>(UrlBuilder(Configure.hostURL).path("/searchType").build()) {
                 setGroup("search")
-                param("kw", searchWords)
+                param("type", searchType?.name)
                 param("page", page)
                 param("sort", Configure.SearchConfigure.sortModel.name)
                 param("showHidden", Configure.SearchConfigure.showHidden)
@@ -61,8 +63,8 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
                 }
             }
         }.catch {
-            block?.invoke(false)
             onError.postValue(it.toMessage())
+            block?.invoke(false)
         }
     }
 

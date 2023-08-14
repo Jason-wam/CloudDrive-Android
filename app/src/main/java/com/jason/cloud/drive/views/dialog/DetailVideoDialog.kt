@@ -13,13 +13,13 @@ import com.jason.cloud.drive.databinding.LayoutDetailVideoDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.PositionStore
 import com.jason.cloud.drive.utils.UrlBuilder
+import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.externalFilesDir
 import com.jason.cloud.extension.getSerializableListExtraEx
 import com.jason.cloud.extension.glide.loadIMG
 import com.jason.cloud.extension.saveToGallery
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
-import com.jason.cloud.extension.toMessage
 import com.jason.cloud.extension.toast
 import com.jason.cloud.media3.activity.VideoPlayActivity
 import com.jason.cloud.media3.model.Media3Item

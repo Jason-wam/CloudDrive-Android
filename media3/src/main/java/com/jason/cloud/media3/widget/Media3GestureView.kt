@@ -215,7 +215,6 @@ class Media3GestureView(context: Context, attrs: AttributeSet?) : FrameLayout(co
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         if (playerView.isLocked) return true
-        if (playerView.isPlaying().not()) return true
         if (playerView.getDuration() <= 0) return true
         if (e.x < playerView.measuredWidth * 0.33f) {
             if (playerView.isPlaying().not()) return true

@@ -19,17 +19,21 @@ class DownloadQueue : TaskQueue<DownloadTask>() {
     private var taskObserver: Job? = null
 
     init {
-        onTaskStart {
-            saveData(it) {
-                cancelObserver()
-                startTaskObserver(it)
+        onTaskStart(object : OnTaskStartListener<DownloadTask> {
+            override fun onTaskStart(task: DownloadTask) {
+                saveData(task) {
+                    cancelObserver()
+                    startTaskObserver(task)
+                }
             }
-        }
+        })
 
-        onTaskDone {
-            cancelObserver()
-            saveData(it)
-        }
+        onTaskDone(object : OnTaskDoneListener<DownloadTask> {
+            override fun onTaskDone(task: DownloadTask) {
+                cancelObserver()
+                saveData(task)
+            }
+        })
     }
 
     private fun cancelObserver() {

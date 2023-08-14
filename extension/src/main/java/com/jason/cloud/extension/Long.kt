@@ -13,34 +13,18 @@ fun Long.toFileSizeString(suffix: String): String {
  * 转换为文件单位
  */
 fun Long.toFileSizeString(): String {
+    if (this <= 0) return "0 B"
     val fileSize = this
-    val sizeMB = 1024L * 1024L
-    val sizeGB = sizeMB * 1024L
-    return if (fileSize >= sizeGB) {
-        String.format("%.2f GB", fileSize.toFloat() / sizeGB.toFloat())
-    } else {
-        when {
-            fileSize >= sizeMB -> {
-                val size = fileSize.toFloat() / sizeMB.toFloat()
-                if (size > 100.0f) {
-                    String.format("%.0f MB", size)
-                } else {
-                    String.format("%.1f MB", size)
-                }
-            }
+    val sizes =
+        listOf(1L, 1024L, 1024L * 1024L, 1024L * 1024L * 1024L, 1024L * 1024L * 1024L * 1024L)
+    val names = listOf("B", "KB", "MB", "GB", "TB")
 
-            fileSize >= 1024L -> {
-                val size = fileSize.toFloat() / 1024L.toFloat()
-                if (size > 100.0f) {
-                    String.format("%.0f KB", size)
-                } else {
-                    String.format("%.1f KB", size)
-                }
-            }
-
-            else -> {
-                String.format("%d B", fileSize)
-            }
+    return sizes.indexOfLast { fileSize >= it }.let {
+        val size = fileSize.toFloat() / sizes[it].toFloat()
+        if (size > 100.0f) {
+            String.format("%.0f %s", size, names[it])
+        } else {
+            String.format("%.2f %s", size, names[it])
         }
     }
 }

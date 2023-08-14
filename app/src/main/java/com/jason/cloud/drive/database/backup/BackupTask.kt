@@ -18,7 +18,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
-class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
+class BackupTask(val uri: Uri, val fileHash: String, private val folderHash: String) :
+    TaskQueue.Task() {
     var id: String = ""
     var totalBytes: Long = 0
     var uploadedBytes: Long = 0
@@ -111,6 +112,7 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
                 setId(id)
                 param("fileHash", fileHash)
                 param("fileName", fileName)
+                param("folderHash", folderHash)
                 param("deviceName", Configure.deviceName)
                 setClient {
                     callTimeout(1800, TimeUnit.SECONDS)
@@ -131,6 +133,7 @@ class BackupTask(val uri: Uri, val fileHash: String) : TaskQueue.Task() {
             param("file", uri)
             addQuery("fileName", fileName)
             addQuery("fileHash", fileHash)
+            addQuery("folderHash", folderHash)
             addQuery("deviceName", Configure.deviceName)
             setClient {
                 callTimeout(1800, TimeUnit.SECONDS)

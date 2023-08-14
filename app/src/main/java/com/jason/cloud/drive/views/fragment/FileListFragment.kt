@@ -57,14 +57,14 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
 
         /**
          * 定位到指定文件
-         * @param hash 目标文件夹
+         * @param folderHash 目标文件夹
          * @param fileHash 目标文件
          */
         @JvmStatic
-        fun newInstance(hash: String, fileHash: String) = FileListFragment().apply {
+        fun newInstance(folderHash: String, fileHash: String? = null) = FileListFragment().apply {
             arguments = Bundle().apply {
-                putString("hash", hash)
                 putString("fileHash", fileHash)
+                putString("folderHash", folderHash)
             }
         }
     }
@@ -297,7 +297,6 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
                 if (fileHash.isNotBlank()) {
                     arguments?.remove("fileHash")
                     val location = adapter.itemData.indexOfFirst { file -> file.hash == fileHash }
-                    toast("定位文件 >> $location")
                     if (location == -1) {
                         binding.rvData.scrollToPosition(0)
                     } else {
@@ -318,16 +317,17 @@ class FileListFragment : BaseBindFragment<FragmentFileListBinding>(R.layout.frag
             fileSelectLauncher.launch("*/*")
         }
 
-        val hash = arguments?.getString("hash").orEmpty()
-        if (hash.isNotBlank()) {
-            binding.stateLayout.showLoading()
-            viewModel.getList(hash)
-            return
-        }
         val file = arguments?.getSerializableEx("folder", FileEntity::class.java)
         if (file != null) { //如果未设置目标文件夹则浏览根目录
             binding.stateLayout.showLoading()
             viewModel.getList(file)
+            return
+        }
+
+        val folderHash = arguments?.getString("folderHash")
+        if (folderHash != null) { //如果未设置目标文件夹则浏览根目录
+            binding.stateLayout.showLoading()
+            viewModel.getList(folderHash)
             return
         }
 

@@ -73,29 +73,21 @@ fun Context.getVersionName(): String {
 }
 
 fun Context.openURL(url: String) {
-    try {
-        val intent = Intent()
-        intent.action = Intent.ACTION_VIEW
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.data = Uri.parse(url)
-        val chooser = Intent.createChooser(intent, "选择应用程序打开")
-        startActivity(chooser)
-    } catch (e: Exception) {
-        toast(e.toMessage())
-    }
+    val intent = Intent()
+    intent.action = Intent.ACTION_VIEW
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    intent.data = Uri.parse(url)
+    val chooser = Intent.createChooser(intent, "选择应用程序打开")
+    startActivity(chooser)
 }
 
 fun Context.openURL(url: String, mimeType: String) {
-    try {
-        val intent = Intent()
-        intent.action = Intent.ACTION_VIEW
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.setDataAndType(Uri.parse(url), mimeType)
-        val chooser = Intent.createChooser(intent, "选择应用程序打开")
-        startActivity(chooser)
-    } catch (e: Exception) {
-        toast(e.toMessage())
-    }
+    val intent = Intent()
+    intent.action = Intent.ACTION_VIEW
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    intent.setDataAndType(Uri.parse(url), mimeType)
+    val chooser = Intent.createChooser(intent, "选择应用程序打开")
+    startActivity(chooser)
 }
 
 fun Context.openFile(file: File) {
@@ -150,15 +142,11 @@ fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): Pa
     }
 }
 
-fun Context?.openVideoPlayer(url: String) {
-    try {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.setDataAndType(Uri.parse(url), "video/*")
-        this?.startActivity(Intent.createChooser(intent, "选择应用程序打开"))
-    } catch (e: Exception) {
-        toast(e.toMessage())
-    }
+fun Context?.openVideo(url: String) {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    intent.setDataAndType(Uri.parse(url), "video/*")
+    this?.startActivity(Intent.createChooser(intent, "选择应用程序打开"))
 }
 
 fun Context.getApplyList(url: String, type: String? = null): List<ResolveInfo> {

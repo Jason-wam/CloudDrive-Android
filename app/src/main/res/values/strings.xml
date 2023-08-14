@@ -5,74 +5,58 @@
     <string name="state_view_something_went_wrong">出现了一些问题，请稍候重试_(:3」∠❀)_</string>
     <string name="state_view_nothing_searched">啥也没搜到捏_(:3」∠❀)_</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="file_info">文件信息</string>
     <string name="file_name">文件名</string>
     <string name="file_path">文件路径</string>
     <string name="file_size">文件大小</string>
-    <string name="file_detail">文件详情</string>
     <string name="confirm">确定</string>
     <string name="more">More</string>
     <string name="create_new_folder">新建文件夹</string>
     <string name="cancel">取消</string>
-    <string name="upload_files">上传文件</string>
     <string name="upload_files_to_current_dir">上传文件到当前目录</string>
-    <string name="refresh">刷新</string>
-    <string name="refresh_list">刷新列表</string>
     <string name="search">搜索</string>
+
     <string name="open_file">打开文件</string>
-    <string name="fetch_back_to_local">取回本地</string>
-    <string name="delete_file">删除文件</string>
+    <string name="other_app">其他应用</string>
     <string name="wlan_cast">无线投屏</string>
-    <string name="upload_tasks">上传任务</string>
+    <string name="fetch_back_to_local">取回本地</string>
+    <string name="file_detail">文件详情</string>
+    <string name="delete_file">删除文件</string>
+
     <string name="small_tips">小提示</string>
-    <string name="switch_page">切换</string>
     <string name="task_download">取回任务</string>
     <string name="task_upload">上传任务</string>
-    <string name="task_cloud_download">离线任务</string>
-    <string name="task_done">完成任务</string>
-    <string name="cancel_all_downloads">取消全部取回任务</string>
-    <string name="pause_all_downloads">暂停全部取回任务</string>
     <string name="cancel_all_uploads">取消全部上传任务</string>
-    <string name="exist_at_local">已取回本地</string>
-    <string name="sort">排序</string>
+
     <string name="sort_by_name">名称排序</string>
     <string name="sort_by_size">大小排序</string>
     <string name="sort_by_date">日期排序</string>
     <string name="sort_by_date_desc">日期倒序</string>
     <string name="sort_by_size_desc">大小倒序</string>
     <string name="sort_by_name_desc">名称倒序</string>
+
     <string name="play_now">立即播放</string>
-    <string name="codec_name">编码类型</string>
-    <string name="other_info">其他信息</string>
     <string name="show_hidden_files">显示隐藏文件</string>
     <string name="sort_mode">排序方式</string>
     <string name="start_all_tasks">启动全部任务</string>
     <string name="pause_all_tasks">暂停全部任务</string>
-    <string name="clear_all_downloads">清除取回任务</string>
-    <string name="clear_all_uploads">清空上传任务</string>
-    <string name="pause_all_uploads">暂停全部上传任务</string>
-    <string name="cancel_all_tasks">取消全部任务</string>
-    <string name="clear_all_task_histories">清空任务记录</string>
-    <string name="start_all_uploads">启动全部上传任务</string>
-    <string name="start_all_downloads">启动全部取回任务</string>
+    <string name="cancel_all_downloads">取消取回任务</string>
     <string name="attach_progress">加载进度</string>
     <string name="backup_files">备份本设备文件到云端</string>
-    <string name="other_app">其他应用</string>
     <string name="close">关闭</string>
-    <string name="close_player">关闭播放器</string>
     <string name="play_in_background">后台播放</string>
     <string name="please_input_search_keywords">请输入搜索关键词..</string>
     <string name="search_file_from_cloud_drive">搜索云盘文件</string>
+
     <string name="browser_folder">浏览文件夹</string>
     <string name="file_date">文件日期</string>
     <string name="file_rename">重新命名</string>
     <string name="browser_files">浏览文件</string>
     <string name="folder_detail">详细信息</string>
-    <string name="media_cast">无线投屏</string>
     <string name="select_episode">选择剧集</string>
+
     <string name="play">播放</string>
     <string name="stop">停止</string>
+
     <string name="select_cast_device">选择投屏设备</string>
     <string name="media_cast_guide">媒体投射引导</string>
     <string name="air_play_title_01">打开智能电视或盒子“投屏”按钮</string>
@@ -80,10 +64,8 @@
     <string name="air_play_title_02">点击手机APP播放器中“投屏”按钮</string>
     <string name="air_play_subtitle_02">点击投屏按钮后，选择搜索到的投屏设备，即可完成操作。</string>
     <string name="looking_for_cast_device">正在搜寻投屏设备..</string>
-    <string name="delete_download_recode">删除记录</string>
+
     <string name="share_file">分享文件</string>
-    <string name="cancel_download_task">取消任务</string>
-    <string name="pause_download_task">暂停任务</string>
     <string name="download_task_done">取回完成</string>
     <string name="delete">删除</string>
     <string name="clear_all_done_tasks">清空已完成任务</string>
@@ -91,8 +73,33 @@
     <string name="save_gif">保存动图</string>
     <string name="gif_created_failed_retry_later">生成GIF预览图失败，请稍候重试</string>
     <string name="gif_creating">正在生成GIF预览图...</string>
-    <string name="uploading">正在上传</string>
     <string name="upload_task_done">上传完毕</string>
     <string name="uploading_task">正在上传</string>
     <string name="clear_all_upload_done_task">清空上传记录</string>
+
+    <string name="video">视频</string>
+    <string name="image">图片</string>
+    <string name="documents">文档</string>
+    <string name="audio">音频</string>
+    <string name="compress">压缩</string>
+    <string name="ppt">PPT</string>
+    <string name="text">文本文档</string>
+    <string name="word">WORD</string>
+    <string name="excel">EXCEL</string>
+    <string name="application">软件</string>
+    <string name="database">数据集</string>
+    <string name="torrent">种子文件</string>
+    <string name="exe">可执行文件</string>
+    <string name="web">WEB文件</string>
+    <string name="font">字体</string>
+    <string name="folder">文件夹</string>
+    <string name="unknown">未知</string>
+
+    <string name="recent_files">最近文件</string>
+    <string name="storage_info">存储信息</string>
+    <string name="total_usage">总占用</string>
+    <string name="cloud_drive_usage">云盘占用</string>
+    <string name="total_storage">总空间</string>
+    <string name="upload_task_formatter">上传任务(%d)</string>
+    <string name="download_task_formatter">取回任务(%d)</string>
 </resources>

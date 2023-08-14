@@ -11,11 +11,11 @@ import com.jason.cloud.drive.database.downloader.DownloadTask
 import com.jason.cloud.drive.databinding.LayoutFileAttachDialogBinding
 import com.jason.cloud.drive.model.FileEntity
 import com.jason.cloud.drive.utils.DirManager
+import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.extension.getSerializableEx
 import com.jason.cloud.extension.openFile
 import com.jason.cloud.extension.toDateMinuteString
 import com.jason.cloud.extension.toFileSizeString
-import com.jason.cloud.extension.toMessage
 import com.jason.cloud.extension.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

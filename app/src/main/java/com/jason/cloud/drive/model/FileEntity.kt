@@ -13,6 +13,7 @@ data class FileEntity(
     val name: String,
     val path: String,
     val hash: String,
+    val parentHash: String,
     val size: Long,
     val date: Long,
     val isFile: Boolean,
@@ -29,17 +30,19 @@ data class FileEntity(
         fun createFromJson(obj: JSONObject): FileEntity {
             val hash = obj.getString("hash")
             return FileEntity(
-                obj.getString("name"),
-                obj.getString("path"),
-                obj.getString("hash"),
-                obj.getLong("size"),
-                obj.getLong("date"),
-                obj.getBoolean("isFile"),
-                obj.getBoolean("isDirectory"),
-                obj.getInt("childCount"),
-                obj.getString("firstFileHash"),
-                obj.getString("firstFileType").let { type -> FileType.Media.valueOf(type) },
-                obj.getBoolean("isVirtual"),
+                name = obj.getString("name"),
+                path = obj.getString("path"),
+                hash = obj.getString("hash"),
+                parentHash = obj.getString("parentHash"),
+                size = obj.getLong("size"),
+                date = obj.getLong("date"),
+                isFile = obj.getBoolean("isFile"),
+                isDirectory = obj.getBoolean("isDirectory"),
+                childCount = obj.getInt("childCount"),
+                firstFileHash = obj.getString("firstFileHash"),
+                firstFileType = obj.getString("firstFileType")
+                    .let { type -> FileType.Media.valueOf(type) },
+                isVirtual = obj.getBoolean("isVirtual"),
                 rawURL = createRawUrl(hash),
                 gifURL = createThumbnailUrl(hash, true),
                 thumbnailURL = createThumbnailUrl(hash, false, 200)
