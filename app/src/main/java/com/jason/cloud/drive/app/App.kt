@@ -30,7 +30,7 @@ class App : Application() {
 
         //测试端口
         Configure.port = 8820
-        Configure.host = "192.168.0.5"
+        Configure.host = "192.168.0.4"
 
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
             SrlRefreshHeader(context)

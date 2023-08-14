@@ -727,7 +727,8 @@ class Media3PlayerView(context: Context, attrs: AttributeSet?) : FrameLayout(con
                         break
                     }
                     if (controlView.isDragging) {
-                        break
+                        timeCount = 0
+                        continue
                     }
                     if (internalPlayer.isPlaying) {
                         hideBars()
