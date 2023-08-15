@@ -3,7 +3,6 @@ package com.jason.cloud.drive.utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -239,7 +238,7 @@ open class TaskQueue<T : TaskQueue.Task> {
 
         queueMonitor?.cancel()
         queueMonitor = null
-        scope.cancel()
+//        scope.cancel()
 
         onTaskDoneListeners.clear()
         onTaskListDoneListeners.clear()
