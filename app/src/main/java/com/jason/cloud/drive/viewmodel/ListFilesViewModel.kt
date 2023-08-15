@@ -59,6 +59,7 @@ class ListFilesViewModel(application: Application) : AndroidViewModel(applicatio
                 param("hash", hash ?: current())
                 param("sort", Configure.CloudFileConfigure.sortModel.name)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
+                setHeader("password", Configure.password)
             }.await().asJSONObject().also {
                 if (it.has("code")) {
                     onError.postValue(it.getString("message"))

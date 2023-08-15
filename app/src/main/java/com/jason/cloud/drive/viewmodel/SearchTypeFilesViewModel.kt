@@ -53,6 +53,7 @@ class SearchTypeFilesViewModel(application: Application) : AndroidViewModel(appl
                 param("page", page)
                 param("sort", Configure.SearchConfigure.sortModel.name)
                 param("showHidden", Configure.SearchConfigure.showHidden)
+                setHeader("password", Configure.password)
             }.await().asJSONObject().also { obj ->
                 if (obj.has("code")) {
                     onError.postValue(obj.getString("message"))

@@ -9,22 +9,28 @@ object Configure {
             return "http://$host:$port"
         }
 
-    var host: String = ""
+    var host: String
         set(value) {
-            field = value
             MMKVStore.with("Configure").put("host", value)
         }
         get() {
             return MMKVStore.with("Configure").getString("host")
         }
 
-    var port: Int = 8820
+    var port: Int
         set(value) {
-            field = value
             MMKVStore.with("Configure").put("port", value)
         }
         get() {
             return MMKVStore.with("Configure").getInt("port", 8820)
+        }
+
+    var password: String
+        set(value) {
+            MMKVStore.with("Configure").put("password", value)
+        }
+        get() {
+            return MMKVStore.with("Configure").getString("password")
         }
 
     val deviceName by lazy {

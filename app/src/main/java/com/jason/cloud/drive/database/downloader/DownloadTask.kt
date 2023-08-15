@@ -1,6 +1,7 @@
 package com.jason.cloud.drive.database.downloader
 
 import com.drake.net.NetConfig
+import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.ItemSelector
 import com.jason.cloud.drive.utils.TaskQueue
 import com.jason.cloud.extension.toFileSizeString
@@ -51,10 +52,12 @@ class DownloadTask(val name: String, val url: String, val hash: String, val dir:
 
         val request = if (startPos == 0L) {
             println("开始下载完整文件 ...")
-            Request.Builder().url(url).header("Range", "bytes=0-").build()
+            Request.Builder().url(url).header("Range", "bytes=0-")
+                .header("password", Configure.password).build()
         } else {
             println("尝试获取分块：$startPos- ...")
-            Request.Builder().url(url).header("Range", "bytes=$startPos-").build()
+            Request.Builder().url(url).header("Range", "bytes=$startPos-")
+                .header("password", Configure.password).build()
         }
 
         call = NetConfig.okHttpClient.newCall(request)

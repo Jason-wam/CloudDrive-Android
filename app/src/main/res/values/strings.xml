@@ -100,4 +100,8 @@
     <string name="total_storage">总空间</string>
     <string name="upload_task_formatter">上传任务(%d)</string>
     <string name="download_task_formatter">取回任务(%d)</string>
+    <string name="please_input_ip_address">请输入IP地址：192.168.0.*</string>
+    <string name="please_input_port">请输入端口：默认8820</string>
+    <string name="please_input_password">请输入默认通行密码..</string>
+    <string name="login">登录</string>
 </resources>

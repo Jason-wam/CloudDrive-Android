@@ -114,6 +114,7 @@ class BackupTask(val uri: Uri, val fileHash: String, private val folderHash: Str
                 param("fileName", fileName)
                 param("folderHash", folderHash)
                 param("deviceName", Configure.deviceName)
+                setHeader("password", Configure.password)
                 setClient {
                     callTimeout(1800, TimeUnit.SECONDS)
                     readTimeout(1800, TimeUnit.SECONDS)
@@ -135,6 +136,7 @@ class BackupTask(val uri: Uri, val fileHash: String, private val folderHash: Str
             addQuery("fileHash", fileHash)
             addQuery("folderHash", folderHash)
             addQuery("deviceName", Configure.deviceName)
+            setHeader("password", Configure.password)
             setClient {
                 callTimeout(1800, TimeUnit.SECONDS)
                 readTimeout(1800, TimeUnit.SECONDS)

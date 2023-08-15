@@ -8,7 +8,6 @@ import com.drake.net.okhttp.setDebug
 import com.drake.net.okhttp.setErrorHandler
 import com.drake.net.okhttp.trustSSLCertificate
 import com.jason.cloud.drive.database.TaskDatabase
-import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.DirManager
 import com.jason.cloud.drive.utils.extension.toMessage
 import com.jason.cloud.drive.views.widgets.SrlRefreshFooter
@@ -27,10 +26,6 @@ class App : Application() {
         MMKVStore.init(this)
         TaskDatabase.init(this)
         initNet()
-
-        //测试端口
-        Configure.port = 8820
-        Configure.host = "192.168.0.4"
 
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
             SrlRefreshHeader(context)

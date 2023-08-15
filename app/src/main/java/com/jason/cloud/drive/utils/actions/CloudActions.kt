@@ -220,6 +220,7 @@ fun FragmentActivity.createFolder(
         Get<String>("${Configure.hostURL}/createFolder") {
             param("hash", targetHash)
             param("name", name)
+            setHeader("password", Configure.password)
         }.await().asJSONObject().also {
             if (it.optInt("code") == 200) {
                 folderCreated?.invoke()
@@ -263,6 +264,7 @@ fun FragmentActivity.renameFile(file: FileEntity, newName: String, renamed: (() 
         Post<String>("${Configure.hostURL}/rename") {
             param("path", file.path)
             param("newName", newName)
+            setHeader("password", Configure.password)
         }.await().asJSONObject().also {
             if (it.optInt("code") == 200) {
                 toast("重命名文件成功！")
@@ -312,6 +314,7 @@ fun FragmentActivity.deleteFile(file: FileEntity, deleted: (() -> Unit)? = null)
     scopeDialog(dialog, cancelable = true) {
         Post<String>("${Configure.hostURL}/delete") {
             param("path", file.path)
+            setHeader("password", Configure.password)
         }.await().asJSONObject().also {
             if (it.optInt("code") == 200) {
                 toast("文件删除成功！")

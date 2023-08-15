@@ -33,6 +33,15 @@
         tools:replace="android:theme"
         tools:targetApi="31">
         <activity
+            android:name=".views.activity.ConnectActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".views.activity.SearchTypeFilesActivity"
             android:exported="false" />
         <activity
@@ -71,13 +80,7 @@
             android:name=".views.activity.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".views.activity.SearchFilesActivity"
             android:exported="false" />

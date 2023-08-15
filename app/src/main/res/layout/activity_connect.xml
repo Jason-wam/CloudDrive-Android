@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".views.activity.ConnectActivity">
+
+        <View
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:stateListAnimator="@animator/appbar_layout_elevation_nil">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:contentInsetStart="16dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:logo="@drawable/ic_cloud_six_24"
+                app:logoScaleType="centerInside"
+                app:subtitleTextAppearance="@style/SubtitleTextAppearance"
+                app:subtitleTextColor="@color/colorOnPrimaryMedium"
+                app:title="@string/app_name"
+                app:titleCentered="false"
+                app:titleMarginStart="24dp"
+                app:titleTextAppearance="@style/TitleTextBoldAppearance"
+                app:titleTextColor="@color/colorOnPrimary" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@color/colorCardViewBackground"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:rippleColor="@color/colorMaterialButtonBackgroundPressed"
+            app:strokeColor="@color/colorMaterialButtonStroke"
+            app:strokeWidth="@dimen/materialButtonStrokeWidth">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.jason.cloud.drive.views.widgets.DeletableEditText
+                    android:id="@+id/edit_ip"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_gravity="top"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:digits="0123456789."
+                    android:hint="@string/please_input_ip_address"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true"
+                    android:textColor="@color/colorOnPrimary"
+                    android:textColorHint="@color/colorOnPrimaryMedium"
+                    android:textSize="15sp"
+                    app:clearButtonTint="@color/colorOnSurface" />
+
+                <com.jason.cloud.drive.views.widgets.DeletableEditText
+                    android:id="@+id/edit_port"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_gravity="top"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:hint="@string/please_input_port"
+                    android:imeOptions="actionSearch"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textColor="@color/colorOnPrimary"
+                    android:textColorHint="@color/colorOnPrimaryMedium"
+                    android:textSize="15sp"
+                    app:clearButtonTint="@color/colorOnSurface" />
+
+                <com.jason.cloud.drive.views.widgets.DeletableEditText
+                    android:id="@+id/edit_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_gravity="top"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:hint="@string/please_input_password"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true"
+                    android:inputType="textPassword"
+                    android:textColor="@color/colorOnPrimary"
+                    android:textColorHint="@color/colorOnPrimaryMedium"
+                    android:textSize="15sp"
+                    app:clearButtonTint="@color/colorOnSurface" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_login"
+                    style="@style/MaterialButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:minWidth="0dp"
+                    android:minHeight="48dp"
+                    android:paddingStart="15dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="15dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/login"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="14sp"
+                    app:icon="@drawable/ic_round_security_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="13dp"
+                    app:iconTint="@color/colorSecondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</layout>

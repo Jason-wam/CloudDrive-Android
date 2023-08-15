@@ -123,6 +123,7 @@ class UploadTask(val uri: Uri, val folderHash: String) : ItemSelector.Selectable
                 param("hash", folderHash)
                 param("fileHash", fileHash)
                 param("fileName", fileName)
+                setHeader("password", Configure.password)
                 setClient {
                     callTimeout(1800, TimeUnit.SECONDS)
                     readTimeout(1800, TimeUnit.SECONDS)
@@ -142,6 +143,7 @@ class UploadTask(val uri: Uri, val folderHash: String) : ItemSelector.Selectable
             param("file", uri)
             addQuery("hash", folderHash)
             addQuery("fileHash", fileHash)
+            setHeader("password", Configure.password)
             setClient {
                 callTimeout(1800, TimeUnit.SECONDS)
                 readTimeout(1800, TimeUnit.SECONDS)

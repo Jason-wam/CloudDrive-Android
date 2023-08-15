@@ -233,6 +233,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
             val obj = Get<String>("${Configure.hostURL}/homePage") {
                 param("recentSize", 50)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
+                setHeader("password", Configure.password)
                 setCacheMode(CacheMode.WRITE)
             }.await().asJSONObject()
 
@@ -241,6 +242,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
             val obj = Get<String>("${Configure.hostURL}/homePage") {
                 param("size", 50)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
+                setHeader("password", Configure.password)
                 setCacheMode(CacheMode.READ)
             }.await().asJSONObject()
 
