@@ -8,6 +8,7 @@ import com.drake.spannable.replaceSpan
 import com.drake.spannable.span.ColorSpan
 import com.flyjingfish.openimagelib.OpenImage
 import com.jason.cloud.drive.model.FileEntity
+import com.jason.cloud.drive.service.AudioService
 import com.jason.cloud.drive.service.DownloadService
 import com.jason.cloud.drive.utils.Configure
 import com.jason.cloud.drive.utils.DirManager
@@ -81,8 +82,10 @@ fun FragmentActivity.viewAudios(list: List<FileEntity>, position: Int) {
     val hash = list[position].hash
     val audioList = list.filter { FileType.isAudio(it.name) }
     val audioIndex = audioList.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
-    AudioPlayDialog().setFileEntities(audioList, audioIndex)
-        .showNow(supportFragmentManager, "audio")
+    AudioService.checkPermission(this) {
+        AudioPlayDialog().setFileEntities(audioList, audioIndex)
+            .showNow(supportFragmentManager, "audio")
+    }
 }
 
 /**

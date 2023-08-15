@@ -1,0 +1,5 @@
+-dontwarn org.eclipse.jetty.**
+-dontwarn org.fourthline.cling.**
+-dontwarn org.seamless.**
+-keep class org.fourthline.cling.** {*;}
+-keepattributes Annotation

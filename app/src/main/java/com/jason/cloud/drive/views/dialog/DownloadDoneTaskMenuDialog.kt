@@ -9,6 +9,7 @@ import com.jason.cloud.drive.R
 import com.jason.cloud.drive.base.BaseBindBottomSheetDialogFragment
 import com.jason.cloud.drive.database.downloader.DownloadTaskEntity
 import com.jason.cloud.drive.databinding.LayoutDownloadDoneMenuDialogBinding
+import com.jason.cloud.drive.service.AudioService
 import com.jason.cloud.drive.utils.FileType
 import com.jason.cloud.drive.utils.actions.showDeleteDownloadDoneTask
 import com.jason.cloud.drive.utils.actions.viewOtherDetail
@@ -64,8 +65,10 @@ class DownloadDoneTaskMenuDialog(val parent: FragmentActivity) :
                     .setImageUrl(file.absolutePath, MediaType.IMAGE).show()
                 dismiss()
             } else if (FileType.isAudio(task.name)) {
-                AudioPlayDialog().setFiles(listOf(file), 0)
-                    .show(parent.supportFragmentManager, "audio")
+                AudioService.checkPermission(parent) {
+                    AudioPlayDialog().setFiles(listOf(file), 0)
+                        .show(parent.supportFragmentManager, "audio")
+                }
                 dismiss()
             } else {
                 parent.openFile(file)
