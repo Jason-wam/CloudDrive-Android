@@ -50,7 +50,8 @@ data class FileEntity(
         }
 
         private fun createRawUrl(hash: String): String {
-            return UrlBuilder(Configure.hostURL).path("/file").param("hash", hash).build()
+            return UrlBuilder(Configure.hostURL).path("/file").param("hash", hash)
+                .param("password", Configure.password).build()
         }
 
         private fun createThumbnailUrl(hash: String, isGif: Boolean, size: Int = -1): String {
@@ -58,6 +59,7 @@ data class FileEntity(
             builder.path("/thumbnail")
             builder.param("hash", hash)
             builder.param("isGif", isGif)
+            builder.param("password", Configure.password)
             if (size > 0) {
                 builder.param("size", size)
             }
