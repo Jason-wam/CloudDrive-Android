@@ -42,15 +42,21 @@
                             android:checkable="true"
                             android:title="@string/sort_by_size_desc" />
                     </group>
-                    <group android:checkableBehavior="single">
-                        <item
-                            android:id="@+id/show_hidden"
-                            android:checkable="true"
-                            android:title="@string/show_hidden_files" />
-                    </group>
                     <item android:title="@string/cancel" />
                 </menu>
             </item>
+            <group android:checkableBehavior="none">
+                <item
+                    android:id="@+id/folder"
+                    android:checkable="false"
+                    android:title="@string/create_new_folder" />
+            </group>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/show_hidden"
+                    android:checkable="true"
+                    android:title="@string/show_hidden_files" />
+            </group>
             <item android:title="@string/cancel" />
         </menu>
     </item>

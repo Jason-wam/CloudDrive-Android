@@ -117,8 +117,8 @@ class FileBrowserActivity :
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.search -> startActivity(SearchFilesActivity::class)
-            R.id.download -> startActivity(TaskDownloadActivity::class)
+//            R.id.search -> startActivity(SearchFilesActivity::class)
+//            R.id.download -> startActivity(TaskDownloadActivity::class)
             R.id.folder -> fragment.createNewFolder()
 
             R.id.name -> {
