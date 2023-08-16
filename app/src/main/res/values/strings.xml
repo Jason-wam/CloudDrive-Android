@@ -102,6 +102,9 @@
     <string name="download_task_formatter">取回任务(%d)</string>
     <string name="please_input_ip_address">请输入IP地址：192.168.0.*</string>
     <string name="please_input_port">请输入端口：默认8820</string>
-    <string name="please_input_password">请输入默认通行密码..</string>
+    <string name="please_input_password">请输入通行密码(可空)..</string>
     <string name="login">登录</string>
+    <string name="ip">IP地址</string>
+    <string name="port">端口</string>
+    <string name="access_password">通行密码</string>
 </resources>

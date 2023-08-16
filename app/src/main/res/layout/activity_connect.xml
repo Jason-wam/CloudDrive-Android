@@ -54,55 +54,89 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="19dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/ip"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="13sp" />
 
                 <com.jason.cloud.drive.views.widgets.DeletableEditText
                     android:id="@+id/edit_ip"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
                     android:digits="0123456789."
-                    android:hint="@string/please_input_ip_address"
+                    android:hint="192.168.0.*"
                     android:imeOptions="actionSearch"
+                    android:minHeight="48dp"
                     android:singleLine="true"
                     android:textColor="@color/colorOnPrimary"
                     android:textColorHint="@color/colorOnPrimaryMedium"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     app:clearButtonTint="@color/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="19dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/port"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="13sp" />
 
                 <com.jason.cloud.drive.views.widgets.DeletableEditText
                     android:id="@+id/edit_port"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:hint="@string/please_input_port"
+                    android:hint="默认端口 8820"
                     android:imeOptions="actionSearch"
                     android:inputType="number"
+                    android:minHeight="48dp"
                     android:singleLine="true"
                     android:textColor="@color/colorOnPrimary"
                     android:textColorHint="@color/colorOnPrimaryMedium"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     app:clearButtonTint="@color/colorOnSurface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="19dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/access_password"
+                    android:textColor="@color/colorOnSurfaceMedium"
+                    android:textSize="13sp" />
 
                 <com.jason.cloud.drive.views.widgets.DeletableEditText
                     android:id="@+id/edit_password"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:hint="@string/please_input_password"
                     android:imeOptions="actionSearch"
-                    android:singleLine="true"
                     android:inputType="textPassword"
+                    android:minHeight="48dp"
+                    android:singleLine="true"
                     android:textColor="@color/colorOnPrimary"
                     android:textColorHint="@color/colorOnPrimaryMedium"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     app:clearButtonTint="@color/colorOnSurface" />
 
                 <com.google.android.material.button.MaterialButton

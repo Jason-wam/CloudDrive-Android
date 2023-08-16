@@ -28,8 +28,9 @@ class ConnectActivity : BaseBindActivity<ActivityConnectBinding>(R.layout.activi
         binding.btnLogin.isEnabled = false
 
         val ip = binding.editIp.text?.toString() ?: ""
-        val port = binding.editPort.text?.toString() ?: ""
+        val port = binding.editPort.text?.toString() ?: "8820"
         val password = binding.editPassword.text?.toString() ?: ""
+
         scopeNetLife {
             val respond = Get<String>("http://$ip:$port/connect") {
                 setHeader("password", password)
