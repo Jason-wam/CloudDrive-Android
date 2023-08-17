@@ -74,6 +74,7 @@ class CloudFileAdapter :
         holder.binding.tvChildrenCount.isVisible = item.isDirectory
         holder.binding.tvChildrenCount.text = "${item.childCount} 个项目"
 
+        holder.binding.tvSize.isVisible = item.countDirSize || item.isDirectory.not()
         holder.binding.tvSize.text =
             if (item.isVirtual) "符号链接" else item.size.toFileSizeString()
     }

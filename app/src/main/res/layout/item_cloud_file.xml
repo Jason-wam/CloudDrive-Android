@@ -122,28 +122,22 @@
                         tools:targetApi="m"
                         tools:text="2023-07-11 12:07" />
 
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="wrap_content" />
-
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_size"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:gravity="center_vertical"
                         android:textColor="@color/colorOnSurfaceMedium"
                         android:textSize="11sp"
                         tools:targetApi="m"
                         tools:text="9.3 GB" />
 
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="wrap_content" />
-
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tv_children_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:gravity="center_vertical"
                         android:textColor="@color/colorOnSurfaceMedium"
                         android:textSize="11sp"

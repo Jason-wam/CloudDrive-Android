@@ -22,9 +22,10 @@ data class FileEntity(
     val firstFileHash: String,
     val firstFileType: FileType.Media,
     val isVirtual: Boolean,
+    val countDirSize: Boolean,
     val rawURL: String,
     val gifURL: String,
-    val thumbnailURL: String,
+    val thumbnailURL: String
 ) : Serializable {
     companion object {
         fun createFromJson(obj: JSONObject): FileEntity {
@@ -43,6 +44,7 @@ data class FileEntity(
                 firstFileType = obj.getString("firstFileType")
                     .let { type -> FileType.Media.valueOf(type) },
                 isVirtual = obj.getBoolean("isVirtual"),
+                countDirSize = obj.getBoolean("countDirSize"),
                 rawURL = createRawUrl(hash),
                 gifURL = createThumbnailUrl(hash, true),
                 thumbnailURL = createThumbnailUrl(hash, false, 200)
