@@ -74,12 +74,10 @@ class DetailVideoDialog(val parent: FragmentActivity) :
         binding.btnPlay.setOnClickListener {
             VideoPlayActivity.positionStore = PositionStore()
             VideoPlayActivity.open(requireContext(), fileList.map {
-                Media3Item.create(it.name, it.rawURL, true)
+                Media3Item.create(it.name, it.rawURL, false)
             }, position)
             dismiss()
         }
-
-
 
         binding.btnCancel.setOnClickListener {
             dismiss()

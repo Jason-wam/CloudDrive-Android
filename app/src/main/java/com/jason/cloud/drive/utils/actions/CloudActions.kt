@@ -71,7 +71,7 @@ fun FragmentActivity.viewVideos(list: List<FileEntity>, position: Int) {
     val videoIndex = videos.indexOfFirst { it.hash == hash }.coerceAtLeast(0)
     VideoPlayActivity.positionStore = PositionStore()
     VideoPlayActivity.open(this, videos.map {
-        Media3Item.create(it.name, it.rawURL, true)
+        Media3Item.create(it.name, it.rawURL, false)
     }, videoIndex)
 }
 
