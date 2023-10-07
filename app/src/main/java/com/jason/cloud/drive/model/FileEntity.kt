@@ -52,12 +52,12 @@ data class FileEntity(
         }
 
         private fun createRawUrl(hash: String): String {
-            return UrlBuilder(Configure.hostURL).path("/file").param("hash", hash)
+            return UrlBuilder(Configure.host).path("/file").param("hash", hash)
                 .param("password", Configure.password).build()
         }
 
         private fun createThumbnailUrl(hash: String, isGif: Boolean, size: Int = -1): String {
-            val builder = UrlBuilder(Configure.hostURL)
+            val builder = UrlBuilder(Configure.host)
             builder.path("/thumbnail")
             builder.param("hash", hash)
             builder.param("isGif", isGif)

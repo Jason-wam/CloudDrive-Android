@@ -19,10 +19,10 @@ class RoundImageView(context: Context, attrs: AttributeSet?) :
         radius = w / 2f
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         path.reset()
         path.addCircle(cx, cy, radius, Path.Direction.CW)
-        canvas?.clipPath(path)
+        canvas.clipPath(path)
         super.onDraw(canvas)
     }
 

@@ -47,7 +47,7 @@ class SearchTypeFilesViewModel(application: Application) : AndroidViewModel(appl
     private fun doSearch(block: ((succeed: Boolean) -> Unit)? = null) {
         scopeNetLife {
             searchType ?: throw Exception("Type can't be null !")
-            Get<String>(UrlBuilder(Configure.hostURL).path("/searchType").build()) {
+            Get<String>(UrlBuilder(Configure.host).path("/searchType").build()) {
                 setGroup("search")
                 param("type", searchType?.name)
                 param("page", page)

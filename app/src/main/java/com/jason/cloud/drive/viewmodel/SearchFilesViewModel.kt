@@ -45,7 +45,7 @@ class SearchFilesViewModel(application: Application) : AndroidViewModel(applicat
 
     private fun doSearch(block: ((succeed: Boolean) -> Unit)? = null) {
         scopeNetLife {
-            Get<String>(UrlBuilder(Configure.hostURL).path("/search").build()) {
+            Get<String>(UrlBuilder(Configure.host).path("/search").build()) {
                 setGroup("search")
                 param("kw", searchWords)
                 param("page", page)

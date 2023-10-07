@@ -118,7 +118,7 @@ class UploadTask(val uri: Uri, val folderHash: String) : ItemSelector.Selectable
      */
     private suspend fun flashTransfer(fileHash: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            Net.get("${Configure.hostURL}/flashTransfer") {
+            Net.get("${Configure.host}/flashTransfer") {
                 setId(id)
                 param("hash", folderHash)
                 param("fileHash", fileHash)
@@ -138,7 +138,7 @@ class UploadTask(val uri: Uri, val folderHash: String) : ItemSelector.Selectable
     }
 
     private suspend fun upload(uri: Uri, fileHash: String): Boolean = withContext(Dispatchers.IO) {
-        Net.post("${Configure.hostURL}/upload") {
+        Net.post("${Configure.host}/upload") {
             setId(id)
             param("file", uri)
             addQuery("hash", folderHash)

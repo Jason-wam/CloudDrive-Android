@@ -107,4 +107,5 @@
     <string name="ip">IP地址</string>
     <string name="port">端口</string>
     <string name="access_password">通行密码</string>
+    <string name="host">主机</string>
 </resources>

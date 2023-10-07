@@ -54,7 +54,7 @@ class ListFilesViewModel(application: Application) : AndroidViewModel(applicatio
     fun refresh(hash: String? = null, isGoBack: Boolean) {
         isLoading = true
         scopeNetLife {
-            val url = UrlBuilder(Configure.hostURL).path("/list").build()
+            val url = UrlBuilder(Configure.host).path("/list").build()
             Get<String>(url) {
                 param("hash", hash ?: current())
                 param("sort", Configure.CloudFileConfigure.sortModel.name)

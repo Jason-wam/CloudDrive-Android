@@ -230,7 +230,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
 
     private fun loadRecentFiles() {
         scopeNetLife(dispatcher = Dispatchers.IO) {
-            val obj = Get<String>("${Configure.hostURL}/homePage") {
+            val obj = Get<String>("${Configure.host}/homePage") {
                 param("recentSize", 50)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
                 setHeader("password", Configure.password)
@@ -239,7 +239,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>(R.layout.activity_mai
 
             parseHomePage(obj)
         }.preview {
-            val obj = Get<String>("${Configure.hostURL}/homePage") {
+            val obj = Get<String>("${Configure.host}/homePage") {
                 param("size", 50)
                 param("showHidden", Configure.CloudFileConfigure.showHidden)
                 setHeader("password", Configure.password)

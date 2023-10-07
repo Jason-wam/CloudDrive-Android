@@ -108,7 +108,7 @@ class BackupTask(val uri: Uri, val fileHash: String, private val folderHash: Str
      */
     private suspend fun flashTransfer(): Boolean = withContext(Dispatchers.IO) {
         try {
-            Net.get("${Configure.hostURL}/flashBackup") {
+            Net.get("${Configure.host}/flashBackup") {
                 setId(id)
                 param("fileHash", fileHash)
                 param("fileName", fileName)
@@ -129,7 +129,7 @@ class BackupTask(val uri: Uri, val fileHash: String, private val folderHash: Str
     }
 
     private suspend fun upload(): Boolean = withContext(Dispatchers.IO) {
-        Net.post("${Configure.hostURL}/backup") {
+        Net.post("${Configure.host}/backup") {
             setId(id)
             param("file", uri)
             addQuery("fileName", fileName)

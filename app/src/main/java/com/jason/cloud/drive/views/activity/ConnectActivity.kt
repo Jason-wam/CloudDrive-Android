@@ -13,8 +13,7 @@ import com.jason.cloud.extension.toast
 
 class ConnectActivity : BaseBindActivity<ActivityConnectBinding>(R.layout.activity_connect) {
     override fun initView() {
-        binding.editIp.setText(Configure.host)
-        binding.editPort.setText(Configure.port.toString())
+        binding.editHost.setText(Configure.host)
         binding.editPassword.setText(Configure.password)
 
         binding.btnLogin.setOnClickListener {
@@ -27,19 +26,17 @@ class ConnectActivity : BaseBindActivity<ActivityConnectBinding>(R.layout.activi
         binding.btnLogin.alpha = 0.5f
         binding.btnLogin.isEnabled = false
 
-        val ip = binding.editIp.text?.toString() ?: ""
-        val port = binding.editPort.text?.toString() ?: "8820"
+        val host = binding.editHost.text?.toString() ?: ""
         val password = binding.editPassword.text?.toString() ?: ""
 
         scopeNetLife {
-            val respond = Get<String>("http://$ip:$port/connect") {
+            val respond = Get<String>("$host/connect") {
                 setHeader("password", password)
             }.await().asJSONObject()
 
             val code = respond.getInt("code")
             if (code == 200) {
-                Configure.host = ip
-                Configure.port = port.toInt()
+                Configure.host = host
                 Configure.password = password
                 toast("芝麻开门！")
                 startActivity(MainActivity::class)

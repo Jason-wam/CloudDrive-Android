@@ -4,10 +4,6 @@ import android.os.Build
 import com.jason.cloud.utils.MMKVStore
 
 object Configure {
-    val hostURL: String
-        get() {
-            return "http://$host:$port"
-        }
 
     var host: String
         set(value) {
@@ -15,14 +11,6 @@ object Configure {
         }
         get() {
             return MMKVStore.with("Configure").getString("host")
-        }
-
-    var port: Int
-        set(value) {
-            MMKVStore.with("Configure").put("port", value)
-        }
-        get() {
-            return MMKVStore.with("Configure").getInt("port", 8820)
         }
 
     var password: String

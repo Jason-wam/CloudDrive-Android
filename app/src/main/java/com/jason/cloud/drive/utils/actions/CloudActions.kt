@@ -220,7 +220,7 @@ fun FragmentActivity.createFolder(
 ) {
     val dialog = LoadDialog(this).setMessage("正在创建文件夹...")
     scopeDialog(dialog, cancelable = true) {
-        Get<String>("${Configure.hostURL}/createFolder") {
+        Get<String>("${Configure.host}/createFolder") {
             param("hash", targetHash)
             param("name", name)
             setHeader("password", Configure.password)
@@ -264,7 +264,7 @@ fun FragmentActivity.showRenameDialog(file: FileEntity, renamed: (() -> Unit)? =
 fun FragmentActivity.renameFile(file: FileEntity, newName: String, renamed: (() -> Unit)? = null) {
     val dialog = LoadDialog(this).setMessage("正在重命名文件...")
     scopeDialog(dialog, cancelable = true) {
-        Post<String>("${Configure.hostURL}/rename") {
+        Post<String>("${Configure.host}/rename") {
             param("path", file.path)
             param("newName", newName)
             setHeader("password", Configure.password)
@@ -315,7 +315,7 @@ fun FragmentActivity.showDeleteFolderDialog(file: FileEntity, deleted: (() -> Un
 fun FragmentActivity.deleteFile(file: FileEntity, deleted: (() -> Unit)? = null) {
     val dialog = LoadDialog(this).setMessage("正在删除文件...")
     scopeDialog(dialog, cancelable = true) {
-        Post<String>("${Configure.hostURL}/delete") {
+        Post<String>("${Configure.host}/delete") {
             param("path", file.path)
             setHeader("password", Configure.password)
         }.await().asJSONObject().also {
