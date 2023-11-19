@@ -40,103 +40,92 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardBackgroundColor="@color/colorCardViewBackground"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="0dp"
-            app:rippleColor="@color/colorMaterialButtonBackgroundPressed"
-            app:strokeColor="@color/colorMaterialButtonStroke"
-            app:strokeWidth="@dimen/materialButtonStrokeWidth">
+            android:orientation="vertical"
+            android:paddingTop="8dp">
 
-            <LinearLayout
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/host"
+                android:textColor="@color/colorOnSurfaceMedium"
+                android:textSize="13sp" />
+
+            <com.jason.cloud.drive.views.widgets.DeletableEditText
+                android:id="@+id/edit_host"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="8dp">
+                android:layout_gravity="top"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:hint="http://192.168.0.10:8080"
+                android:imeOptions="actionNext"
+                android:minHeight="56dp"
+                android:singleLine="true"
+                android:textColor="@color/colorOnPrimary"
+                android:textColorHint="@color/colorOnPrimaryMedium"
+                android:textSize="15sp"
+                app:clearButtonTint="@color/colorOnSurface" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="19dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/host"
-                    android:textColor="@color/colorOnSurfaceMedium"
-                    android:textSize="13sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/access_password"
+                android:textColor="@color/colorOnSurfaceMedium"
+                android:textSize="13sp" />
 
-                <com.jason.cloud.drive.views.widgets.DeletableEditText
-                    android:id="@+id/edit_host"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:hint="http://192.168.0.10:8080"
-                    android:imeOptions="actionNext"
-                    android:minHeight="48dp"
-                    android:singleLine="true"
-                    android:textColor="@color/colorOnPrimary"
-                    android:textColorHint="@color/colorOnPrimaryMedium"
-                    android:textSize="14sp"
-                    app:clearButtonTint="@color/colorOnSurface" />
+            <com.jason.cloud.drive.views.widgets.DeletableEditText
+                android:id="@+id/edit_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:hint="@string/please_input_password"
+                android:imeOptions="actionSearch"
+                android:inputType="textPassword"
+                android:minHeight="56dp"
+                android:singleLine="true"
+                android:textColor="@color/colorOnPrimary"
+                android:textColorHint="@color/colorOnPrimaryMedium"
+                android:textSize="15sp"
+                app:clearButtonTint="@color/colorOnSurface" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="19dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/access_password"
-                    android:textColor="@color/colorOnSurfaceMedium"
-                    android:textSize="13sp" />
-
-                <com.jason.cloud.drive.views.widgets.DeletableEditText
-                    android:id="@+id/edit_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:hint="@string/please_input_password"
-                    android:imeOptions="actionSearch"
-                    android:inputType="textPassword"
-                    android:minHeight="48dp"
-                    android:singleLine="true"
-                    android:textColor="@color/colorOnPrimary"
-                    android:textColorHint="@color/colorOnPrimaryMedium"
-                    android:textSize="14sp"
-                    app:clearButtonTint="@color/colorOnSurface" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_login"
-                    style="@style/MaterialButtonStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:minWidth="0dp"
-                    android:minHeight="48dp"
-                    android:paddingStart="15dp"
-                    android:paddingTop="10dp"
-                    android:paddingEnd="15dp"
-                    android:paddingBottom="10dp"
-                    android:text="@string/login"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorOnSurfaceMedium"
-                    android:textSize="14sp"
-                    app:icon="@drawable/ic_round_security_24"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    app:iconSize="13dp"
-                    app:iconTint="@color/colorSecondary" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_login"
+                style="@style/MaterialButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:minWidth="0dp"
+                android:minHeight="48dp"
+                android:paddingStart="15dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="15dp"
+                android:paddingBottom="10dp"
+                android:text="@string/connect_server"
+                android:textAlignment="center"
+                android:textColor="@color/colorOnSurfaceMedium"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:icon="@drawable/ic_round_security_24"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="13dp"
+                app:iconTint="@color/colorSecondary" />
+        </LinearLayout>
 
     </LinearLayout>
 </layout>

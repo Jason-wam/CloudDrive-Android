@@ -22,7 +22,7 @@ class ConnectActivity : BaseBindActivity<ActivityConnectBinding>(R.layout.activi
     }
 
     private fun connect() {
-        binding.btnLogin.text = "正在登录..."
+        binding.btnLogin.text = "正在连接服务器..."
         binding.btnLogin.alpha = 0.5f
         binding.btnLogin.isEnabled = false
 
@@ -43,13 +43,13 @@ class ConnectActivity : BaseBindActivity<ActivityConnectBinding>(R.layout.activi
                 finish()
             } else {
                 toast(respond.getString("message"))
-                binding.btnLogin.text = "登录"
+                binding.btnLogin.setText(R.string.connect_server)
                 binding.btnLogin.alpha = 1f
                 binding.btnLogin.isEnabled = true
             }
         }.catch {
             toast(it.toMessage())
-            binding.btnLogin.text = "登录"
+            binding.btnLogin.setText(R.string.connect_server)
             binding.btnLogin.alpha = 1f
             binding.btnLogin.isEnabled = true
         }

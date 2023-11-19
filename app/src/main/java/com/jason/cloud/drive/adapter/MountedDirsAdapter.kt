@@ -16,25 +16,20 @@ class MountedDirsAdapter :
         position: Int,
         item: MountedDirEntity
     ) {
-        holder.binding.indicatorBase.max = 100000
-        holder.binding.indicatorBase.setProgressCompat(
+        holder.binding.indicator.max = 100000
+        holder.binding.indicator.setProgressCompat(
             (item.usedStorage / item.totalStorage.toFloat() * 100000).toInt(),
-            true
-        )
-        holder.binding.indicatorSelf.max = 100000
-        holder.binding.indicatorSelf.setProgressCompat(
-            (item.selfUsedStorage / item.totalStorage.toFloat() * 100000).toInt(),
             true
         )
 
         holder.binding.tvName.text = item.name
-        val storageInfoText =
-            "${item.selfUsedStorageText} / ${item.usedStorageText} / ${item.totalStorageText}"
-        holder.binding.tvStorage.text = storageInfoText.replaceSpan(item.totalStorageText) {
+        holder.binding.tvStorage.text = buildString {
+            append(item.usedStorageText)
+            append(" / ")
+            append(item.totalStorageText)
+        }.replaceSpan(item.totalStorageText) {
             ColorSpan(context, R.color.storageTrackColor)
         }.replaceSpan(item.usedStorageText) {
-            ColorSpan(context, R.color.storageUsedTrackColor)
-        }.replaceSpan(item.selfUsedStorageText) {
             ColorSpan(context, R.color.storageDriveUsedTrackColor)
         }
     }
